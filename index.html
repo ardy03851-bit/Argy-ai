@@ -1,1 +1,1286 @@
-tghh
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>LocalMind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script type="module">
+  import { pipeline, TextStreamer, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0';
+  
+  window.transformersPipeline = pipeline;
+  window.transformersTextStreamer = TextStreamer;
+  window.transformersEnv = env;
+
+  env.backends.onnx.wasm.numThreads = 1;
+  env.allowLocalModels = false;
+</script>
+<style>
+  :root {
+    --bg-base: #0e0d0c;
+    --bg-surface: #1a1817;
+    --bg-input: #23201e;
+    --border: #332d2a;
+    --border-focus: #4a3f39;
+    --text-main: #f2ebe6;
+    --text-muted: #9c8d83;
+    --accent: #d97757;
+    --accent-hover: #e88a6c;
+    --accent-glow: rgba(217, 119, 87, 0.15);
+    --danger: #ef4444;
+    --font-ui: 'Inter', -apple-system, sans-serif;
+    --font-serif: 'Lora', Georgia, serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100dvh;
+    width: 100vw;
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(circle at 50% 0%, rgba(217, 119, 87, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 50% 100%, rgba(180, 140, 100, 0.02) 0%, transparent 50%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    width: 100vw;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .chat-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px 24px 140px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    scroll-behavior: smooth;
+  }
+
+  .welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  
+  .welcome-container.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-20px);
+    position: absolute;
+  }
+
+  .welcome-title {
+    font-family: var(--font-serif);
+    font-size: 42px;
+    font-weight: 400;
+    letter-spacing: -0.5px;
+    color: var(--text-main);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .welcome-subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    text-align: center;
+    max-width: 400px;
+    line-height: 1.6;
+  }
+
+  .message-row {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+    animation: slideUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    opacity: 0;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message-row.user { justify-content: flex-end; }
+
+  .msg-avatar {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #a86b4a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 4px;
+    box-shadow: 0 2px 10px var(--accent-glow);
+  }
+  
+  .msg-avatar svg { width: 16px; height: 16px; color: white; }
+  .message-row.user .msg-avatar { display: none; }
+
+  .bubble {
+    line-height: 1.7;
+    font-size: 16px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-width: 85%;
+    width: fit-content;
+  }
+
+  .message-row.user .bubble {
+    background: var(--bg-surface);
+    padding: 14px 20px;
+    border-radius: 18px;
+    border-bottom-right-radius: 4px;
+    border: 1px solid var(--border);
+    font-size: 15px;
+  }
+
+  .message-row.assistant .bubble {
+    background: transparent;
+    padding: 4px 0;
+    max-width: 100%;
+  }
+
+  .cursor::after {
+    content: '▍';
+    color: var(--accent);
+    font-size: 14px;
+    animation: blink 1s step-end infinite;
+    vertical-align: text-bottom;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .code-block-wrapper {
+    margin: 12px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #0d0c0b;
+  }
+  .code-block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+  .copy-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-main); }
+  .code-block-wrapper pre {
+    margin: 0;
+    padding: 16px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .code-block-wrapper code { font-family: var(--font-mono); }
+
+  .bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 24px 24px 24px;
+    background: linear-gradient(0deg, var(--bg-base) 70%, transparent 100%);
+    display: flex;
+    justify-content: center;
+  }
+
+  .input-wrapper {
+    width: 100%;
+    max-width: 760px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .input-wrapper.disabled { opacity: 0.6; cursor: not-allowed; }
+  .input-wrapper:focus-within:not(.disabled) {
+    border-color: var(--border-focus);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 0 3px var(--accent-glow);
+  }
+
+  .chat-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.5;
+    resize: none;
+    min-height: 44px;
+    max-height: 200px;
+    outline: none;
+    padding: 10px 16px;
+  }
+  .chat-input::placeholder { color: #6b5e55; }
+  .chat-input:disabled { cursor: not-allowed; }
+
+  .input-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px 4px 10px;
+    gap: 8px;
+  }
+
+  .left-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .model-selector-wrapper { position: relative; }
+
+  .model-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 8px 12px;
+    border-radius: 99px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    max-width: 220px;
+  }
+
+  .model-btn:hover:not(.loading) { background: rgba(255,255,255,0.04); color: var(--text-main); }
+  .model-btn svg { width: 14px; height: 14px; opacity: 0.7; flex-shrink: 0; }
+  .model-icon { width: 16px; height: 16px; opacity: 0.9; border-radius: 4px; flex-shrink: 0; }
+  #currentModelName { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.04); color: var(--text-main); }
+  .icon-btn svg { width: 16px; height: 16px; }
+
+  .model-dropdown {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 0;
+    width: 380px;
+    background: #1a1817 !important;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 6px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    z-index: 100;
+    max-height: 520px;
+    display: flex;
+    flex-direction: column;
+    isolation: isolate;
+  }
+
+  .model-dropdown.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .model-search-wrapper {
+    padding: 8px 8px 4px 8px;
+    flex-shrink: 0;
+  }
+
+  .model-search-input {
+    width: 100%;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--text-main);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .model-search-input:focus { border-color: var(--border-focus); }
+  .model-search-input::placeholder { color: #6b5e55; }
+
+  .model-list {
+    overflow-y: auto;
+    flex: 1;
+    padding-bottom: 6px;
+  }
+
+  .model-category-header {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    padding: 12px 12px 4px 12px;
+    position: sticky;
+    top: 0;
+    background: #1a1817;
+    z-index: 2;
+  }
+
+  .model-category-header:first-child { padding-top: 4px; }
+
+  .model-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+    border: 1px solid transparent;
+  }
+
+  .model-option:hover { background: rgba(255,255,255,0.04); }
+  .model-option.active { background: rgba(217, 119, 87, 0.1); border-color: rgba(217, 119, 87, 0.3); }
+  
+  .model-option.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(1);
+  }
+  .model-option.disabled:hover { background: transparent; }
+
+  .model-option-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .model-option-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .model-option-name { font-size: 13px; font-weight: 500; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .model-option-meta { font-size: 11px; color: var(--text-muted); }
+
+  .model-brand-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    opacity: 0.9;
+    border-radius: 4px;
+  }
+
+  .model-status-icon {
+    width: 16px; height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* ── Refined Heavy Model Styling ── */
+  .massive-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 6px 4px;
+  }
+
+  .model-option.massive-model {
+    background: var(--bg-surface);
+    position: relative;
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  /* Gradient border that fades into the background */
+  .model-option.massive-model::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 40%, transparent 80%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .model-option.massive-model:hover {
+    background: #211e1c;
+  }
+
+  .model-option.massive-model:hover::after {
+    background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 50%, transparent 90%);
+  }
+
+  .massive-badge {
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(255,255,255,0.08);
+    color: #d6d3d1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .concept-badge {
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(217, 119, 87, 0.15);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+    border: 1px solid rgba(217, 119, 87, 0.3);
+  }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .perf-toggle {
+    display: flex;
+    align-items: center;
+    background: rgba(0,0,0,0.3);
+    border-radius: 99px;
+    padding: 3px;
+    border: 1px solid var(--border);
+  }
+  .perf-option {
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+  .perf-option.active {
+    background: var(--text-main);
+    color: var(--bg-base);
+  }
+
+  .send-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px var(--accent-glow);
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover:not(:disabled) { background: var(--accent-hover); transform: scale(1.05); }
+  .send-btn:active:not(:disabled) { transform: scale(0.95); }
+  .send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; background: var(--text-muted); box-shadow: none; }
+  .send-btn.stop-mode { background: var(--danger); box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3); }
+  .send-btn.stop-mode:hover { background: #dc2626; }
+
+  .status-toast {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translate(-50%, -20px);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-size: 13px;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    z-index: 100;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .status-toast.active { opacity: 1; transform: translate(-50%, 0); }
+  .status-toast.error { border-color: var(--danger); }
+  .status-toast.error .spinner { display: none; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .modal-content {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+  }
+  .modal-overlay.active .modal-content {
+    transform: scale(1);
+  }
+  .modal-title {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    color: var(--text-main);
+    margin-bottom: 12px;
+  }
+  .modal-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .modal-desc strong { color: var(--text-main); }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .modal-btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .modal-btn.secondary {
+    background: transparent;
+    color: var(--text-muted);
+    border-color: var(--border);
+  }
+  .modal-btn.secondary:hover { background: rgba(255,255,255,0.04); color: var(--text-main); }
+  .modal-btn.primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .modal-btn.primary:hover { background: var(--accent-hover); }
+  .modal-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    margin-top: 16px;
+  }
+  .modal-checkbox-label input {
+    accent-color: var(--accent);
+  }
+
+  @media (max-width: 600px) {
+    .welcome-title { font-size: 32px; }
+    .chat-scroll-area { padding: 20px 16px 120px 16px; gap: 24px; }
+    .bottom-bar { padding: 16px; }
+    .perf-toggle { display: none; }
+    .model-dropdown { width: calc(100vw - 32px); max-width: 380px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  
+  <div class="status-toast" id="statusToast">
+    <div class="spinner" id="statusSpinner"></div>
+    <span id="statusText">Loading...</span>
+  </div>
+
+  <div class="chat-scroll-area" id="chatScrollArea">
+    <div class="welcome-container" id="welcomeContainer">
+      <h1 class="welcome-title">LocalMind</h1>
+      <p class="welcome-subtitle">Select a model from the menu below to begin a secure, private conversation running entirely on your device.</p>
+    </div>
+    <div id="messagesContainer" style="display: flex; flex-direction: column; gap: 32px;"></div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="input-wrapper disabled" id="inputWrapper">
+      <textarea class="chat-input" id="chatInput" rows="1" placeholder="Select a model to start..." disabled></textarea>
+      
+      <div class="input-actions">
+        <div class="left-actions">
+          <div class="model-selector-wrapper">
+            <button class="model-btn" id="modelBtn">
+              <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/huggingface-color.svg" class="model-icon" id="currentModelIcon" alt="">
+              <span id="currentModelName">Select Model</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            
+            <div class="model-dropdown" id="modelDropdown">
+              <div class="model-search-wrapper">
+                <input type="text" class="model-search-input" id="modelSearchInput" placeholder="Search models...">
+              </div>
+              <div class="model-list" id="modelList">
+                <!-- Models injected by JS -->
+              </div>
+            </div>
+          </div>
+
+          <div class="perf-toggle" id="perfToggle">
+            <div class="perf-option active" data-mode="performance">Performance</div>
+            <div class="perf-option" data-mode="quality">Quality</div>
+          </div>
+
+          <button class="icon-btn" id="clearChatBtn" title="Clear Chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+        
+        <button class="send-btn" id="sendBtn" disabled>
+          <svg id="sendIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <svg id="stopIcon" style="display:none" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-content">
+    <h2 class="modal-title">Download Large Model?</h2>
+    <p class="modal-desc" id="confirmDesc"></p>
+    <label class="modal-checkbox-label">
+      <input type="checkbox" id="dontAskAgain"> Don't ask again for models this size
+    </label>
+    <div class="modal-actions">
+      <button class="modal-btn secondary" id="cancelDownloadBtn">Cancel</button>
+      <button class="modal-btn primary" id="confirmDownloadBtn">Download</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  const statusToast = document.getElementById('statusToast');
+  const statusText = document.getElementById('statusText');
+  const welcomeContainer = document.getElementById('welcomeContainer');
+  const messagesContainer = document.getElementById('messagesContainer');
+  const chatScrollArea = document.getElementById('chatScrollArea');
+  const chatInput = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const sendIcon = document.getElementById('sendIcon');
+  const stopIcon = document.getElementById('stopIcon');
+  const inputWrapper = document.getElementById('inputWrapper');
+  const clearChatBtn = document.getElementById('clearChatBtn');
+  
+  const modelBtn = document.getElementById('modelBtn');
+  const modelDropdown = document.getElementById('modelDropdown');
+  const currentModelName = document.getElementById('currentModelName');
+  const currentModelIcon = document.getElementById('currentModelIcon');
+  const perfToggle = document.getElementById('perfToggle');
+  const modelSearchInput = document.getElementById('modelSearchInput');
+  const modelList = document.getElementById('modelList');
+
+  const confirmModal = document.getElementById('confirmModal');
+  const confirmDesc = document.getElementById('confirmDesc');
+  const dontAskAgain = document.getElementById('dontAskAgain');
+  const cancelDownloadBtn = document.getElementById('cancelDownloadBtn');
+  const confirmDownloadBtn = document.getElementById('confirmDownloadBtn');
+
+  let generator = null;
+  let currentModelId = null;
+  let isGenerating = false;
+  let isDownloading = false;
+  let currentMode = 'performance';
+  let abortController = null;
+  let isUserScrolling = false;
+  let pendingModel = null;
+
+  const BRAND_ICONS = {
+    meta: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/meta-color.svg',
+    qwen: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/qwen-color.svg',
+    deepseek: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/deepseek-color.svg',
+    ibm: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/ibm-color.svg',
+    huggingface: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/huggingface-color.svg',
+    openai: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/openai-color.svg',
+    microsoft: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/microsoft-color.svg',
+    google: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/google-color.svg',
+    allenai: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/allenai-color.svg',
+    argy: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/openai-color.svg' // Generic icon for Argy
+  };
+
+  const MODEL_GROUPS = [
+    {
+      category: "Tiny & Fast (<500MB)",
+      models: [
+        { id: "onnx-community/granite-4.0-350m-ONNX-web", name: "Granite 4.0 350M", size: "~120MB", provider: "ibm" },
+        { id: "onnx-community/LFM2-350M-ONNX", name: "LFM2 350M", size: "~200MB", provider: "huggingface" },
+        { id: "HuggingFaceTB/SmolLM2-360M-Instruct", name: "SmolLM2 360M", size: "~250MB", provider: "huggingface" },
+        { id: "onnx-community/gemma-3-270m-it-ONNX", name: "Gemma 3 270M", size: "~300MB", provider: "google" },
+        { id: "argy/Argy-300M", name: "Argy", size: "~250MB", provider: "argy", isConcept: true },
+        { id: "argy/Argy-1.2B", name: "Argy 1.2", size: "~700MB", provider: "argy", isConcept: true },
+        { id: "argy/Argy-Coder-350M", name: "Argy Coder", size: "~300MB", provider: "argy", isConcept: true },
+        { id: "onnx-community/TinyLlama-1.1B-Chat-v1.0-ONNX", name: "TinyLlama 1.1B", size: "~350MB", provider: "meta" },
+        { id: "Xenova/distilgpt2", name: "DistilGPT2", size: "~80MB", provider: "openai" }
+      ]
+    },
+    {
+      category: "Small & Balanced (500MB - 1.5GB)",
+      models: [
+        { id: "onnx-community/Qwen3.5-0.8B-ONNX", name: "Qwen3.5 0.8B", size: "~500MB", provider: "qwen" },
+        { id: "onnx-community/Qwen3-0.6B-ONNX", name: "Qwen3 0.6B", size: "~570MB", provider: "qwen" },
+        { id: "onnx-community/Llama-3.2-1B-Instruct-ONNX", name: "Llama 3.2 1B", size: "~600MB", provider: "meta" },
+        { id: "onnx-community/Qwen2.5-1.5B-Instruct", name: "Qwen 2.5 1.5B", size: "~1.2GB", provider: "qwen" },
+        { id: "onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX", name: "DeepSeek R1 1.5B", size: "~1.2GB", provider: "deepseek" },
+        { id: "microsoft/Phi-3-mini-4k-instruct-onnx-web", name: "Phi-3 Mini", size: "~1.2GB", provider: "microsoft" },
+        { id: "HuggingFaceTB/SmolLM2-1.7B-Instruct", name: "SmolLM2 1.7B", size: "~1.5GB", provider: "huggingface" }
+      ]
+    },
+    {
+      category: "Massive & Heavy (2GB+)",
+      models: [
+        { id: "onnx-community/Llama-3.2-3B-Instruct-ONNX", name: "Llama 3.2 3B", size: "~2.5GB", provider: "meta", massive: true },
+        { id: "onnx-community/Phi-4-mini-instruct-web-q4f16", name: "Phi-4 Mini", size: "~2.3GB", provider: "microsoft", massive: true },
+        { id: "liodon-ai/Qwen3-4B-ONNX", name: "Qwen3 4B", size: "~2.9GB", provider: "qwen", massive: true },
+        { id: "onnx-community/Qwen3.5-4B-ONNX", name: "Qwen3.5 4B", size: "~2.5GB", provider: "qwen", massive: true },
+        { id: "onnx-community/Olmo-3-7B-Instruct-ONNX", name: "Olmo 3 7B", size: "~4.2GB", provider: "allenai", massive: true },
+        { id: "onnx-community/Apertus-8B-Instruct-2509-ONNX", name: "Apertus 8B", size: "~4.5GB", provider: "huggingface", massive: true },
+        { id: "onnx-community/gpt-oss-20b-ONNX", name: "GPT-OSS 20B", size: "~12.0GB", provider: "openai", massive: true }
+      ]
+    }
+  ];
+
+  function renderModels(filter = '') {
+    const lowerFilter = filter.toLowerCase();
+    modelList.innerHTML = '';
+    
+    MODEL_GROUPS.forEach(group => {
+      const filteredModels = group.models.filter(m => 
+        m.name.toLowerCase().includes(lowerFilter) || 
+        m.id.toLowerCase().includes(lowerFilter) ||
+        m.provider.toLowerCase().includes(lowerFilter)
+      );
+      
+      if (filteredModels.length === 0) return;
+
+      const header = document.createElement('div');
+      header.className = 'model-category-header';
+      header.textContent = group.category;
+      modelList.appendChild(header);
+
+      let container = modelList;
+      if (group.category.includes('Massive')) {
+        container = document.createElement('div');
+        container.className = 'massive-group';
+        modelList.appendChild(container);
+      }
+
+      filteredModels.forEach(m => {
+        try {
+          const div = document.createElement('div');
+          div.className = 'model-option';
+          if (m.massive) div.classList.add('massive-model');
+          if (m.disabled) div.classList.add('disabled');
+          
+          div.dataset.id = m.id;
+          div.dataset.name = m.name;
+          const iconUrl = BRAND_ICONS[m.provider] || BRAND_ICONS.huggingface;
+          const sizeText = m.note ? `${m.size} • ${m.note}` : m.size;
+          
+          let badgeHtml = '';
+          if (m.massive) badgeHtml = `<span class="massive-badge">HEAVY</span>`;
+          if (m.isConcept) badgeHtml = `<span class="concept-badge">CONCEPT</span>`;
+          
+          div.innerHTML = `
+            <div class="model-option-left">
+              <img src="${iconUrl}" class="model-brand-icon" alt="${m.provider} logo" loading="lazy">
+              <div class="model-option-info">
+                <span class="model-option-name">${m.name}${badgeHtml}</span>
+                <span class="model-option-meta">${sizeText}</span>
+              </div>
+            </div>
+            <div class="model-status-icon"></div>
+          `;
+          
+          if (!m.disabled) {
+            div.addEventListener('click', async () => {
+              if (isDownloading || isGenerating) return;
+              if (m.id === currentModelId && generator) {
+                modelDropdown.classList.remove('active');
+                return;
+              }
+              
+              if (m.isConcept) {
+                showStatus(`${m.name} is a visual concept model.`, false, true);
+                modelDropdown.classList.remove('active');
+                return;
+              }
+              
+              const sizeGB = parseFloat(m.size.replace(/[^0-9.]/g, ''));
+              const dontAskSize = localStorage.getItem('dontAskSize');
+              const shouldAsk = m.size.includes('GB') && sizeGB >= 2 && dontAskSize !== 'true';
+              
+              if (shouldAsk) {
+                pendingModel = { m, div, iconUrl };
+                confirmDesc.innerHTML = `You are about to download <strong>${m.name}</strong> (<strong>${m.size}</strong>). This model requires significant memory and may crash low-end devices or browsers without WebGPU support.`;
+                confirmModal.classList.add('active');
+                modelDropdown.classList.remove('active');
+                return;
+              }
+              
+              startModelLoad(m, div, iconUrl);
+            });
+          }
+          
+          container.appendChild(div);
+        } catch (err) {
+          console.warn(`Failed to render model ${m.id}:`, err);
+        }
+      });
+    });
+  }
+
+  function startModelLoad(m, div, iconUrl) {
+    document.querySelectorAll('.model-option').forEach(o => {
+      o.classList.remove('active');
+      o.querySelector('.model-status-icon').innerHTML = '';
+    });
+    
+    div.classList.add('active');
+    const statusIcon = div.querySelector('.model-status-icon');
+    statusIcon.innerHTML = '<div class="spinner"></div>';
+    
+    currentModelName.textContent = m.name;
+    currentModelIcon.src = iconUrl;
+    modelDropdown.classList.remove('active');
+    
+    loadModel(m.id, m.name, statusIcon);
+  }
+
+  cancelDownloadBtn.addEventListener('click', () => {
+    confirmModal.classList.remove('active');
+    pendingModel = null;
+    if (dontAskAgain.checked) {
+      localStorage.setItem('dontAskSize', 'true');
+    }
+  });
+
+  confirmDownloadBtn.addEventListener('click', () => {
+    confirmModal.classList.remove('active');
+    if (pendingModel) {
+      if (dontAskAgain.checked) {
+        localStorage.setItem('dontAskSize', 'true');
+      }
+      startModelLoad(pendingModel.m, pendingModel.div, pendingModel.iconUrl);
+      pendingModel = null;
+    }
+  });
+
+  confirmModal.addEventListener('click', (e) => {
+    if (e.target === confirmModal) {
+      confirmModal.classList.remove('active');
+      pendingModel = null;
+    }
+  });
+
+  modelSearchInput.addEventListener('input', (e) => {
+    renderModels(e.target.value);
+  });
+
+  renderModels();
+
+  modelBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (isDownloading) return;
+    modelDropdown.classList.toggle('active');
+    if (modelDropdown.classList.contains('active')) {
+      modelSearchInput.focus();
+    }
+  });
+
+  document.addEventListener('click', () => {
+    modelDropdown.classList.remove('active');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      modelDropdown.classList.remove('active');
+      confirmModal.classList.remove('active');
+    }
+  });
+
+  perfToggle.addEventListener('click', (e) => {
+    if (e.target.classList.contains('perf-option')) {
+      if (isDownloading || isGenerating) return;
+      
+      document.querySelectorAll('.perf-option').forEach(o => o.classList.remove('active'));
+      e.target.classList.add('active');
+      currentMode = e.target.dataset.mode;
+      
+      if (currentModelId && generator) {
+        const activeOption = document.querySelector(`.model-option[data-id="${currentModelId}"]`);
+        if (activeOption) {
+          activeOption.querySelector('.model-status-icon').innerHTML = '<div class="spinner"></div>';
+          loadModel(currentModelId, currentModelName.textContent, activeOption.querySelector('.model-status-icon'));
+        }
+      }
+    }
+  });
+
+  clearChatBtn.addEventListener('click', () => {
+    if (isGenerating) return;
+    messagesContainer.innerHTML = '';
+    welcomeContainer.classList.remove('hidden');
+    setTimeout(() => { welcomeContainer.style.display = 'flex'; }, 10);
+    chatInput.focus();
+  });
+
+  async function loadModel(modelId, modelName, statusIcon) {
+    isDownloading = true;
+    showStatus(`Connecting to ${modelName}...`, true);
+    
+    chatInput.disabled = true;
+    sendBtn.disabled = true;
+    inputWrapper.classList.add('disabled');
+    generator = null;
+
+    try {
+      const device = 'webgpu' in navigator ? 'webgpu' : 'wasm';
+      
+      let dtype = 'q4'; 
+      if (currentMode === 'quality') {
+        dtype = device === 'webgpu' ? 'fp16' : 'q8';
+      }
+      
+      generator = await transformersPipeline('text-generation', modelId, {
+        device: device,
+        dtype: dtype,
+        progress_callback: (x) => {
+          if (x.status === 'progress') {
+            statusText.textContent = `Downloading ${modelName}... ${Math.round(x.progress)}%`;
+          }
+        }
+      });
+      
+      currentModelId = modelId;
+      statusIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+      
+      showStatus(`${modelName} ready!`, false);
+      
+      chatInput.disabled = false;
+      sendBtn.disabled = false;
+      inputWrapper.classList.remove('disabled');
+      chatInput.placeholder = "Message your local AI...";
+      chatInput.focus();
+      
+    } catch (error) {
+      console.error(error);
+      let errorMsg = `Error loading ${modelName}.`;
+      if (error.message?.includes('memory') || error.message?.includes('OOM')) {
+        errorMsg += " Device ran out of memory.";
+      } else if (error.message?.includes('fetch') || error.message?.includes('network')) {
+        errorMsg += " Network error. Check your connection.";
+      } else {
+        errorMsg += " The model may be incompatible with this browser.";
+      }
+      showStatus(errorMsg, false, true);
+      statusIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+      
+      currentModelId = null;
+      generator = null;
+      currentModelName.textContent = "Select Model";
+      currentModelIcon.src = BRAND_ICONS.huggingface;
+      chatInput.placeholder = "Select a model to start...";
+    } finally {
+      isDownloading = false;
+    }
+  }
+
+  function showStatus(text, isLoading, isError = false) {
+    statusToast.classList.add('active');
+    statusText.textContent = text;
+    
+    if (isError) statusToast.classList.add('error');
+    else statusToast.classList.remove('error');
+    
+    if (!isLoading) {
+      setTimeout(() => statusToast.classList.remove('active'), 4000);
+    }
+  }
+
+  function addMessage(role, text) {
+    if (welcomeContainer.style.display !== 'none') {
+      welcomeContainer.classList.add('hidden');
+    }
+
+    const row = document.createElement('div');
+    row.className = `message-row ${role}`;
+    
+    const avatarSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg>`;
+      
+    row.innerHTML = `
+      ${role === 'assistant' ? `<div class="msg-avatar">${avatarSvg}</div>` : ''}
+      <div class="bubble"></div>
+    `;
+    
+    const bubble = row.querySelector('.bubble');
+    if (role === 'assistant' && text && text.includes('```')) {
+      bubble.innerHTML = renderMarkdown(text);
+    } else {
+      bubble.textContent = text;
+    }
+    
+    messagesContainer.appendChild(row);
+    scrollToBottom(true);
+    
+    return bubble;
+  }
+
+  function renderMarkdown(text) {
+    let html = '';
+    let parts = text.split(/```/);
+    parts.forEach((part, index) => {
+      if (index % 2 === 0) {
+        html += `<span>${part.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
+      } else {
+        const lines = part.split('\n');
+        const lang = lines[0].trim() || 'text';
+        const code = lines.slice(1).join('\n');
+        
+        const id = 'code-' + Math.random().toString(36).substr(2, 9);
+        html += `
+          <div class="code-block-wrapper">
+            <div class="code-block-header">
+              <span>${lang}</span>
+              <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('${id}').innerText)">Copy</button>
+            </div>
+            <pre><code id="${id}" class="language-${lang}">${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+          </div>
+        `;
+      }
+    });
+    return html;
+  }
+
+  chatScrollArea.addEventListener('scroll', () => {
+    const isAtBottom = chatScrollArea.scrollHeight - chatScrollArea.scrollTop - chatScrollArea.clientHeight < 50;
+    isUserScrolling = !isAtBottom;
+  });
+
+  function scrollToBottom(force = false) {
+    if (!isUserScrolling || force) {
+      setTimeout(() => {
+        chatScrollArea.scrollTop = chatScrollArea.scrollHeight;
+      }, 10);
+    }
+  }
+
+  function formatPrompt(text) {
+    if (currentModelId && (currentModelId.includes('Llama') || currentModelId.includes('DeepSeek'))) {
+      return `<|start_header_id|>user<|end_header_id|>\n\n${text}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`;
+    }
+    return `<|im_start|>user\n${text}<|im_end|>\n<|im_start|>assistant\n`;
+  }
+
+  async function generateResponse() {
+    if (isGenerating) {
+      if (abortController) abortController.abort();
+      return;
+    }
+
+    const text = chatInput.value.trim();
+    if (!text || !generator) return;
+
+    isGenerating = true;
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    sendIcon.style.display = 'none';
+    stopIcon.style.display = 'block';
+    sendBtn.classList.add('stop-mode');
+    sendBtn.disabled = false;
+
+    addMessage('user', text);
+    
+    const row = document.createElement('div');
+    row.className = `message-row assistant`;
+    row.innerHTML = `
+      <div class="msg-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg></div>
+      <div class="bubble"></div>
+    `;
+    messagesContainer.appendChild(row);
+    const aiBubble = row.querySelector('.bubble');
+    aiBubble.classList.add('cursor');
+    scrollToBottom(true);
+
+    const prompt = formatPrompt(text);
+    let rawText = '';
+    let lastRenderTime = 0;
+
+    abortController = new AbortController();
+
+    const streamer = new transformersTextStreamer(generator.tokenizer, {
+      skip_prompt: true,
+      callback_function: (chunk) => {
+        rawText += chunk;
+        
+        const now = Date.now();
+        if (now - lastRenderTime > 50 || chunk.includes('\n')) {
+          lastRenderTime = now;
+          if (rawText.includes('```')) {
+            aiBubble.innerHTML = renderMarkdown(rawText);
+          } else {
+            aiBubble.textContent = rawText;
+          }
+          aiBubble.classList.add('cursor');
+          scrollToBottom();
+        }
+      }
+    });
+
+    try {
+      await generator(prompt, {
+        max_new_tokens: 512,
+        temperature: 0.7,
+        do_sample: true,
+        streamer: streamer,
+        signal: abortController.signal
+      });
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        rawText += '\n\n*[Generation stopped by user]*';
+      } else {
+        console.error(err);
+        rawText += `\n\n[Error: ${err.message}]`;
+      }
+    } finally {
+      if (rawText.includes('```')) {
+        aiBubble.innerHTML = renderMarkdown(rawText);
+        aiBubble.querySelectorAll('pre code').forEach((block) => {
+          hljs.highlightElement(block);
+        });
+      } else {
+        aiBubble.textContent = rawText;
+      }
+      
+      aiBubble.classList.remove('cursor');
+      isGenerating = false;
+      abortController = null;
+      
+      sendIcon.style.display = 'block';
+      stopIcon.style.display = 'none';
+      sendBtn.classList.remove('stop-mode');
+      sendBtn.disabled = false;
+      
+      chatInput.focus();
+      scrollToBottom(true);
+    }
+  }
+
+  sendBtn.addEventListener('click', generateResponse);
+  
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      generateResponse();
+    }
+  });
+  
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+  });
+
+</script>
+</body>
+</html>
