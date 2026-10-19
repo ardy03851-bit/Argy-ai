@@ -140,9 +140,11 @@
     flex-shrink: 0;
     margin-top: 4px;
     box-shadow: 0 2px 10px var(--accent-glow);
+    overflow: hidden;
   }
   
   .msg-avatar svg { width: 16px; height: 16px; color: white; }
+  .msg-avatar img { width: 100%; height: 100%; object-fit: contain; padding: 4px; background: rgba(255,255,255,0.05); }
   .message-row.user .msg-avatar { display: none; }
 
   .bubble {
@@ -177,6 +179,27 @@
     vertical-align: text-bottom;
   }
   @keyframes blink { 50% { opacity: 0; } }
+
+  /* Typing Indicator */
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+  }
+  .typing-indicator span {
+    width: 6px;
+    height: 6px;
+    background-color: var(--accent);
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out both;
+  }
+  .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+  .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+  @keyframes typing {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+  }
 
   .code-block-wrapper {
     margin: 12px 0;
@@ -779,6 +802,7 @@
 
   let generator = null;
   let currentModelId = null;
+  let currentModelAvatar = null; // Store the avatar URL for the chat UI
   let isGenerating = false;
   let isDownloading = false;
   let currentMode = 'performance';
@@ -799,22 +823,16 @@
     argy: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/openai-color.svg'
   };
 
-  // ── VERIFIED WORKING MODELS ──
   const MODEL_GROUPS = [
     {
       category: "Tiny & Fast (<500MB)",
       models: [
-        // Verified: SmolLM2-360M-Instruct works directly[reference:4]
         { id: "HuggingFaceTB/SmolLM2-360M-Instruct", name: "SmolLM2 360M", size: "~250MB", provider: "huggingface" },
-        // Verified: Granite 4.0 350M is designed for Transformers.js[reference:5]
         { id: "onnx-community/granite-4.0-350m-ONNX-web", name: "Granite 4.0 350M", size: "~120MB", provider: "ibm" },
-        // Verified: LFM2-350M has ONNX support[reference:6]
         { id: "onnx-community/LFM2-350M-ONNX", name: "LFM2 350M", size: "~200MB", provider: "huggingface" },
-        // Argy Concept Models (Visual only)
         { id: "argy/Argy-300M", name: "Argy", size: "~250MB", provider: "argy", isConcept: true },
         { id: "argy/Argy-1.2B", name: "Argy 1.2", size: "~700MB", provider: "argy", isConcept: true },
         { id: "argy/Argy-Coder-350M", name: "Argy Coder", size: "~300MB", provider: "argy", isConcept: true },
-        // Verified: TinyLlama works[reference:7]
         { id: "Xenova/TinyLlama-1.1B-Chat-v1.0", name: "TinyLlama 1.1B", size: "~350MB", provider: "meta" },
         { id: "Xenova/distilgpt2", name: "DistilGPT2", size: "~80MB", provider: "openai" }
       ]
@@ -822,24 +840,17 @@
     {
       category: "Small & Balanced (500MB - 1.5GB)",
       models: [
-        // Verified: Qwen3-0.6B-ONNX works[reference:8]
         { id: "onnx-community/Qwen3-0.6B-ONNX", name: "Qwen3 0.6B", size: "~570MB", provider: "qwen" },
-        // Verified: Qwen2.5-0.5B-Instruct works with dtype q4[reference:9]
         { id: "onnx-community/Qwen2.5-0.5B-Instruct", name: "Qwen 2.5 0.5B", size: "~300MB", provider: "qwen" },
-        // Verified: Llama 3.2 1B q4f16 is used in working demos[reference:10]
         { id: "onnx-community/Llama-3.2-1B-Instruct-q4f16", name: "Llama 3.2 1B", size: "~600MB", provider: "meta" },
-        // Verified: DeepSeek R1 Distill works (needs q4f16 or similar)[reference:11]
         { id: "onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX", name: "DeepSeek R1 1.5B", size: "~1.2GB", provider: "deepseek" },
-        // Verified: Phi-3 Mini works in browser[reference:12]
         { id: "microsoft/Phi-3-mini-4k-instruct-onnx-web", name: "Phi-3 Mini", size: "~1.2GB", provider: "microsoft" },
-        // Verified: SmolLM2 1.7B works[reference:13]
         { id: "HuggingFaceTB/SmolLM2-1.7B-Instruct", name: "SmolLM2 1.7B", size: "~1.5GB", provider: "huggingface" }
       ]
     },
     {
       category: "Massive & Heavy (2GB+)",
       models: [
-        // These are large and may require WebGPU and sufficient RAM
         { id: "onnx-community/Llama-3.2-3B-Instruct-ONNX", name: "Llama 3.2 3B", size: "~2.5GB", provider: "meta", massive: true },
         { id: "onnx-community/Qwen3-4B-ONNX", name: "Qwen3 4B", size: "~2.9GB", provider: "qwen", massive: true },
         { id: "onnx-community/Olmo-3-7B-Instruct-ONNX", name: "Olmo 3 7B", size: "~4.2GB", provider: "allenai", massive: true },
@@ -950,6 +961,7 @@
     
     currentModelName.textContent = m.name;
     currentModelIcon.src = iconUrl;
+    currentModelAvatar = iconUrl; // Set the avatar for the chat UI
     modelDropdown.classList.remove('active');
     
     loadModel(m.id, m.name, statusIcon);
@@ -1033,7 +1045,6 @@
     chatInput.focus();
   });
 
-  // ── ROBUST MODEL LOADING WITH DTYPE FALLBACK ──
   async function loadModel(modelId, modelName, statusIcon) {
     isDownloading = true;
     showStatus(`Connecting to ${modelName}...`, true);
@@ -1045,7 +1056,6 @@
 
     const device = 'webgpu' in navigator ? 'webgpu' : 'wasm';
     
-    // List of dtypes to try in order
     const dtypesToTry = currentMode === 'quality' 
       ? (device === 'webgpu' ? ['fp16', 'q8', 'fp32'] : ['q8', 'fp32'])
       : ['q4', 'q4f16', 'q8', 'fp32'];
@@ -1065,18 +1075,15 @@
           }
         });
         
-        // If we get here, success
         lastError = null;
         break;
       } catch (error) {
         console.warn(`Failed to load ${modelId} with dtype ${dtype}:`, error);
         lastError = error;
-        // Continue to next dtype
       }
     }
 
     if (lastError) {
-      // All dtypes failed
       console.error(lastError);
       let errorMsg = `Error loading ${modelName}.`;
       if (lastError.message?.includes('memory') || lastError.message?.includes('OOM')) {
@@ -1090,6 +1097,7 @@
       statusIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>';
       
       currentModelId = null;
+      currentModelAvatar = null;
       generator = null;
       currentModelName.textContent = "Select Model";
       currentModelIcon.src = BRAND_ICONS.huggingface;
@@ -1130,10 +1138,14 @@
     const row = document.createElement('div');
     row.className = `message-row ${role}`;
     
+    // Dynamic Avatar Logic
     const avatarSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg>`;
+    const avatarContent = currentModelAvatar 
+      ? `<img src="${currentModelAvatar}" alt="Model Logo">` 
+      : avatarSvg;
       
     row.innerHTML = `
-      ${role === 'assistant' ? `<div class="msg-avatar">${avatarSvg}</div>` : ''}
+      ${role === 'assistant' ? `<div class="msg-avatar">${avatarContent}</div>` : ''}
       <div class="bubble"></div>
     `;
     
@@ -1217,18 +1229,26 @@
     
     const row = document.createElement('div');
     row.className = `message-row assistant`;
+    
+    const avatarSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg>`;
+    const avatarContent = currentModelAvatar 
+      ? `<img src="${currentModelAvatar}" alt="Model Logo">` 
+      : avatarSvg;
+      
     row.innerHTML = `
-      <div class="msg-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg></div>
-      <div class="bubble"></div>
+      <div class="msg-avatar">${avatarContent}</div>
+      <div class="bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div>
     `;
     messagesContainer.appendChild(row);
     const aiBubble = row.querySelector('.bubble');
-    aiBubble.classList.add('cursor');
     scrollToBottom(true);
+
+    // Yield to the browser so the UI can paint the typing indicator before the heavy lifting starts
+    await new Promise(r => setTimeout(r, 50));
 
     const prompt = formatPrompt(text);
     let rawText = '';
-    let lastRenderTime = 0;
+    let pendingRender = false;
 
     abortController = new AbortController();
 
@@ -1237,16 +1257,30 @@
       callback_function: (chunk) => {
         rawText += chunk;
         
-        const now = Date.now();
-        if (now - lastRenderTime > 50 || chunk.includes('\n')) {
-          lastRenderTime = now;
-          if (rawText.includes('```')) {
-            aiBubble.innerHTML = renderMarkdown(rawText);
-          } else {
-            aiBubble.textContent = rawText;
-          }
-          aiBubble.classList.add('cursor');
-          scrollToBottom();
+        // Use requestAnimationFrame to batch DOM updates
+        if (!pendingRender) {
+          pendingRender = true;
+          requestAnimationFrame(() => {
+            // If we are inside an unclosed code block, just render raw text to save CPU
+            const codeBlockCount = (rawText.match(/```/g) || []).length;
+            if (codeBlockCount % 2 !== 0) {
+              aiBubble.textContent = rawText;
+            } else {
+              if (rawText.includes('```')) {
+                aiBubble.innerHTML = renderMarkdown(rawText);
+              } else {
+                aiBubble.textContent = rawText;
+              }
+            }
+            
+            // Add cursor if not present
+            if (!aiBubble.classList.contains('cursor')) {
+              aiBubble.classList.add('cursor');
+            }
+            
+            scrollToBottom();
+            pendingRender = false;
+          });
         }
       }
     });
