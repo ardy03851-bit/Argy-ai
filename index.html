@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>LocalMind · Agent Workspace</title> 
+<title>LocalMind · Agent Workspace</title>
 <link rel="icon" type="image/png" href="icon.png" />
 <link rel="apple-touch-icon" href="icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1535,7 +1535,7 @@
     }
   };
 
-  const zipStore = new Map(); // name -> Uint8Array
+  const zipStore = new Map();
 
   /* ============================================================
      TOOL DEFINITIONS
@@ -1621,7 +1621,6 @@
         }}
       );
     }
-    // Web tools for all modes
     tools.push(
       { type: 'function', function: {
         name: 'web_search',
@@ -1679,6 +1678,8 @@
   /* ============================================================
      TOOL EXECUTION
      ============================================================ */
+  const TOOL_RESULT_MAX = 100000;
+
   async function executeTool(name, argsStr) {
     let args;
     try {
@@ -1686,6 +1687,7 @@
     } catch (e) {
       return `Error: invalid JSON arguments (${e.message})`;
     }
+    if (!args || typeof args !== 'object') args = {};
     try {
       switch (name) {
         case 'list_files': {
@@ -1694,7 +1696,11 @@
         }
         case 'read_file': {
           if (!vfs.exists(args.path)) return `Error: file "${args.path}" not found. Available: ${vfs.list().join(', ') || '(none)'}`;
-          return vfs.read(args.path);
+          const content = vfs.read(args.path);
+          if (content.length > TOOL_RESULT_MAX) {
+            return content.slice(0, TOOL_RESULT_MAX) + `\n\n[...truncated, ${content.length - TOOL_RESULT_MAX} chars omitted]`;
+          }
+          return content;
         }
         case 'write_file': {
           vfs.write(args.path, args.content ?? '');
@@ -1752,18 +1758,17 @@
       iframe.sandbox = 'allow-scripts';
       const id = 'sbx_' + Math.random().toString(36).slice(2);
       const safeCode = code.replace(/<\/script/gi, '<\\/script');
-      iframe.srcdoc = `<script>
-        const __logs = [];
-        const _log = console.log;
-        console.log = (...a) => { __logs.push(a.map(x => { try { return typeof x === 'object' ? JSON.stringify(x) : String(x); } catch(e){ return String(x); } }).join(' ')); };
-        let __result, __error;
-        try {
-          __result = (function(){ ${safeCode} })();
-        } catch(e) { __error = e.message; }
-        let __ret = null;
-        try { __ret = __result === undefined ? null : (typeof __result === 'object' ? JSON.stringify(__result) : String(__result)); } catch(e) { __ret = String(__result); }
-        parent.postMessage({ id: '${id}', logs: __logs, error: __error, result: __ret }, '*');
-      <\/script>`;
+      iframe.srcdoc = '<script>\n' +
+        'const __logs = [];\n' +
+        'console.log = (...a) => { __logs.push(a.map(x => { try { return typeof x === "object" ? JSON.stringify(x) : String(x); } catch(e){ return String(x); } }).join(" ")); };\n' +
+        'let __result, __error;\n' +
+        'try {\n' +
+        '  __result = (function(){\n' + safeCode + '\n  })();\n' +
+        '} catch(e) { __error = e.message; }\n' +
+        'let __ret = null;\n' +
+        'try { __ret = __result === undefined ? null : (typeof __result === "object" ? JSON.stringify(__result) : String(__result)); } catch(e) { __ret = String(__result); }\n' +
+        'parent.postMessage({ id: ' + JSON.stringify(id) + ', logs: __logs, error: __error, result: __ret }, "*");\n' +
+        '<\/script>';
       const timer = setTimeout(() => {
         window.removeEventListener('message', handler);
         if (iframe.parentNode) iframe.remove();
@@ -2032,11 +2037,11 @@
         '</div>' +
         '<div class="model-status-icon"></div>';
       const img = option.querySelector('.model-brand-icon');
-      img.src = model.icon || '';
       img.addEventListener('error', function () {
         if (img.dataset.swapped !== '1' && model.iconFallback) { img.dataset.swapped = '1'; img.src = model.iconFallback; }
         else img.style.visibility = 'hidden';
       });
+      img.src = model.icon || '';
       option.addEventListener('click', () => {
         selectModel(model.key);
         modelDropdown.classList.remove('active');
@@ -2453,14 +2458,12 @@
     if (!htmlPath || !vfs.exists(htmlPath)) { alert('No HTML file in workspace.'); return; }
     let html = vfs.read(htmlPath);
 
-    // Inline CSS
     const cssFiles = vfs.list().filter(p => /\.css$/i.test(p));
     for (const p of cssFiles) {
       const css = vfs.read(p);
       if (/<\/head>/i.test(html)) html = html.replace(/<\/head>/i, `<style>\n${css}\n</style>\n</head>`);
       else html = `<style>\n${css}\n</style>\n` + html;
     }
-    // Inline JS
     const jsFiles = vfs.list().filter(p => /\.js$/i.test(p));
     for (const p of jsFiles) {
       const js = vfs.read(p).replace(/<\/script/gi, '<\\/script');
@@ -2545,7 +2548,6 @@
         }
       } else if (/\.(txt|md|html|js|css|json|py|ts|tsx|jsx|c|cpp|h|hpp|java|cs|go|rs|rb|php|xml|yml|yaml)$/i.test(file.name) || file.type.startsWith('text/')) {
         content = await file.text();
-        // Also add to VFS
         vfs.write(file.name, content);
       } else if (file.type.startsWith('image/')) {
         content = await new Promise((resolve) => {
@@ -2611,12 +2613,11 @@
     const config = MODEL_CONFIG[state.model];
     const imgEl = document.createElement('img');
     imgEl.alt = 'Model';
-    imgEl.src = state.currentModelAvatar || (config && config.icon) || '';
-    let swapped = false;
     imgEl.addEventListener('error', function () {
-      if (!swapped && config && config.iconFallback) { swapped = true; imgEl.src = config.iconFallback; }
+      if (!imgEl.dataset.swapped && config && config.iconFallback) { imgEl.dataset.swapped = '1'; imgEl.src = config.iconFallback; }
       else { avatarEl.innerHTML = fallbackSvg; }
     });
+    imgEl.src = state.currentModelAvatar || (config && config.icon) || '';
     avatarEl.appendChild(imgEl);
 
     const bubbleEl = document.createElement('div');
@@ -2740,6 +2741,7 @@
 
       if (Array.isArray(delta.tool_calls)) {
         for (const tc of delta.tool_calls) {
+          if (!tc) continue;
           const idx = tc.index ?? 0;
           if (!meta.toolCallsMap[idx]) meta.toolCallsMap[idx] = { id: '', type: 'function', function: { name: '', arguments: '' } };
           const entry = meta.toolCallsMap[idx];
@@ -2776,18 +2778,25 @@
       if (cand.content && Array.isArray(cand.content.parts)) {
         cand.content.parts.forEach(part => {
           if (!part) return;
-          if (part.functionCall) {
-            meta.toolCalls.push({
-              id: 'call_' + Math.random().toString(36).slice(2, 10),
-              type: 'function',
-              function: {
-                name: part.functionCall.name,
-                arguments: JSON.stringify(part.functionCall.args || {})
-              }
-            });
+          if (part.functionCall && part.functionCall.name) {
+            // Deduplicate by name+args — some Gemini stream versions resend the same functionCall
+            const argsJson = JSON.stringify(part.functionCall.args || {});
+            const key = part.functionCall.name + '::' + argsJson;
+            if (!meta._geminiSeenCalls) meta._geminiSeenCalls = new Set();
+            if (!meta._geminiSeenCalls.has(key)) {
+              meta._geminiSeenCalls.add(key);
+              meta.toolCalls.push({
+                id: 'call_' + Math.random().toString(36).slice(2, 10),
+                type: 'function',
+                function: {
+                  name: part.functionCall.name,
+                  arguments: argsJson
+                }
+              });
+            }
           } else if (part.thought === true) {
             if (typeof part.text === 'string') onThinking(part.text);
-          } else if (typeof part.text === 'string') {
+          } else if (typeof part.text === 'string' && part.text) {
             onContent(part.text);
           }
         });
@@ -2818,7 +2827,7 @@
       }
       if (type === 'response.function_call_arguments.done') {
         const idx = json.output_index ?? 0;
-        if (meta.toolCallsMap[idx] && json.arguments) meta.toolCallsMap[idx].function.arguments = json.arguments;
+        if (meta.toolCallsMap[idx] && typeof json.arguments === 'string') meta.toolCallsMap[idx].function.arguments = json.arguments;
         return;
       }
       if (type === 'response.output_text.delta' && typeof json.delta === 'string') { onContent(json.delta); return; }
@@ -2826,6 +2835,22 @@
       if (type === 'response.reasoning_text.delta' && typeof json.delta === 'string') { onThinking(json.delta); return; }
       if (type === 'response.completed' && json.response) {
         if (json.response.status === 'incomplete' || json.response.incomplete_details) meta.truncated = true;
+        // Fallback: harvest tool calls from final output if no deltas were emitted
+        if (!meta._responseSawToolDeltas && Array.isArray(json.response.output)) {
+          let idx = 0;
+          json.response.output.forEach(item => {
+            if (item && item.type === 'function_call') {
+              meta.toolCallsMap[idx] = {
+                id: item.id || item.call_id,
+                call_id: item.call_id,
+                type: 'function',
+                function: { name: item.name || '', arguments: item.arguments || '' }
+              };
+              idx++;
+            }
+          });
+        }
+        meta._responseSawToolDeltas = false;
         return;
       }
       if (type === 'response.failed') {
@@ -2916,10 +2941,11 @@
       try { await reader.cancel(); } catch (e) {}
     }
 
-    // Merge streamed tool calls from map into final list
-    const streamed = Object.values(meta.toolCallsMap).filter(tc => tc.function && tc.function.name);
+    const streamed = Object.values(meta.toolCallsMap || {}).filter(tc => tc && tc.function && tc.function.name);
     meta.toolCalls = [...meta.toolCalls, ...streamed];
     meta.toolCallsMap = {};
+    delete meta._geminiSeenCalls;
+    delete meta._responseSawToolDeltas;
     return meta;
   }
 
@@ -2933,6 +2959,7 @@
     const result = { text: '', thinking: '', truncated: false, toolCalls: [] };
     let text = '';
     let thinking = '';
+    const seenGeminiCalls = new Set();
 
     if (Array.isArray(json)) {
       json.forEach(chunk => {
@@ -2943,12 +2970,17 @@
           if (cand.content && Array.isArray(cand.content.parts)) {
             cand.content.parts.forEach(part => {
               if (!part) return;
-              if (part.functionCall) {
-                result.toolCalls.push({
-                  id: 'call_' + Math.random().toString(36).slice(2, 10),
-                  type: 'function',
-                  function: { name: part.functionCall.name, arguments: JSON.stringify(part.functionCall.args || {}) }
-                });
+              if (part.functionCall && part.functionCall.name) {
+                const argsJson = JSON.stringify(part.functionCall.args || {});
+                const key = part.functionCall.name + '::' + argsJson;
+                if (!seenGeminiCalls.has(key)) {
+                  seenGeminiCalls.add(key);
+                  result.toolCalls.push({
+                    id: 'call_' + Math.random().toString(36).slice(2, 10),
+                    type: 'function',
+                    function: { name: part.functionCall.name, arguments: argsJson }
+                  });
+                }
               } else if (part.thought === true) { if (typeof part.text === 'string') thinking += part.text; }
               else if (typeof part.text === 'string') text += part.text;
             });
@@ -2965,12 +2997,17 @@
       if (cand.content && Array.isArray(cand.content.parts)) {
         cand.content.parts.forEach(part => {
           if (!part) return;
-          if (part.functionCall) {
-            result.toolCalls.push({
-              id: 'call_' + Math.random().toString(36).slice(2, 10),
-              type: 'function',
-              function: { name: part.functionCall.name, arguments: JSON.stringify(part.functionCall.args || {}) }
-            });
+          if (part.functionCall && part.functionCall.name) {
+            const argsJson = JSON.stringify(part.functionCall.args || {});
+            const key = part.functionCall.name + '::' + argsJson;
+            if (!seenGeminiCalls.has(key)) {
+              seenGeminiCalls.add(key);
+              result.toolCalls.push({
+                id: 'call_' + Math.random().toString(36).slice(2, 10),
+                type: 'function',
+                function: { name: part.functionCall.name, arguments: argsJson }
+              });
+            }
           } else if (part.thought === true) { if (typeof part.text === 'string') thinking += part.text; }
           else if (typeof part.text === 'string') text += part.text;
         });
@@ -2984,11 +3021,12 @@
       if (!msg) return;
       if (Array.isArray(msg.tool_calls)) {
         msg.tool_calls.forEach(tc => {
+          if (!tc) return;
           result.toolCalls.push({
             id: tc.id || ('call_' + Math.random().toString(36).slice(2, 10)),
             call_id: tc.id,
             type: tc.type || 'function',
-            function: { name: tc.function?.name || '', arguments: tc.function?.arguments || '' }
+            function: { name: (tc.function && tc.function.name) || '', arguments: (tc.function && tc.function.arguments) || '' }
           });
         });
       }
@@ -3090,7 +3128,6 @@
       ? config.includeInstructions === true
       : defaultInclude;
 
-    // Tools payload
     const toolsEnabled = !opts.noTools && config.supportsTools !== false;
     const toolDefs = toolsEnabled ? toolsForApi(getToolDefinitions(state.mode), apiType) : null;
 
@@ -3100,7 +3137,6 @@
 
       augmentedMessages.forEach((m) => {
         if (m.role === 'user') {
-          // Attach images to the LAST user message (the new one)
           gMessages.push({ role: 'user', content: m.content });
         } else if (m.role === 'assistant') {
           const out = { role: 'assistant', content: m.content || null };
@@ -3108,7 +3144,7 @@
             out.tool_calls = m.tool_calls.map(tc => ({
               id: tc.id || tc.call_id,
               type: 'function',
-              function: { name: tc.function.name, arguments: tc.function.arguments }
+              function: { name: tc.function.name, arguments: tc.function.arguments || '' }
             }));
             if (!out.content) delete out.content;
           }
@@ -3122,7 +3158,6 @@
         }
       });
 
-      // Attach images to the last user message
       if (imageAttachments.length > 0) {
         for (let i = gMessages.length - 1; i >= 0; i--) {
           if (gMessages[i].role === 'user') {
@@ -3156,7 +3191,7 @@
                 id: tc.id || tc.call_id,
                 call_id: tc.call_id || tc.id,
                 name: tc.function.name,
-                arguments: tc.function.arguments,
+                arguments: tc.function.arguments || '',
                 status: 'completed'
               });
             });
@@ -3199,9 +3234,16 @@
           }
           if (parts.length) gContents.push({ role: 'model', parts });
         } else if (m.role === 'tool') {
+          let responseData;
+          try {
+            const parsed = JSON.parse(m.content);
+            responseData = { result: parsed };
+          } catch (e) {
+            responseData = { result: m.content };
+          }
           gContents.push({
             role: 'user',
-            parts: [{ functionResponse: { name: m.name || 'tool', response: { result: m.content } } }]
+            parts: [{ functionResponse: { name: m.name || 'tool', response: responseData } }]
           });
         }
       });
@@ -3219,9 +3261,13 @@
       }
 
       body = {
-        stream: true,
         contents: gContents,
-        generationConfig: { thinkingConfig: { includeThoughts: config.includeThoughts !== false, thinkingLevel: reasoning } }
+        generationConfig: {
+          thinkingConfig: {
+            includeThoughts: config.includeThoughts !== false,
+            thinkingBudget: reasoning === 'high' ? 24576 : reasoning === 'low' ? 4096 : 12288
+          }
+        }
       };
       if (includeInstructions && systemPrompt) body.systemInstruction = { parts: [{ text: systemPrompt }] };
       if (toolDefs) body.tools = toolDefs;
@@ -3286,7 +3332,6 @@
 
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
-      // If tools caused the failure, retry without them
       if (body.tools && !opts.noTools && res.status >= 400 && res.status < 500) {
         console.warn('[tools retry] API rejected tools, retrying without:', errText.slice(0, 200));
         return fetchModelResponse(config, messages, reasoning, attachments, signal, { ...opts, noTools: true });
@@ -3333,13 +3378,11 @@
     state.abortController = new AbortController();
     const signal = state.abortController.signal;
 
-    // Multi-round state
     const maxRounds = 12;
     let round = 0;
     let allRenderedText = '';
     let finalPushed = false;
 
-    // Per-round state (reset at start of each round)
     let currentThinking = null;
     let currentThinkingTimer = null;
     let currentThinkingStart = 0;
@@ -3470,7 +3513,6 @@
 
         const result = await callModelOnce(config, state.messages, state.reasoning, round === 0 ? currentAttachments : [], signal, onContent, onThinking);
 
-        // Finalize current round visuals
         if (renderTimer) { clearTimeout(renderTimer); renderTimer = null; }
         if (currentContent) {
           removeCursor(currentContent);
@@ -3485,14 +3527,12 @@
           break;
         }
 
-        // Save assistant turn with tool calls
         state.messages.push({
           role: 'assistant',
           content: currentText,
           tool_calls: result.toolCalls
         });
 
-        // Execute each tool call
         for (const tc of result.toolCalls) {
           if (signal.aborted) throw abortError();
           const card = renderToolCard(tc);
@@ -3505,12 +3545,16 @@
           } catch (e) {
             toolResult = `Error: ${e.message}`;
           }
-          completeToolCard(card, toolResult);
+          const resultStr = typeof toolResult === 'string' ? toolResult : JSON.stringify(toolResult);
+          const truncated = resultStr.length > TOOL_RESULT_MAX
+            ? resultStr.slice(0, TOOL_RESULT_MAX) + `\n\n[...truncated, ${resultStr.length - TOOL_RESULT_MAX} chars omitted]`
+            : resultStr;
+          completeToolCard(card, truncated);
           state.messages.push({
             role: 'tool',
             tool_call_id: tc.call_id || tc.id,
             name: tc.function.name,
-            content: typeof toolResult === 'string' ? toolResult : JSON.stringify(toolResult)
+            content: truncated
           });
         }
         round++;
@@ -3541,7 +3585,6 @@
       finalizeThinking();
       avatar.classList.remove('thinking');
 
-      // Sync any filename-tagged code blocks into the workspace
       syncCodeBlocksToVfs(allRenderedText);
 
       if (allRenderedText.trim()) addMessageActions(bubble, allRenderedText);
@@ -3567,6 +3610,7 @@
     if (!argsStr) return '';
     try {
       const o = JSON.parse(argsStr);
+      if (!o || typeof o !== 'object') return argsStr.length > 60 ? argsStr.slice(0, 60) + '…' : argsStr;
       const entries = Object.entries(o).slice(0, 2).map(([k, v]) => {
         let s = typeof v === 'string' ? v : JSON.stringify(v);
         if (s.length > 40) s = s.slice(0, 40) + '…';
