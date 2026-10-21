@@ -303,31 +303,58 @@
     white-space: normal;
     width: 100%;
   }
-  .message-row.assistant .bubble .content {
-    white-space: pre-wrap;
+
+  /* ── Markdown Text ── */
+  .content {
     word-break: break-word;
   }
-  
-  /* List styles */
-  .message-row.assistant .bubble ul,
-  .message-row.assistant .bubble ol {
-    padding-left: 24px;
-    margin: 8px 0;
+  .md-block { margin: 0; }
+  .md-text {
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.7;
+    font-size: 16px;
   }
-  .message-row.assistant .bubble li {
-    margin-bottom: 4px;
+  .md-text > *:first-child { margin-top: 0; }
+  .md-text > *:last-child { margin-bottom: 0; }
+  .md-text p { margin: 0 0 12px; }
+  .md-text ul, .md-text ol { margin: 4px 0 12px; padding-left: 22px; }
+  .md-text li { margin-bottom: 4px; }
+  .md-text h1, .md-text h2, .md-text h3, .md-text h4, .md-text h5, .md-text h6 {
+    margin: 18px 0 8px; font-weight: 600; line-height: 1.3;
   }
+  .md-text h1 { font-size: 22px; }
+  .md-text h2 { font-size: 19px; }
+  .md-text h3 { font-size: 17px; }
+  .md-text h4 { font-size: 16px; }
+  .md-text blockquote {
+    margin: 8px 0; padding-left: 14px;
+    border-left: 3px solid var(--border-focus);
+    color: var(--text-muted);
+  }
+  .md-text hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  .md-text code.inline-code {
+    background: rgba(255,255,255,0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  .md-text a { color: var(--accent); text-decoration: none; }
+  .md-text a:hover { text-decoration: underline; }
 
-  .cursor::after {
-    content: '▍';
+  /* ── Streaming Cursor ── */
+  .stream-cursor {
+    display: inline-block;
     color: var(--accent);
     font-size: 14px;
     animation: blink 1s step-end infinite;
     vertical-align: text-bottom;
+    margin-left: 2px;
   }
   @keyframes blink { 50% { opacity: 0; } }
 
-  /* Loading Indicator */
+  /* ── Waiting Indicator ── */
   .waiting-indicator {
     display: flex;
     align-items: center;
@@ -444,24 +471,55 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 16px;
+    gap: 8px;
+    padding: 8px 12px 8px 16px;
     background: rgba(255,255,255,0.02);
     border-bottom: 1px solid var(--border);
     font-size: 12px;
     color: var(--text-muted);
     font-family: var(--font-mono);
+    flex-wrap: wrap;
   }
-  .copy-btn {
+  .code-lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+  .code-block-wrapper.streaming .code-lang::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: thinkingPulse 1.2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  .code-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .code-action-btn {
     background: transparent;
-    border: none;
+    border: 1px solid transparent;
     color: var(--text-muted);
     cursor: pointer;
-    font-size: 12px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: all 0.2s;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-family: var(--font-ui);
+    transition: all 0.15s;
+    white-space: nowrap;
   }
-  .copy-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-main); }
+  .code-action-btn:hover {
+    background: rgba(255,255,255,0.06);
+    color: var(--text-main);
+    border-color: var(--border);
+  }
+  .code-action-btn.copied { color: #4ade80; }
   .code-block-wrapper pre {
     margin: 0;
     padding: 16px;
@@ -471,6 +529,34 @@
     line-height: 1.5;
   }
   .code-block-wrapper code { font-family: var(--font-mono); }
+
+  /* ── Message Actions ── */
+  .message-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .msg-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: var(--font-ui);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .msg-action-btn:hover {
+    background: rgba(255,255,255,0.06);
+    color: var(--text-main);
+    border-color: var(--border-focus);
+  }
+  .msg-action-btn svg { width: 14px; height: 14px; }
 
   /* ── Bottom Bar ── */
   .bottom-bar {
@@ -655,7 +741,6 @@
   }
   .model-option:last-child { margin-bottom: 0; }
   
-  /* Thin 1px Gradient Border */
   .model-option::before {
     content: '';
     position: absolute;
@@ -840,148 +925,90 @@
   .send-btn.stop-mode { background: var(--danger); box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3); }
   .send-btn.stop-mode:hover { background: #dc2626; }
 
-  /* ── Studio View ── */
-  .studio-view {
-    flex: 1;
-    overflow-y: auto;
-    padding: 40px 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    max-width: 800px;
-    margin: 0 auto;
-    width: 100%;
-  }
-  .studio-header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  .studio-header h1 {
-    font-family: var(--font-serif);
-    font-size: 32px;
-    margin-bottom: 8px;
-  }
-  .studio-header p {
-    color: var(--text-muted);
-  }
-  .studio-form {
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .form-group label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-muted);
-  }
-  .studio-form input, .studio-form textarea, .studio-form select {
-    width: 100%;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px;
-    color: var(--text-main);
-    font-family: inherit;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .studio-form input:focus, .studio-form textarea:focus, .studio-form select:focus {
-    border-color: var(--border-focus);
-  }
-  .studio-form textarea {
-    resize: vertical;
-    min-height: 80px;
-  }
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-  }
-  .generate-btn {
-    background: linear-gradient(135deg, var(--accent), #a06dff);
-    color: #fff;
-    border: none;
-    padding: 14px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 15px;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    margin-top: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .generate-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(217, 119, 87, 0.4);
-  }
-  .generate-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-  .studio-result {
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 200px;
-    text-align: center;
-  }
-  .studio-result video {
-    width: 100%;
-    border-radius: 12px;
-    margin-bottom: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  }
-  .download-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    color: var(--text-main);
-    padding: 10px 20px;
-    border-radius: 99px;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.2s;
-  }
-  .download-btn:hover {
-    background: var(--border);
-    color: #fff;
-  }
-  .spinner-large {
-    width: 40px; height: 40px;
-    border: 3px solid rgba(255,255,255,0.1);
-    border-top-color: var(--accent);
+  /* ── Scroll Bottom Button ── */
+  .scroll-bottom-btn {
+    position: absolute;
+    right: 24px;
+    bottom: 110px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 16px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 20;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
   }
-  .studio-waiting {
+  .scroll-bottom-btn.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .scroll-bottom-btn:hover { background: var(--border); }
+  .scroll-bottom-btn svg { width: 18px; height: 18px; }
+
+  /* ── Preview Modal ── */
+  .preview-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .preview-modal.open { display: flex; }
+  .preview-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+  }
+  .preview-modal-content {
+    position: relative;
+    width: min(1000px, 92vw);
+    height: min(700px, 88vh);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+  }
+  .preview-modal-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 500;
     color: var(--text-muted);
-    font-size: 14px;
+  }
+  .preview-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+    transition: color 0.2s;
+  }
+  .preview-close-btn:hover { color: var(--text-main); }
+  .preview-modal-content iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background: #fff;
   }
 
   .hidden { display: none !important; }
@@ -992,8 +1019,8 @@
     .bottom-bar { padding: 16px; }
     .model-dropdown { width: calc(100vw - 32px); max-width: 320px; }
     .msg-avatar { width: 30px; height: 30px; }
-    .form-row { grid-template-columns: 1fr; }
-    .studio-view { padding: 20px 16px; }
+    .scroll-bottom-btn { right: 16px; bottom: 100px; width: 36px; height: 36px; }
+    .preview-modal-content { width: 96vw; height: 90vh; }
   }
 </style>
 </head>
@@ -1024,13 +1051,6 @@
       <div class="desc">Fast, concise answers</div>
     </div>
   </button>
-  <button class="sidebar-option" data-mode="studio" id="modeStudio">
-    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-    <div>
-      <div>Studio Mode</div>
-      <div class="desc">Video & Image Generation</div>
-    </div>
-  </button>
 </div>
 
 <div class="app">
@@ -1043,69 +1063,12 @@
     <div id="messagesContainer" style="display: flex; flex-direction: column; gap: 32px;"></div>
   </div>
 
-  <!-- Studio View -->
-  <div class="studio-view hidden" id="studioView">
-    <div class="studio-header">
-      <h1>Studio Generation</h1>
-      <p>Create stunning videos with ByteDance Seedance 2.5</p>
-    </div>
-    
-    <div class="studio-form">
-      <div class="form-group">
-        <label for="studioModel">Model</label>
-        <select id="studioModel">
-          <option value="bytedance/seedance-2-5">ByteDance Seedance 2.5 (Video)</option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label for="studioPrompt">Prompt</label>
-        <textarea id="studioPrompt" placeholder="Describe the video you want to generate...">A tranquil beach at sunset, with gentle waves lapping the shore, palm trees swaying in the breeze, and seagulls flying across the orange sky.</textarea>
-      </div>
+  <!-- Scroll to bottom -->
+  <button class="scroll-bottom-btn" id="scrollBottomBtn" title="Scroll to bottom">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </button>
 
-      <div class="form-group">
-        <label for="studioRefImg">Reference Image URL (Optional)</label>
-        <input type="text" id="studioRefImg" placeholder="https://example.com/image.png">
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="studioRes">Resolution</label>
-          <select id="studioRes">
-            <option value="720p">720p</option>
-            <option value="1080p">1080p</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="studioAspect">Aspect Ratio</label>
-          <select id="studioAspect">
-            <option value="16:9">16:9</option>
-            <option value="9:16">9:16</option>
-            <option value="1:1">1:1</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="studioDuration">Duration</label>
-          <select id="studioDuration">
-            <option value="5">5s</option>
-            <option value="10">10s</option>
-            <option value="15">15s</option>
-          </select>
-        </div>
-      </div>
-
-      <button class="generate-btn" id="generateVideoBtn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg>
-        Generate Video
-      </button>
-    </div>
-
-    <div class="studio-result hidden" id="studioResult">
-      <!-- Result will be injected here -->
-    </div>
-  </div>
-
-  <!-- Chat Input (Hidden in Studio) -->
+  <!-- Chat Input -->
   <div class="bottom-bar" id="chatBottomBar">
     <div class="input-wrapper" id="inputWrapper">
       <div class="attachments-container" id="attachmentsContainer"></div>
@@ -1180,12 +1143,24 @@
           </button>
         </div>
         
-        <button class="send-btn" id="sendBtn">
+        <button class="send-btn" id="sendBtn" disabled>
           <svg id="sendIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           <svg id="stopIcon" style="display:none" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
         </button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="preview-modal" id="previewModal">
+  <div class="preview-modal-backdrop"></div>
+  <div class="preview-modal-content">
+    <div class="preview-modal-header">
+      <span>Preview</span>
+      <button class="preview-close-btn" id="previewCloseBtn">×</button>
+    </div>
+    <iframe id="previewIframe" sandbox="allow-scripts allow-modals allow-forms allow-popups allow-pointer-lock"></iframe>
   </div>
 </div>
 
@@ -1234,7 +1209,28 @@
   };
 
   const SYSTEM_PROMPTS = {
-    coding: 'You are an expert coding assistant. Provide detailed, well-explained code with best practices. Use markdown code blocks with language tags. Think step-by-step when solving complex problems. Prefer clarity and correctness over brevity.',
+    coding: `You are an expert full-stack coding assistant working inside a chat workspace.
+
+CORE RULES:
+- When the user asks for a program, game, website, or any code, you MUST output the complete, working code. Never reply with only a plan, preamble, or "I'll do X". Output the actual files immediately.
+- If the request needs multiple files, output EACH file in its own fenced code block. On the first line inside each code block, put the filename as a comment, e.g.:
+\`\`\`html
+<!-- index.html -->
+...
+\`\`\`
+\`\`\`css
+/* style.css */
+...
+\`\`\`
+\`\`\`js
+// game.js
+...
+\`\`\`
+- Write production-quality, self-contained code. Avoid placeholders like "// TODO" unless truly necessary.
+- Think through complex problems step-by-step, but keep the final answer focused on working code.
+- You can handle attached files (text, code, zip contents) and reference them.
+- Prefer clarity, correctness, and completeness over brevity.
+- If the user asks for a game or interactive app, make it fully playable, with controls, scoring, and polish.`,
     simple: 'You are a concise assistant. Answer directly and briefly. Skip unnecessary explanation and filler. Use short sentences. No verbose intros or outros.'
   };
 
@@ -1250,8 +1246,7 @@
     isGenerating: false,
     abortController: null,
     currentModelAvatar: MODEL_CONFIG.gemini.icon,
-    userHasScrolled: false,
-    videoPollingInterval: null
+    userHasScrolled: false
   };
 
   /* ============================================================
@@ -1259,7 +1254,6 @@
      ============================================================ */
   const chatScrollArea = document.getElementById('chatScrollArea');
   const chatBottomBar = document.getElementById('chatBottomBar');
-  const studioView = document.getElementById('studioView');
   
   const welcomeContainer = document.getElementById('welcomeContainer');
   const welcomeTitle = document.getElementById('welcomeTitle');
@@ -1273,6 +1267,7 @@
   const attachBtn = document.getElementById('attachBtn');
   const fileInput = document.getElementById('fileInput');
   const attachmentsContainer = document.getElementById('attachmentsContainer');
+  const scrollBottomBtn = document.getElementById('scrollBottomBtn');
 
   const modelBtn = document.getElementById('modelBtn');
   const modelDropdown = document.getElementById('modelDropdown');
@@ -1285,116 +1280,475 @@
   const sidebarOverlay = document.getElementById('sidebarOverlay');
   const modeCoding = document.getElementById('modeCoding');
   const modeSimple = document.getElementById('modeSimple');
-  const modeStudio = document.getElementById('modeStudio');
 
-  const studioResult = document.getElementById('studioResult');
-  const generateVideoBtn = document.getElementById('generateVideoBtn');
+  const previewModal = document.getElementById('previewModal');
+  const previewIframe = document.getElementById('previewIframe');
+  const previewCloseBtn = document.getElementById('previewCloseBtn');
 
   /* ============================================================
-     HELPERS & MARKDOWN RENDERER
+     HELPERS
      ============================================================ */
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  function renderMarkdown(text) {
-    if (!text) return '';
-    const parts = text.split(/(```[\s\S]*?```)/g);
-    let html = '';
-
-    parts.forEach(part => {
-      if (part.startsWith('```')) {
-        const match = part.match(/```(\w*)\n([\s\S]*?)```/);
-        const lang = match ? match[1] : 'text';
-        const code = match ? match[2] : part.slice(3, -3);
-        const id = 'code-' + Math.random().toString(36).substr(2, 9);
-        html += `
-          <div class="code-block-wrapper">
-            <div class="code-block-header">
-              <span>${escapeHtml(lang)}</span>
-              <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('${id}').innerText)">Copy</button>
-            </div>
-            <pre><code id="${id}" class="language-${escapeHtml(lang)}">${escapeHtml(code)}</code></pre>
-          </div>
-        `;
-      } else {
-        let t = escapeHtml(part);
-        const lines = t.split('\n');
-        let inList = false;
-        let listType = '';
-        let processed = [];
-
-        lines.forEach(line => {
-          const ulMatch = line.match(/^\s*[-*]\s+(.*)$/);
-          const olMatch = line.match(/^\s*\d+\.\s+(.*)$/);
-
-          if (ulMatch) {
-            if (!inList || listType !== 'ul') {
-              if (inList) processed.push(`</${listType}>`);
-              processed.push('<ul>');
-              inList = true;
-              listType = 'ul';
-            }
-            processed.push(`<li>${ulMatch[1]}</li>`);
-            return;
-          }
-
-          if (olMatch) {
-            if (!inList || listType !== 'ol') {
-              if (inList) processed.push(`</${listType}>`);
-              processed.push('<ol>');
-              inList = true;
-              listType = 'ol';
-            }
-            processed.push(`<li>${olMatch[1]}</li>`);
-            return;
-          }
-
-          if (inList) {
-            processed.push(`</${listType}>`);
-            inList = false;
-            listType = '';
-          }
-
-          if (line.trim() === '') {
-             processed.push('<br>');
-          } else {
-             processed.push(`${line}<br>`);
-          }
-        });
-
-        if (inList) processed.push(`</${listType}>`);
-
-        let joined = processed.join('');
-        joined = joined.replace(/<br><ul>/g, '<ul>');
-        joined = joined.replace(/<br><ol>/g, '<ol>');
-        joined = joined.replace(/<\/ul><br>/g, '</ul>');
-        joined = joined.replace(/<\/ol><br>/g, '</ol>');
-
-        joined = joined.replace(/`([^`\n]+)`/g, '<code>$1</code>');
-        joined = joined.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        joined = joined.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        html += `<span>${joined}</span>`;
-      }
-    });
-    return html;
+  function extForLang(lang) {
+    const map = {
+      html: 'html', htm: 'html', css: 'css', js: 'js', javascript: 'js', jsx: 'jsx',
+      ts: 'ts', typescript: 'ts', tsx: 'tsx', py: 'py', python: 'py', json: 'json',
+      md: 'md', markdown: 'md', txt: 'txt', sh: 'sh', bash: 'sh', c: 'c', cpp: 'cpp',
+      h: 'h', java: 'java', cs: 'cs', go: 'go', rs: 'rs', rb: 'rb', php: 'php',
+      sql: 'sql', xml: 'xml', yml: 'yml', yaml: 'yaml'
+    };
+    return map[(lang || '').toLowerCase()] || 'txt';
   }
 
   function scrollToBottom(force = false) {
     if (!state.userHasScrolled || force) {
       chatScrollArea.scrollTop = chatScrollArea.scrollHeight;
     }
+    updateScrollBtn();
+  }
+
+  function updateScrollBtn() {
+    if (!scrollBottomBtn) return;
+    const dist = chatScrollArea.scrollHeight - chatScrollArea.scrollTop - chatScrollArea.clientHeight;
+    scrollBottomBtn.classList.toggle('visible', dist > 200 && state.messages.length > 0);
   }
 
   chatScrollArea.addEventListener('scroll', () => {
     const isAtBottom = chatScrollArea.scrollHeight - chatScrollArea.scrollTop - chatScrollArea.clientHeight < 50;
     state.userHasScrolled = !isAtBottom;
+    updateScrollBtn();
+  });
+
+  scrollBottomBtn.addEventListener('click', () => {
+    chatScrollArea.scrollTo({ top: chatScrollArea.scrollHeight, behavior: 'smooth' });
   });
 
   function hideWelcome() {
     if (welcomeContainer.style.display !== 'none') {
       welcomeContainer.classList.add('hidden');
     }
+  }
+
+  function updateSendBtn() {
+    if (state.isGenerating) {
+      sendBtn.disabled = false;
+      return;
+    }
+    sendBtn.disabled = !chatInput.value.trim() && state.attachments.length === 0;
+  }
+
+  /* ============================================================
+     MARKDOWN RENDERING (streaming-aware)
+     ============================================================ */
+  function renderInline(text) {
+    let t = escapeHtml(text);
+    t = t.replace(/`([^`\n]+)`/g, '<code class="inline-code">$1</code>');
+    t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    t = t.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+    t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    return t;
+  }
+
+  function renderTextBlock(text) {
+    if (!text) return '';
+    const lines = text.split('\n');
+    let html = '';
+    let inList = null;
+    let paraLines = [];
+
+    const flushPara = () => {
+      if (paraLines.length) {
+        html += `<p>${paraLines.map(renderInline).join('<br>')}</p>`;
+        paraLines = [];
+      }
+    };
+    const closeList = () => {
+      if (inList) { html += `</${inList}>`; inList = null; }
+    };
+
+    for (let raw of lines) {
+      const line = raw.replace(/\r$/, '');
+      if (/^\s*$/.test(line)) { flushPara(); closeList(); continue; }
+
+      const h = line.match(/^(#{1,6})\s+(.*)$/);
+      if (h) {
+        flushPara(); closeList();
+        const lvl = h[1].length;
+        html += `<h${lvl}>${renderInline(h[2])}</h${lvl}>`;
+        continue;
+      }
+
+      const ul = line.match(/^\s*[-*+]\s+(.*)$/);
+      if (ul) {
+        flushPara();
+        if (inList !== 'ul') { closeList(); html += '<ul>'; inList = 'ul'; }
+        html += `<li>${renderInline(ul[1])}</li>`;
+        continue;
+      }
+
+      const ol = line.match(/^\s*\d+[.)]\s+(.*)$/);
+      if (ol) {
+        flushPara();
+        if (inList !== 'ol') { closeList(); html += '<ol>'; inList = 'ol'; }
+        html += `<li>${renderInline(ol[1])}</li>`;
+        continue;
+      }
+
+      if (/^\s*---+\s*$/.test(line)) {
+        flushPara(); closeList();
+        html += '<hr>';
+        continue;
+      }
+
+      if (/^\s*>\s?/.test(line)) {
+        flushPara(); closeList();
+        html += `<blockquote>${renderInline(line.replace(/^\s*>\s?/, ''))}</blockquote>`;
+        continue;
+      }
+
+      closeList();
+      paraLines.push(line);
+    }
+
+    flushPara();
+    closeList();
+    return html;
+  }
+
+  function parseMarkdownParts(text) {
+    const parts = [];
+    let i = 0;
+    const len = text.length;
+    while (i < len) {
+      const fenceStart = text.indexOf('```', i);
+      if (fenceStart === -1) {
+        if (i < len) parts.push({ type: 'text', content: text.slice(i) });
+        break;
+      }
+      if (fenceStart > i) {
+        parts.push({ type: 'text', content: text.slice(i, fenceStart) });
+      }
+      const lineEnd = text.indexOf('\n', fenceStart);
+      let lang = '';
+      let codeStart;
+      if (lineEnd === -1) {
+        lang = text.slice(fenceStart + 3).trim();
+        codeStart = len;
+      } else {
+        lang = text.slice(fenceStart + 3, lineEnd).trim().split(/\s+/)[0] || '';
+        codeStart = lineEnd + 1;
+      }
+      const fenceEnd = text.indexOf('```', codeStart);
+      if (fenceEnd === -1) {
+        parts.push({ type: 'code', lang, code: text.slice(codeStart), unclosed: true });
+        break;
+      } else {
+        parts.push({ type: 'code', lang, code: text.slice(codeStart, fenceEnd), unclosed: false });
+        i = fenceEnd + 3;
+        if (text[i] === '\n') i++;
+      }
+    }
+    return parts;
+  }
+
+  function createCodeNode(part) {
+    const lang = (part.lang || 'text').toLowerCase();
+    const displayLang = part.lang || 'text';
+    const isRunnable = /^(html|htm|js|javascript)$/.test(lang);
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block-wrapper' + (part.unclosed ? ' streaming' : '');
+    wrapper.dataset.lang = displayLang;
+
+    const header = document.createElement('div');
+    header.className = 'code-block-header';
+    const langLabel = document.createElement('span');
+    langLabel.className = 'code-lang';
+    langLabel.textContent = displayLang + (part.unclosed ? ' · writing…' : (part.truncated ? ' · truncated' : ''));
+    header.appendChild(langLabel);
+
+    const actions = document.createElement('div');
+    actions.className = 'code-actions';
+
+    if (!part.unclosed) {
+      if (isRunnable && !part.truncated) {
+        const runBtn = document.createElement('button');
+        runBtn.className = 'code-action-btn run-btn';
+        runBtn.textContent = '▶ Run';
+        actions.appendChild(runBtn);
+      }
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'code-action-btn copy-btn';
+      copyBtn.textContent = 'Copy';
+      actions.appendChild(copyBtn);
+
+      const dlBtn = document.createElement('button');
+      dlBtn.className = 'code-action-btn dl-btn';
+      dlBtn.textContent = 'Download';
+      actions.appendChild(dlBtn);
+    }
+    header.appendChild(actions);
+
+    const pre = document.createElement('pre');
+    const code = document.createElement('code');
+    code.className = `language-${displayLang}`;
+    code.textContent = part.code;
+    pre.appendChild(code);
+
+    wrapper.appendChild(header);
+    wrapper.appendChild(pre);
+
+    if (!part.unclosed) {
+      try { if (window.hljs) hljs.highlightElement(code); } catch (e) {}
+    }
+
+    return wrapper;
+  }
+
+  function createPartNode(part) {
+    if (part.type === 'text') {
+      const div = document.createElement('div');
+      div.className = 'md-block md-text';
+      div.innerHTML = renderTextBlock(part.content);
+      return div;
+    }
+    return createCodeNode(part);
+  }
+
+  function partsEqual(a, b) {
+    if (!a || !b || a.type !== b.type) return false;
+    if (a.type === 'text') return a.content === b.content;
+    return a.lang === b.lang && a.code === b.code && a.unclosed === b.unclosed && a.truncated === b.truncated;
+  }
+
+  function updateStreamingContent(container, text, renderState) {
+    const parts = parseMarkdownParts(text);
+    let common = 0;
+    while (
+      common < parts.length &&
+      common < renderState.renderedParts.length &&
+      partsEqual(parts[common], renderState.renderedParts[common].part)
+    ) {
+      common++;
+    }
+    for (let j = common; j < renderState.renderedParts.length; j++) {
+      renderState.renderedParts[j].node.remove();
+    }
+    renderState.renderedParts = renderState.renderedParts.slice(0, common);
+    for (let j = common; j < parts.length; j++) {
+      const node = createPartNode(parts[j]);
+      container.appendChild(node);
+      renderState.renderedParts.push({ part: parts[j], node });
+    }
+  }
+
+  function ensureCursor(container) {
+    let cursor = container.querySelector(':scope > .stream-cursor');
+    if (!cursor) {
+      cursor = document.createElement('span');
+      cursor.className = 'stream-cursor';
+      cursor.textContent = '▍';
+    }
+    if (container.lastElementChild !== cursor) {
+      container.appendChild(cursor);
+    }
+  }
+
+  function removeCursor(container) {
+    const cursor = container.querySelector(':scope > .stream-cursor');
+    if (cursor) cursor.remove();
+  }
+
+  function finalizeContent(container, text, renderState) {
+    container.innerHTML = '';
+    renderState.renderedParts = [];
+    if (!text || !text.trim()) {
+      const div = document.createElement('div');
+      div.className = 'md-block md-text';
+      div.innerHTML = '<p><em>[No response received]</em></p>';
+      container.appendChild(div);
+      return;
+    }
+    const parts = parseMarkdownParts(text);
+    if (parts.length && parts[parts.length - 1].type === 'code' && parts[parts.length - 1].unclosed) {
+      parts[parts.length - 1].unclosed = false;
+      parts[parts.length - 1].truncated = true;
+    }
+    parts.forEach(part => {
+      const node = createPartNode(part);
+      container.appendChild(node);
+      renderState.renderedParts.push({ part, node });
+    });
+  }
+
+  /* ============================================================
+     CODE ACTIONS / PROJECT PREVIEW / ZIP
+     ============================================================ */
+  messagesContainer.addEventListener('click', (e) => {
+    const btn = e.target.closest('.code-action-btn');
+    if (!btn) return;
+    const wrapper = btn.closest('.code-block-wrapper');
+    if (!wrapper) return;
+    const codeEl = wrapper.querySelector('code');
+    if (!codeEl) return;
+    const code = codeEl.textContent;
+    const lang = wrapper.dataset.lang || 'text';
+
+    if (btn.classList.contains('copy-btn')) {
+      copyText(code, btn);
+    } else if (btn.classList.contains('run-btn')) {
+      if (/^(html|htm)$/i.test(lang)) {
+        openPreviewModal(code);
+      } else {
+        const safeCode = code.replace(/<\/script/gi, '<\\/script');
+        const runner = '<!DOCTYPE html><html><body style="margin:0;background:#111;color:#eee;font-family:monospace;padding:16px">' +
+          '<pre id="__out" style="white-space:pre-wrap"></pre><script>' +
+          'const __p=document.getElementById("__out");const __log=console.log;' +
+          'console.log=(...a)=>{__p.textContent+=a.join(" ")+"\\n";__log(...a)};' +
+          'try{' + safeCode + '}catch(e){__p.textContent+="Error: "+e.message}' +
+          '<\/script></body></html>';
+        openPreviewModal(runner);
+      }
+    } else if (btn.classList.contains('dl-btn')) {
+      const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `code.${extForLang(lang)}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+  });
+
+  function copyText(text, btn) {
+    const done = () => {
+      const orig = btn.dataset.orig || btn.textContent;
+      btn.dataset.orig = orig;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      clearTimeout(btn._copyTimer);
+      btn._copyTimer = setTimeout(() => {
+        btn.textContent = orig;
+        btn.classList.remove('copied');
+      }, 1500);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else {
+      fallbackCopy(text, done);
+    }
+  }
+
+  function fallbackCopy(text, done) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { alert('Copy failed'); }
+    ta.remove();
+  }
+
+  function openPreviewModal(html) {
+    previewIframe.srcdoc = html;
+    previewModal.classList.add('open');
+  }
+
+  previewCloseBtn.addEventListener('click', () => previewModal.classList.remove('open'));
+  previewModal.querySelector('.preview-modal-backdrop').addEventListener('click', () => previewModal.classList.remove('open'));
+
+  function previewProject(codeParts) {
+    const htmlPart = codeParts.find(p => /^(html|htm)$/i.test(p.lang || ''));
+    const cssParts = codeParts.filter(p => /^css$/i.test(p.lang || ''));
+    const jsParts = codeParts.filter(p => /^(js|javascript)$/i.test(p.lang || ''));
+
+    let base = htmlPart
+      ? htmlPart.code
+      : '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n</head>\n<body>\n</body>\n</html>';
+
+    const css = cssParts.map(p => p.code).join('\n');
+    const js = jsParts.map(p => p.code.replace(/<\/script/gi, '<\\/script')).join('\n');
+
+    if (css) {
+      if (/<\/head>/i.test(base)) base = base.replace(/<\/head>/i, `<style>\n${css}\n</style>\n</head>`);
+      else base = `<style>\n${css}\n</style>\n` + base;
+    }
+    if (js) {
+      if (/<\/body>/i.test(base)) base = base.replace(/<\/body>/i, `<script>\n${js}\n<\/script>\n</body>`);
+      else base = base + `\n<script>\n${js}\n<\/script>`;
+    }
+    openPreviewModal(base);
+  }
+
+  async function downloadZip(codeParts) {
+    if (typeof JSZip === 'undefined') {
+      alert('ZIP library not loaded.');
+      return;
+    }
+    const zip = new JSZip();
+    const usedNames = new Set();
+    codeParts.forEach((p, i) => {
+      const lang = (p.lang || 'txt').toLowerCase();
+      let filename = `file${i + 1}.${extForLang(lang)}`;
+      const firstLine = (p.code.split('\n')[0] || '').trim();
+      const m = firstLine.match(/(?:\/\/|<!--|#|\/\*)\s*(?:file(?:name)?\s*[:=]\s*)?([\w.-]+\.[a-z0-9]{1,8})/i);
+      if (m) filename = m[1];
+      let unique = filename;
+      let n = 1;
+      while (usedNames.has(unique)) {
+        const dot = filename.lastIndexOf('.');
+        unique = dot > 0
+          ? `${filename.slice(0, dot)}-${n}${filename.slice(dot)}`
+          : `${filename}-${n}`;
+        n++;
+      }
+      usedNames.add(unique);
+      zip.file(unique, p.code);
+    });
+    try {
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'project.zip';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    } catch (e) {
+      alert('Failed to create ZIP: ' + e.message);
+    }
+  }
+
+  function addMessageActions(bubble, text) {
+    const parts = parseMarkdownParts(text);
+    const codeParts = parts.filter(p => p.type === 'code');
+    if (!codeParts.length) return;
+
+    const actions = document.createElement('div');
+    actions.className = 'message-actions';
+
+    const hasPreviewable = codeParts.some(p => /^(html|htm|css|js|javascript)$/i.test(p.lang || ''));
+    if (hasPreviewable) {
+      const previewBtn = document.createElement('button');
+      previewBtn.className = 'msg-action-btn preview-project-btn';
+      previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Preview Project';
+      previewBtn.addEventListener('click', () => previewProject(codeParts));
+      actions.appendChild(previewBtn);
+    }
+
+    const zipBtn = document.createElement('button');
+    zipBtn.className = 'msg-action-btn';
+    zipBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Download ZIP';
+    zipBtn.addEventListener('click', () => downloadZip(codeParts));
+    actions.appendChild(zipBtn);
+
+    bubble.appendChild(actions);
   }
 
   /* ============================================================
@@ -1409,7 +1763,6 @@
         alert(`File ${file.name} is too large (max 5MB).`);
         continue;
       }
-
       let content = '';
       let type = 'text';
 
@@ -1434,7 +1787,7 @@
       } else if (file.type.startsWith('image/')) {
         content = await new Promise((resolve) => {
           const reader = new FileReader();
-          reader.onload = (e) => resolve(e.target.result);
+          reader.onload = (ev) => resolve(ev.target.result);
           reader.readAsDataURL(file);
         });
         type = 'image';
@@ -1448,6 +1801,7 @@
     }
     fileInput.value = '';
     renderAttachments();
+    updateSendBtn();
   });
 
   function renderAttachments() {
@@ -1469,6 +1823,7 @@
   window.removeAttachment = (index) => {
     state.attachments.splice(index, 1);
     renderAttachments();
+    updateSendBtn();
   };
 
   /* ============================================================
@@ -1478,13 +1833,13 @@
     hideWelcome();
     const row = document.createElement('div');
     row.className = 'message-row user';
-    
+
     let attHtml = '';
     if (attachments && attachments.length > 0) {
-      attHtml = '<div style="margin-bottom:8px;font-size:12px;color:var(--text-muted);">Attachments: ' + 
-        attachments.map(a => a.name).join(', ') + '</div>';
+      attHtml = '<div style="margin-bottom:8px;font-size:12px;color:var(--text-muted);">Attachments: ' +
+        attachments.map(a => escapeHtml(a.name)).join(', ') + '</div>';
     }
-    
+
     row.innerHTML = `<div class="bubble">${attHtml}<div style="white-space:pre-wrap;">${escapeHtml(text)}</div></div>`;
     messagesContainer.appendChild(row);
     scrollToBottom(true);
@@ -1498,7 +1853,7 @@
     const avatarContent = state.currentModelAvatar
       ? `<img src="${state.currentModelAvatar}" alt="Model">`
       : avatarSvg;
-      
+
     row.innerHTML = `
       <div class="msg-avatar">${avatarContent}</div>
       <div class="bubble">
@@ -1508,13 +1863,15 @@
         </div>
       </div>
     `;
+
+    const bubble = row.querySelector('.bubble');
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'content';
+    bubble.appendChild(contentDiv);
+
     messagesContainer.appendChild(row);
     scrollToBottom(true);
-    return {
-      row,
-      bubble: row.querySelector('.bubble'),
-      avatar: row.querySelector('.msg-avatar')
-    };
+    return { row, bubble, avatar: row.querySelector('.msg-avatar'), contentDiv };
   }
 
   function createThinkingPanel() {
@@ -1555,44 +1912,26 @@
   function setMode(mode) {
     state.mode = mode;
     document.body.className = `mode-${mode}`;
-    
-    // Reset sidebar
     sidebar.classList.remove('active');
     sidebarOverlay.classList.remove('active');
-    
-    // Toggle views
-    if (mode === 'studio') {
-      chatScrollArea.classList.add('hidden');
-      chatBottomBar.classList.add('hidden');
-      studioView.classList.remove('hidden');
-      modeStudio.classList.add('active');
-      modeCoding.classList.remove('active');
+
+    if (mode === 'coding') {
+      welcomeTitle.textContent = 'Agent Workspace';
+      welcomeSubtitle.textContent = 'System ready. Awaiting prompt.';
+      modeCoding.classList.add('active');
       modeSimple.classList.remove('active');
+      state.reasoning = 'high';
     } else {
-      chatScrollArea.classList.remove('hidden');
-      chatBottomBar.classList.remove('hidden');
-      studioView.classList.add('hidden');
-      modeStudio.classList.remove('active');
-      
-      if (mode === 'coding') {
-        welcomeTitle.textContent = 'Agent Workspace';
-        welcomeSubtitle.textContent = 'System ready. Awaiting prompt.';
-        modeCoding.classList.add('active');
-        modeSimple.classList.remove('active');
-        state.reasoning = 'high';
-      } else {
-        welcomeTitle.textContent = 'LocalMind';
-        welcomeSubtitle.textContent = 'Chat with advanced models.';
-        modeCoding.classList.remove('active');
-        modeSimple.classList.add('active');
-        state.reasoning = 'low';
-      }
-      renderReasoningUI();
+      welcomeTitle.textContent = 'LocalMind';
+      welcomeSubtitle.textContent = 'Chat with advanced models.';
+      modeCoding.classList.remove('active');
+      modeSimple.classList.add('active');
+      state.reasoning = 'low';
     }
+    renderReasoningUI();
   }
   modeCoding.addEventListener('click', () => setMode('coding'));
   modeSimple.addEventListener('click', () => setMode('simple'));
-  modeStudio.addEventListener('click', () => setMode('studio'));
 
   /* ============================================================
      MODEL SELECTOR & REASONING UI
@@ -1633,11 +1972,11 @@
   function renderReasoningUI() {
     reasoningContainer.innerHTML = '';
     const config = MODEL_CONFIG[state.model];
-    
+
     let defaultReasoning = config.defaultReasoning;
     if (config.reasoningType === 'pills' && state.mode === 'coding') defaultReasoning = 'high';
     if (config.reasoningType === 'pills' && state.mode === 'simple') defaultReasoning = 'low';
-    
+
     state.reasoning = defaultReasoning;
 
     if (config.reasoningType === 'slider') {
@@ -1649,45 +1988,45 @@
         </div>
         <input type="range" class="claude-slider" min="0" max="4" step="1" value="2">
       `;
-      
+
       const slider = wrapper.querySelector('.claude-slider');
       const fill = wrapper.querySelector('.claude-slider-fill');
       const options = ['minimal', 'low', 'medium', 'high', 'max'];
-      
+
       let initialVal = 2;
       if (state.mode === 'coding') initialVal = 4;
       if (state.mode === 'simple') initialVal = 1;
-      
+
       slider.value = initialVal;
       fill.style.width = `${(initialVal / 4) * 100}%`;
       state.reasoning = options[initialVal];
-      
+
       slider.addEventListener('input', (e) => {
         const val = parseInt(e.target.value);
         fill.style.width = `${(val / 4) * 100}%`;
         state.reasoning = options[val];
       });
-      
+
       reasoningContainer.appendChild(wrapper);
     } else {
       const wrapper = document.createElement('div');
       wrapper.className = 'reasoning-toggle';
-      
+
       config.reasoningOptions.forEach(opt => {
         const el = document.createElement('div');
         el.className = `reasoning-option ${opt === defaultReasoning ? 'active' : ''}`;
         el.dataset.level = opt;
         el.textContent = opt.charAt(0).toUpperCase() + opt.slice(1, 3);
-        
+
         el.addEventListener('click', () => {
           wrapper.querySelectorAll('.reasoning-option').forEach(o => o.classList.remove('active'));
           el.classList.add('active');
           state.reasoning = opt;
         });
-        
+
         wrapper.appendChild(el);
       });
-      
+
       reasoningContainer.appendChild(wrapper);
     }
   }
@@ -1699,162 +2038,18 @@
     if (state.isGenerating) return;
     state.messages = [];
     state.attachments = [];
+    state.userHasScrolled = false;
     renderAttachments();
     messagesContainer.innerHTML = '';
     welcomeContainer.classList.remove('hidden');
     welcomeContainer.style.display = 'flex';
     chatInput.focus();
+    updateScrollBtn();
+    updateSendBtn();
   });
 
   /* ============================================================
-     STUDIO GENERATION (VIDEO)
-     ============================================================ */
-  generateVideoBtn.addEventListener('click', async () => {
-    const model = document.getElementById('studioModel').value;
-    const prompt = document.getElementById('studioPrompt').value.trim();
-    const refImg = document.getElementById('studioRefImg').value.trim();
-    const res = document.getElementById('studioRes').value;
-    const aspect = document.getElementById('studioAspect').value;
-    const duration = parseInt(document.getElementById('studioDuration').value);
-
-    if (!prompt) {
-      alert('Please enter a prompt.');
-      return;
-    }
-
-    // Show loading state
-    generateVideoBtn.disabled = true;
-    generateVideoBtn.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px;"></div> Generating...';
-    studioResult.classList.remove('hidden');
-    studioResult.innerHTML = `
-      <div class="studio-waiting">
-        <div class="spinner-large"></div>
-        <div>Initializing generation...</div>
-      </div>
-    `;
-
-    try {
-      const payload = {
-        model: model,
-        callBackUrl: "https://your-domain.com/api/callback", // Placeholder
-        input: {
-          prompt: prompt,
-          reference_image_urls: refImg ? [refImg] : [],
-          reference_video_urls: [],
-          reference_audio_urls: [],
-          return_last_frame: false,
-          generate_audio: false,
-          resolution: res,
-          aspect_ratio: aspect,
-          duration: duration
-        }
-      };
-
-      const resTask = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (!resTask.ok) {
-        const err = await resTask.text();
-        throw new Error(`HTTP ${resTask.status}: ${err}`);
-      }
-
-      const jsonTask = await resTask.json();
-      
-      if (jsonTask.code !== 200 || !jsonTask.data || !jsonTask.data.taskId) {
-        throw new Error(jsonTask.msg || 'Failed to create task');
-      }
-
-      const taskId = jsonTask.data.taskId;
-      pollVideoTask(taskId);
-
-    } catch (err) {
-      console.error(err);
-      generateVideoBtn.disabled = false;
-      generateVideoBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg> Generate Video';
-      studioResult.innerHTML = `<div style="color:var(--danger)">Error: ${escapeHtml(err.message)}</div>`;
-    }
-  });
-
-  async function pollVideoTask(taskId) {
-    let attempts = 0;
-    const maxAttempts = 60; // 5 minutes max
-
-    if (state.videoPollingInterval) clearInterval(state.videoPollingInterval);
-
-    state.videoPollingInterval = setInterval(async () => {
-      attempts++;
-      if (attempts > maxAttempts) {
-        clearInterval(state.videoPollingInterval);
-        studioResult.innerHTML = `<div style="color:var(--danger)">Generation timed out. Please try again.</div>`;
-        generateVideoBtn.disabled = false;
-        generateVideoBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg> Generate Video';
-        return;
-      }
-
-      try {
-        const res = await fetch(`https://api.kie.ai/api/v1/jobs/getTask?taskId=${taskId}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${API_KEY}`
-          }
-        });
-
-        if (!res.ok) return; // Keep polling if there's a transient network error
-
-        const json = await res.json();
-        
-        if (json.code === 200 && json.data) {
-          const status = json.data.status;
-          
-          if (status === 'SUCCESS' || status === 'completed') {
-            clearInterval(state.videoPollingInterval);
-            
-            let videoUrl = json.data.resultUrl || (json.data.output && json.data.output[0]);
-            if (!videoUrl) throw new Error('Task completed but no video URL found.');
-
-            studioResult.innerHTML = `
-              <video src="${videoUrl}" controls autoplay loop></video>
-              <a href="${videoUrl}" download="seedance-video.mp4" class="download-btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                Download Video
-              </a>
-            `;
-            
-            generateVideoBtn.disabled = false;
-            generateVideoBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg> Generate Video';
-            
-          } else if (status === 'FAILED' || status === 'failed') {
-            clearInterval(state.videoPollingInterval);
-            throw new Error(json.data.error || 'Video generation failed');
-          } else {
-            // Still processing
-            const progress = json.data.progress || 0;
-            studioResult.innerHTML = `
-              <div class="studio-waiting">
-                <div class="spinner-large"></div>
-                <div>Generating video... ${progress}%</div>
-              </div>
-            `;
-          }
-        }
-      } catch (err) {
-        console.error('Polling error:', err);
-        clearInterval(state.videoPollingInterval);
-        studioResult.innerHTML = `<div style="color:var(--danger)">Error: ${escapeHtml(err.message)}</div>`;
-        generateVideoBtn.disabled = false;
-        generateVideoBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg> Generate Video';
-      }
-    }, 5000); // Poll every 5 seconds
-  }
-
-  /* ============================================================
-     CHAT API CALLS
+     API CALLS
      ============================================================ */
   async function fetchModelResponse(config, messages, reasoning, attachments) {
     let endpoint = config.endpoint;
@@ -1874,7 +2069,7 @@
     let augmentedMessages = JSON.parse(JSON.stringify(messages));
     if (textContext) {
       const lastMsg = augmentedMessages[augmentedMessages.length - 1];
-      if (lastMsg.role === 'user') {
+      if (lastMsg && lastMsg.role === 'user') {
         lastMsg.content += textContext;
       }
     }
@@ -1900,37 +2095,35 @@
         stream: false,
         instructions: SYSTEM_PROMPTS[state.mode],
         input: input,
-        reasoning: { effort: reasoning }
+        reasoning: { effort: reasoning },
+        max_output_tokens: 32000
       };
     } else if (config.id === 'gemini-4-argon') {
       const gMessages = [];
       if (SYSTEM_PROMPTS[state.mode]) {
-         gMessages.push({ role: 'system', content: SYSTEM_PROMPTS[state.mode] });
+        gMessages.push({ role: 'system', content: SYSTEM_PROMPTS[state.mode] });
       }
-      
+
       augmentedMessages.forEach(m => {
-         if (m.role === 'user') {
-            const contentParts = [{ type: 'text', text: m.content }];
-            if (m === augmentedMessages[augmentedMessages.length - 1] && imageAttachments.length > 0) {
-              imageAttachments.forEach(img => {
-                contentParts.push({ type: 'image_url', image_url: { url: img } });
-              });
-            }
-            gMessages.push({
-               role: 'user',
-               content: contentParts
+        if (m.role === 'user') {
+          const contentParts = [{ type: 'text', text: m.content }];
+          if (m === augmentedMessages[augmentedMessages.length - 1] && imageAttachments.length > 0) {
+            imageAttachments.forEach(img => {
+              contentParts.push({ type: 'image_url', image_url: { url: img } });
             });
-         } else {
-            gMessages.push({ role: m.role, content: m.content });
-         }
+          }
+          gMessages.push({ role: 'user', content: contentParts });
+        } else {
+          gMessages.push({ role: m.role, content: m.content });
+        }
       });
 
       body = {
-         messages: gMessages,
-         tools: [{ type: 'function', function: { name: 'googleSearch' } }],
-         stream: true,
-         include_thoughts: true,
-         reasoning_effort: reasoning
+        messages: gMessages,
+        tools: [{ type: 'function', function: { name: 'googleSearch' } }],
+        stream: true,
+        include_thoughts: true,
+        reasoning_effort: reasoning
       };
     } else if (config.id === 'gpt-6-luna') {
       const input = augmentedMessages.map(m => {
@@ -1938,7 +2131,7 @@
           type: m.role === 'user' ? 'input_text' : 'output_text',
           text: m.content
         }];
-        return { role: m.role, content: parts };
+        return { type: 'message', role: m.role, content: parts };
       });
 
       if (imageAttachments.length > 0) {
@@ -1952,18 +2145,26 @@
         model: config.id,
         stream: false,
         input: input,
-        tools: [{ type: 'web_search' }],
-        reasoning: { effort: reasoning }
+        reasoning: { effort: reasoning },
+        max_output_tokens: 32000
       };
     } else {
-      // Claude specific endpoint and body format
+      // Claude
+      const claudeMaxTokens = {
+        minimal: 8192,
+        low: 12288,
+        medium: 16384,
+        high: 24576,
+        max: 32000
+      };
+
       const claudeMessages = augmentedMessages.map(m => {
         if (m.role === 'user' && m === augmentedMessages[augmentedMessages.length - 1] && imageAttachments.length > 0) {
-           const contentParts = [{ type: 'text', text: m.content }];
-           imageAttachments.forEach(img => {
-             contentParts.push({ type: 'image_url', image_url: { url: img } });
-           });
-           return { role: 'user', content: contentParts };
+          const contentParts = [{ type: 'text', text: m.content }];
+          imageAttachments.forEach(img => {
+            contentParts.push({ type: 'image_url', image_url: { url: img } });
+          });
+          return { role: 'user', content: contentParts };
         }
         return { role: m.role, content: m.content };
       });
@@ -1972,12 +2173,12 @@
         model: config.id,
         messages: claudeMessages,
         system: SYSTEM_PROMPTS[state.mode],
-        max_tokens: 4096,
+        max_tokens: claudeMaxTokens[reasoning] || 32000,
         stream: false,
         thinkingFlag: true
       };
     }
-    
+
     const res = await fetch(endpoint, {
       method: 'POST',
       headers: {
@@ -1987,7 +2188,7 @@
       body: JSON.stringify(body),
       signal: state.abortController.signal
     });
-    
+
     if (!res.ok) {
       const err = await res.text().catch(() => '');
       throw new Error(`HTTP ${res.status}: ${err.slice(0, 300)}`);
@@ -1995,49 +2196,49 @@
     return res;
   }
 
-  /* ============================================================
-     CHAT STREAM PARSER
-     ============================================================ */
-  async function processResponse(response, config, onContent, onThinking) {
-    if (config.id === 'deepseek-v4-1-flash' || config.id === 'gpt-6-luna') {
-      const json = await response.json();
-      if (json.error) throw new Error(json.error.message || JSON.stringify(json.error));
-      
-      const reasoningItem = json.output?.find(o => o.type === 'reasoning');
-      const messageItem = json.output?.find(o => o.type === 'message');
-      
-      if (reasoningItem && reasoningItem.summary) {
-        const thinkText = reasoningItem.summary.map(s => s.text).join('\n');
-        if (thinkText) onThinking(thinkText);
-      }
-      
-      if (messageItem && messageItem.content) {
-        const text = messageItem.content.map(c => c.text).join('');
-        onContent(text);
-      }
-      return;
-    }
+  async function parseNonStreamingResponse(response, config) {
+    const json = await response.json();
+    if (json.error) throw new Error(json.error.message || JSON.stringify(json.error));
+
+    let text = '';
+    let thinking = '';
+    let truncated = false;
 
     if (config.id === 'claude-opus-5-5') {
-      const json = await response.json();
-      if (json.error) throw new Error(json.error.message || JSON.stringify(json.error));
-      
-      if (json.content && Array.isArray(json.content)) {
+      if (Array.isArray(json.content)) {
         json.content.forEach(block => {
-          if (block.type === 'thinking' && block.thinking) {
-            onThinking(block.thinking);
-          }
-          if (block.type === 'text' && block.text) {
-            onContent(block.text);
-          }
+          if (block.type === 'thinking' && block.thinking) thinking += block.thinking;
+          if (block.type === 'text' && block.text) text += block.text;
         });
       } else if (typeof json.content === 'string') {
-        onContent(json.content);
+        text = json.content;
       }
-      return;
+      if (json.stop_reason === 'max_tokens') truncated = true;
+    } else {
+      const output = json.output || [];
+      output.forEach(item => {
+        if (item.type === 'reasoning') {
+          if (Array.isArray(item.summary)) {
+            thinking += item.summary.map(s => s.text || '').join('\n');
+          }
+          if (Array.isArray(item.content)) {
+            thinking += item.content.map(c => c.text || '').join('');
+          }
+        }
+        if (item.type === 'message' && Array.isArray(item.content)) {
+          item.content.forEach(c => {
+            if ((c.type === 'output_text' || c.type === 'text') && c.text) text += c.text;
+          });
+        }
+      });
+      if (!text && typeof json.output_text === 'string') text = json.output_text;
+      if (json.status === 'incomplete' || json.incomplete_details) truncated = true;
     }
 
-    // Standard Streaming (Gemini)
+    return { text, thinking, truncated };
+  }
+
+  async function processStreamingResponse(response, onContent, onThinking) {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
@@ -2054,35 +2255,34 @@
         const trimmed = line.trim();
         if (!trimmed) continue;
         if (trimmed.startsWith('event: ')) continue;
+        if (!trimmed.startsWith('data: ')) continue;
 
-        if (trimmed.startsWith('data: ')) {
-          const payload = trimmed.slice(6).trim();
-          if (payload === '[DONE]') return;
+        const payload = trimmed.slice(6).trim();
+        if (payload === '[DONE]') return;
 
-          let json;
-          try { json = JSON.parse(payload); } catch { continue; }
-          if (json.error) throw new Error(json.error.message || JSON.stringify(json.error));
+        let json;
+        try { json = JSON.parse(payload); } catch { continue; }
+        if (json.error) throw new Error(json.error.message || JSON.stringify(json.error));
 
-          if (json.choices && json.choices[0]) {
-            const choice = json.choices[0];
-            const delta = choice.delta || {};
+        if (json.choices && json.choices[0]) {
+          const choice = json.choices[0];
+          const delta = choice.delta || {};
 
-            if (delta.reasoning_content) onThinking(delta.reasoning_content);
-            if (delta.reasoning) onThinking(delta.reasoning);
-            if (delta.thinking) onThinking(delta.thinking);
+          if (delta.reasoning_content) onThinking(delta.reasoning_content);
+          if (delta.reasoning) onThinking(delta.reasoning);
+          if (delta.thinking) onThinking(delta.thinking);
 
-            if (delta.content != null) {
-              if (typeof delta.content === 'string') {
-                if (delta.content) onContent(delta.content);
-              } else if (Array.isArray(delta.content)) {
-                for (const part of delta.content) {
-                  if (!part) continue;
-                  const isThought = part.thought === true || (part.type && /thought|reasoning/i.test(part.type));
-                  if (isThought) {
-                    if (part.text) onThinking(part.text);
-                  } else if (part.type === 'text' || typeof part.text === 'string') {
-                    if (part.text) onContent(part.text);
-                  }
+          if (delta.content != null) {
+            if (typeof delta.content === 'string') {
+              if (delta.content) onContent(delta.content);
+            } else if (Array.isArray(delta.content)) {
+              for (const part of delta.content) {
+                if (!part) continue;
+                const isThought = part.thought === true || (part.type && /thought|reasoning/i.test(part.type));
+                if (isThought) {
+                  if (part.text) onThinking(part.text);
+                } else if (part.type === 'text' || typeof part.text === 'string') {
+                  if (part.text) onContent(part.text);
                 }
               }
             }
@@ -2093,7 +2293,7 @@
   }
 
   /* ============================================================
-     CHAT GENERATE RESPONSE
+     GENERATE RESPONSE
      ============================================================ */
   async function generateResponse() {
     if (state.isGenerating) {
@@ -2110,15 +2310,18 @@
     sendIcon.style.display = 'none';
     stopIcon.style.display = 'block';
     sendBtn.classList.add('stop-mode');
+    sendBtn.disabled = false;
+    updateSendBtn();
 
     addUserMessage(text, state.attachments);
     state.messages.push({ role: 'user', content: text });
-    
+
     const currentAttachments = [...state.attachments];
     state.attachments = [];
     renderAttachments();
 
-    const { bubble, avatar } = createAssistantRow();
+    const { row, bubble, avatar, contentDiv } = createAssistantRow();
+    const streamState = { renderedParts: [] };
 
     let rawText = '';
     let rawThinking = '';
@@ -2126,30 +2329,32 @@
     let hasContent = false;
     let thinkingPanel = null;
     let thinkingBody = null;
-    let contentDiv = null;
-    let pendingContentRender = false;
-    let pendingThinkingRender = false;
+    let renderTimer = null;
+    let pendingThinking = false;
 
     state.abortController = new AbortController();
 
-    function ensureThinkingPanel() {
-      if (thinkingPanel) return;
-      const waitInd = bubble.querySelector('.waiting-indicator');
-      if (waitInd) waitInd.remove();
-      
-      thinkingPanel = createThinkingPanel();
-      thinkingBody = thinkingPanel.querySelector('.thinking-body');
-      bubble.appendChild(thinkingPanel);
+    function removeWaiting() {
+      const w = bubble.querySelector('.waiting-indicator');
+      if (w) w.remove();
     }
 
-    function ensureContentDiv() {
-      if (contentDiv) return;
-      const waitInd = bubble.querySelector('.waiting-indicator');
-      if (waitInd) waitInd.remove();
-      
-      contentDiv = document.createElement('div');
-      contentDiv.className = 'content cursor';
-      bubble.appendChild(contentDiv);
+    function ensureThinkingPanel() {
+      if (thinkingPanel) return;
+      removeWaiting();
+      thinkingPanel = createThinkingPanel();
+      thinkingBody = thinkingPanel.querySelector('.thinking-body');
+      bubble.insertBefore(thinkingPanel, contentDiv);
+    }
+
+    function scheduleContentRender() {
+      if (renderTimer) return;
+      renderTimer = setTimeout(() => {
+        renderTimer = null;
+        updateStreamingContent(contentDiv, rawText, streamState);
+        ensureCursor(contentDiv);
+        scrollToBottom();
+      }, 30);
     }
 
     function finalizeThinking(forceCollapse = true) {
@@ -2179,19 +2384,20 @@
         avatar.classList.add('thinking');
       }
 
-      if (!pendingThinkingRender) {
-        pendingThinkingRender = true;
-        requestAnimationFrame(() => {
+      if (pendingThinking) return;
+      pendingThinking = true;
+      requestAnimationFrame(() => {
+        pendingThinking = false;
+        if (thinkingBody) {
           thinkingBody.textContent = rawThinking;
           const wrapper = thinkingBody.parentElement;
-          if (wrapper && thinkingPanel.classList.contains('expanded')) {
+          if (wrapper && thinkingPanel && thinkingPanel.classList.contains('expanded')) {
             const nearBottom = wrapper.scrollHeight - wrapper.scrollTop - wrapper.clientHeight < 40;
             if (nearBottom) wrapper.scrollTop = wrapper.scrollHeight;
           }
-          scrollToBottom();
-          pendingThinkingRender = false;
-        });
-      }
+        }
+        scrollToBottom();
+      });
     }
 
     function onContent(chunk) {
@@ -2200,33 +2406,44 @@
 
       if (!hasContent) {
         hasContent = true;
-        ensureContentDiv();
+        removeWaiting();
         if (hasThinking) finalizeThinking();
       }
-
-      if (!pendingContentRender) {
-        pendingContentRender = true;
-        requestAnimationFrame(() => {
-          const codeBlockCount = (rawText.match(/```/g) || []).length;
-          if (codeBlockCount % 2 !== 0) {
-            contentDiv.textContent = rawText;
-          } else {
-            contentDiv.innerHTML = renderMarkdown(rawText);
-            contentDiv.querySelectorAll('pre code').forEach(block => {
-              try { hljs.highlightElement(block); } catch {}
-            });
-          }
-          scrollToBottom();
-          pendingContentRender = false;
-        });
-      }
+      scheduleContentRender();
     }
 
     try {
       const config = MODEL_CONFIG[state.model];
-      const response = await fetchModelResponse(config, state.messages, state.reasoning, currentAttachments);
-      await processResponse(response, config, onContent, onThinking);
+      const isStreaming = config.id === 'gemini-4-argon';
 
+      if (isStreaming) {
+        const response = await fetchModelResponse(config, state.messages, state.reasoning, currentAttachments);
+        await processStreamingResponse(response, onContent, onThinking);
+      } else {
+        let requestMessages = [...state.messages];
+        let accumulated = '';
+
+        for (let attempt = 0; attempt < 3; attempt++) {
+          if (state.abortController.signal.aborted) break;
+          const response = await fetchModelResponse(
+            config,
+            requestMessages,
+            state.reasoning,
+            attempt === 0 ? currentAttachments : []
+          );
+          const result = await parseNonStreamingResponse(response, config);
+          if (result.thinking) onThinking(result.thinking);
+          if (result.text) onContent(result.text);
+          accumulated += result.text;
+          if (!result.truncated) break;
+
+          requestMessages = [
+            ...requestMessages,
+            { role: 'assistant', content: accumulated },
+            { role: 'user', content: 'Continue from exactly where you stopped. Do not repeat any previous content. Output only the continuation.' }
+          ];
+        }
+      }
     } catch (err) {
       if (err.name === 'AbortError') {
         rawText = rawText ? rawText + '\n\n*[Generation stopped]*' : '*[Generation stopped]*';
@@ -2235,30 +2452,19 @@
         const errMsg = `⚠️ **Error:** ${err.message}`;
         rawText = rawText ? rawText + '\n\n' + errMsg : errMsg;
       }
-      if (!contentDiv) {
-        hasContent = true;
-        ensureContentDiv();
-        if (hasThinking) finalizeThinking(false);
-      }
+      hasContent = true;
+      removeWaiting();
+      scheduleContentRender();
     } finally {
-      if (contentDiv) {
-        contentDiv.innerHTML = renderMarkdown(rawText);
-        contentDiv.querySelectorAll('pre code').forEach(block => {
-          try { hljs.highlightElement(block); } catch {}
-        });
-        contentDiv.classList.remove('cursor');
+      if (renderTimer) {
+        clearTimeout(renderTimer);
+        renderTimer = null;
       }
-      
-      if (!hasContent && !hasThinking) {
-         ensureContentDiv();
-         contentDiv.textContent = rawText || '*[No response received]*';
-         contentDiv.classList.remove('cursor');
-      }
-      
-      if (thinkingPanel && hasContent) {
-        finalizeThinking();
-      }
+      removeCursor(contentDiv);
+      finalizeContent(contentDiv, rawText, streamState);
+      if (hasThinking) finalizeThinking();
       avatar.classList.remove('thinking');
+      addMessageActions(bubble, rawText);
 
       if (rawText.trim()) {
         state.messages.push({ role: 'assistant', content: rawText });
@@ -2269,8 +2475,10 @@
       sendIcon.style.display = 'block';
       stopIcon.style.display = 'none';
       sendBtn.classList.remove('stop-mode');
+      updateSendBtn();
       chatInput.focus();
       scrollToBottom(true);
+      updateScrollBtn();
     }
   }
 
@@ -2289,10 +2497,12 @@
   chatInput.addEventListener('input', function () {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+    updateSendBtn();
   });
 
   setMode('coding');
   chatInput.focus();
+  updateSendBtn();
 </script>
 </body>
 </html>
