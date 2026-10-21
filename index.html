@@ -64,7 +64,7 @@
     position: fixed;
     inset: 0;
     background: url('bg.png') center / cover no-repeat;
-    opacity: 0.06;
+    opacity: 0.10;
     z-index: 0;
     pointer-events: none;
     transition: opacity 0.4s ease;
@@ -83,11 +83,27 @@
   body.mode-coding::before {
     background: radial-gradient(circle at 50% 0%, rgba(66, 133, 244, 0.04) 0%, transparent 60%);
   }
-  body.mode-coding::after { opacity: 0.05; }
+  body.mode-coding::after { opacity: 0.09; }
   body.mode-coding .welcome-title {
     font-family: var(--font-serif);
     font-weight: 400;
     letter-spacing: -0.02em;
+  }
+
+  .bottom-shade {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: clamp(150px, 24vh, 280px);
+    padding-bottom: var(--safe-bottom);
+    background: linear-gradient(to bottom, rgba(14,13,12,0) 0%, rgba(14,13,12,.56) 48%, rgba(14,13,12,.96) 100%);
+    pointer-events: none;
+    z-index: 0.5;
+  }
+  body.mode-coding .bottom-shade {
+    background: linear-gradient(to bottom, rgba(10,10,11,0) 0%, rgba(10,10,11,.62) 48%, rgba(10,10,11,.98) 100%);
   }
 
   .app {
@@ -1414,6 +1430,7 @@
     reasoning: 'medium',
     messages: [],
     attachments: [],
+    workspaceFiles: {},
     isGenerating: false,
     abortController: null,
     currentModelAvatar: null,
@@ -2198,6 +2215,48 @@
   /* ============================================================
      ATTACHMENTS
      ============================================================ */
+  function showWorkspaceNotice() {
+    let note = document.getElementById('workspaceNotice');
+    if (!note) {
+      note = document.createElement('div');
+      note.id = 'workspaceNotice';
+      note.style.cssText = 'position:fixed;right:12px;top:12px;z-index:90;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:9px 12px;font-size:12px;box-shadow:0 8px 30px #0008;max-width:calc(100vw - 24px)';
+      document.body.appendChild(note);
+    }
+    const count = Object.keys(state.workspaceFiles).length;
+    note.innerHTML = `<span>${count} workspace file${count === 1 ? '' : 's'} loaded</span> <button id="exportWorkspaceBtn" style="margin-left:8px;background:var(--accent);border:0;color:white;border-radius:6px;padding:5px 8px;cursor:pointer">Export ZIP</button> <button id="closeWorkspaceNotice" style="margin-left:4px;background:transparent;border:0;color:inherit;cursor:pointer">×</button>`;
+    note.querySelector('#exportWorkspaceBtn').onclick = exportWorkspaceZip;
+    note.querySelector('#closeWorkspaceNotice').onclick = () => note.remove();
+  }
+  async function exportWorkspaceZip() {
+    const zip = new JSZip();
+    Object.entries(state.workspaceFiles).forEach(([path, content]) => zip.file(path, content));
+    const blob = await zip.generateAsync({type:'blob'});
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = 'workspace-updated.zip'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+  function applyWorkspaceOperations(text) {
+    const report = [];
+    const editRe = /<edit_file\s+path=["']([^"']+)["']\s*>\s*<old>([\s\S]*?)<\/old>\s*<new>([\s\S]*?)<\/new>\s*<\/edit_file>/gi;
+    const writeRe = /<write_file\s+path=["']([^"']+)["']\s*>\s*<content>([\s\S]*?)<\/content>\s*<\/write_file>/gi;
+    let m;
+    while ((m = editRe.exec(text))) {
+      const path = m[1].replace(/^\/+/, ''), oldText = m[2], newText = m[3];
+      if (!Object.prototype.hasOwnProperty.call(state.workspaceFiles, path)) report.push(`${path}: file not found`);
+      else if (!oldText || !state.workspaceFiles[path].includes(oldText)) report.push(`${path}: exact old text not found; unchanged`);
+      else { state.workspaceFiles[path] = state.workspaceFiles[path].replace(oldText, newText); report.push(`${path}: edited`); }
+    }
+    while ((m = writeRe.exec(text))) {
+      const path = m[1].replace(/^\/+/, '');
+      if (!path || path.split('/').includes('..')) report.push(`${path}: invalid path`);
+      else { state.workspaceFiles[path] = m[2]; report.push(`${path}: saved`); }
+    }
+    if (!report.length) return '';
+    showWorkspaceNotice();
+    return '\n\n**Workspace changes**\n' + report.map(x => '- ' + x).join('\n') + '\nChoose **Export ZIP** to download the updated project.';
+  }
+
   attachBtn.addEventListener('click', () => fileInput.click());
 
   fileInput.addEventListener('change', async (e) => {
@@ -2212,15 +2271,21 @@
           const zip = await JSZip.loadAsync(file);
           const textFiles = [];
           for (const [filename, zipEntry] of Object.entries(zip.files)) {
-            if (!zipEntry.dir && /\.(txt|md|html|js|css|json|py|ts|tsx|jsx|c|cpp|h|hpp|java|cs|go|rs|rb|php)$/i.test(filename)) {
+            if (!zipEntry.dir && /\.(txt|md|html|js|mjs|cjs|css|json|py|ts|tsx|jsx|c|cpp|h|hpp|java|cs|go|rs|rb|php|xml|yml|yaml|toml|sh|sql)$/i.test(filename)) {
               const fileContent = await zipEntry.async('string');
+              state.workspaceFiles[filename.replace(/^\/+/, '')] = fileContent;
               textFiles.push(`--- File: ${filename} ---\n${fileContent}`);
             }
           }
           content = textFiles.join('\n\n');
+          if (Object.keys(state.workspaceFiles).length) {
+            showWorkspaceNotice();
+          }
         } catch (err) { console.error('Error reading zip:', err); alert('Failed to read zip file.'); continue; }
       } else if (/\.(txt|md|html|js|css|json|py|ts|tsx|jsx|c|cpp|h|hpp|java|cs|go|rs|rb|php)$/i.test(file.name) || file.type.startsWith('text/')) {
         content = await file.text();
+        state.workspaceFiles[file.name] = content;
+        showWorkspaceNotice();
       } else if (file.type.startsWith('image/')) {
         content = await new Promise((resolve) => {
           const reader = new FileReader();
@@ -2663,6 +2728,10 @@
     let body = {};
 
     let textContext = '';
+    if (Object.keys(state.workspaceFiles || {}).length) {
+      const entries = Object.entries(state.workspaceFiles);
+      textContext += '\n\n=== IN-BROWSER WORKSPACE FILES (relative paths) ===\n' + entries.map(([path, content]) => `--- WORKSPACE FILE: ${path} ---\n${content}`).join('\n\n') + '\n=== END WORKSPACE FILES ===\nUse minimal edits and the documented file-operation tags. Workspace context is limited to loaded text files.\n';
+    }
     const imageAttachments = [];
     attachments.forEach(att => {
       if (att.type === 'text') textContext += `\n\n--- Attached File: ${att.name} ---\n${att.content}`;
@@ -2953,6 +3022,7 @@
       if (thinkingTimer) { clearInterval(thinkingTimer); thinkingTimer = null; }
       removeWaiting();
       removeCursor(contentDiv);
+      rawText += applyWorkspaceOperations(rawText);
       finalizeContent(contentDiv, rawText, streamState);
       if (hasThinking) finalizeThinking();
       avatar.classList.remove('thinking');
