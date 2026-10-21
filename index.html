@@ -44,7 +44,7 @@
     transition: background-color 0.4s ease;
   }
 
-  /* Soft tone gradient layer */
+  /* Default layers (overridable by models.json → settings) */
   body::before {
     content: '';
     position: fixed;
@@ -56,8 +56,6 @@
     pointer-events: none;
     transition: opacity 0.4s ease;
   }
-
-  /* Barely-visible background image layer */
   body::after {
     content: '';
     position: fixed;
@@ -315,7 +313,6 @@
     height: 24px;
     color: var(--accent);
   }
-  /* Thinking state: glow + opacity pulse only, no resizing */
   .msg-avatar.thinking img {
     animation: avatarGlow 1.4s ease-in-out infinite;
     filter: drop-shadow(0 0 12px rgba(217, 119, 87, 0.7));
@@ -845,7 +842,7 @@
     inset: 0;
     border-radius: 12px;
     padding: 1px;
-    background: var(--glow-gradient);
+    background: var(--glow-gradient, linear-gradient(45deg, #666, #999, #666));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -865,14 +862,6 @@
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
   }
-
-  .model-option[data-model="gemini"]  { --glow-gradient: linear-gradient(45deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4); }
-  .model-option[data-model="claude"]  { --glow-gradient: linear-gradient(45deg, #D97757, #E88A6C, #D97757); }
-  .model-option[data-model="luna"]    { --glow-gradient: linear-gradient(45deg, #10A37F, #0A7A5E, #10A37F); }
-  .model-option[data-model="deepseek"]{ --glow-gradient: linear-gradient(45deg, #4D6BFE, #8C52FF, #4D6BFE); }
-  .model-option[data-model="argy"]    { --glow-gradient: linear-gradient(45deg, #7a7a7a, #d8d8d8, #9a9a9a, #f0f0f0, #7a7a7a); }
-  .model-option[data-model="argy2"]   { --glow-gradient: linear-gradient(45deg, #c9a94a, #f3dd8c, #e6c66a, #fff2c2, #c9a94a); }
-  .model-option[data-model="argy3"]   { --glow-gradient: linear-gradient(45deg, #2d7d8a, #5fc4d1, #9fe3ea, #5fc4d1, #2d7d8a); }
 
   .model-option-left {
     display: flex;
@@ -1268,88 +1257,14 @@
           </button>
           <input type="file" id="fileInput" multiple accept=".txt,.html,.zip,image/*" style="display: none;">
 
-          <!-- Model Selector -->
+          <!-- Model Selector (populated from models.json) -->
           <div class="model-selector-wrapper">
             <button class="model-btn" id="modelBtn">
-              <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg" class="model-icon" id="currentModelIcon" alt="">
-              <span id="currentModelName">Gemini 4 Argon</span>
+              <img src="" class="model-icon" id="currentModelIcon" alt="">
+              <span id="currentModelName">Loading…</span>
               <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </button>
-
-            <div class="model-dropdown" id="modelDropdown">
-              <div class="model-option active" data-model="gemini" data-id="gemini-4-argon" data-name="Gemini 4 Argon">
-                <div class="model-option-left">
-                  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg" class="model-brand-icon" alt="Gemini">
-                  <div class="model-option-info">
-                    <span class="model-option-name">Gemini 4 Argon</span>
-                    <span class="model-option-meta">Fast · multimodal</span>
-                  </div>
-                </div>
-                <div class="model-status-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                </div>
-              </div>
-              <div class="model-option" data-model="argy" data-id="gemini-3-7-flash" data-name="Argy 1.4 seconds">
-                <div class="model-option-left">
-                  <img src="Argy/argy1.png" class="model-brand-icon" alt="Argy" data-fallback="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg">
-                  <div class="model-option-info">
-                    <span class="model-option-name">Argy 1.4 seconds</span>
-                    <span class="model-option-meta">Fast · Gemini-powered</span>
-                  </div>
-                </div>
-                <div class="model-status-icon"></div>
-              </div>
-              <div class="model-option" data-model="argy2" data-id="gpt-5-2" data-name="Argy 1.5 minutes">
-                <div class="model-option-left">
-                  <img src="Argy/argy2.png" class="model-brand-icon" alt="Argy" data-fallback="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg">
-                  <div class="model-option-info">
-                    <span class="model-option-name">Argy 1.5 minutes</span>
-                    <span class="model-option-meta">GPT-powered · reasoning</span>
-                  </div>
-                </div>
-                <div class="model-status-icon"></div>
-              </div>
-              <div class="model-option" data-model="argy3" data-id="gpt-6-astra" data-name="Argy 2 inline">
-                <div class="model-option-left">
-                  <img src="Argy/argy3.png" class="model-brand-icon" alt="Argy" data-fallback="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg">
-                  <div class="model-option-info">
-                    <span class="model-option-name">Argy 2 inline</span>
-                    <span class="model-option-meta">GPT Astra · Responses API</span>
-                  </div>
-                </div>
-                <div class="model-status-icon"></div>
-              </div>
-              <div class="model-option" data-model="claude" data-id="claude-opus-5-5" data-name="Claude Opus 5.5">
-                <div class="model-option-left">
-                  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/claude-color.svg" class="model-brand-icon" alt="Claude">
-                  <div class="model-option-info">
-                    <span class="model-option-name">Claude Opus 5.5</span>
-                    <span class="model-option-meta">Top-tier reasoning</span>
-                  </div>
-                </div>
-                <div class="model-status-icon"></div>
-              </div>
-              <div class="model-option" data-model="luna" data-id="gpt-6-luna" data-name="GPT-6 Luna">
-                <div class="model-option-left">
-                  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg" class="model-brand-icon" alt="Luna">
-                  <div class="model-option-info">
-                    <span class="model-option-name">GPT-6 Luna</span>
-                    <span class="model-option-meta">Advanced reasoning</span>
-                  </div>
-                </div>
-                <div class="model-status-icon"></div>
-              </div>
-              <div class="model-option" data-model="deepseek" data-id="deepseek-v4-1-flash" data-name="DeepSeek V4.1 Flash">
-                <div class="model-option-left">
-                  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/deepseek-color.svg" class="model-brand-icon" alt="DeepSeek">
-                  <div class="model-option-info">
-                    <span class="model-option-name">DeepSeek V4.1 Flash</span>
-                    <span class="model-option-meta">Fast · efficient coding</span>
-                  </div>
-                </div>
-                <div class="model-status-icon"></div>
-              </div>
-            </div>
+            <div class="model-dropdown" id="modelDropdown"></div>
           </div>
 
           <!-- Dynamic Reasoning Container -->
@@ -1383,79 +1298,9 @@
 
 <script>
   /* ============================================================
-     CONFIG
+     CONSTANTS
      ============================================================ */
   const API_KEY = '74448d346da387f028dc55cf96e194d3';
-
-  const MODEL_CONFIG = {
-    gemini: {
-      name: 'Gemini 4 Argon',
-      id: 'gemini-4-argon',
-      endpoint: 'https://api.kie.ai/gemini-4-argon-openai/v1/chat/completions',
-      reasoningType: 'pills',
-      reasoningOptions: ['low', 'medium', 'high'],
-      defaultReasoning: 'medium',
-      icon: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg'
-    },
-    argy: {
-      name: 'Argy 1.4 seconds',
-      id: 'gemini-3-7-flash',
-      endpoint: 'https://api.kie.ai/gemini/v1/models/gemini-3-7-flash:streamGenerateContent',
-      apiType: 'gemini-native',
-      reasoningType: 'pills',
-      reasoningOptions: ['low', 'medium', 'high'],
-      defaultReasoning: 'medium',
-      icon: 'Argy/argy1.png',
-      iconFallback: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg'
-    },
-    argy2: {
-      name: 'Argy 1.5 minutes',
-      id: 'gpt-5-2',
-      endpoint: 'https://api.kie.ai/gpt-5-2/v1/chat/completions',
-      reasoningType: 'pills',
-      reasoningOptions: ['low', 'medium', 'high'],
-      defaultReasoning: 'medium',
-      icon: 'Argy/argy2.png',
-      iconFallback: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg'
-    },
-    argy3: {
-      name: 'Argy 2 inline',
-      id: 'gpt-6-astra',
-      endpoint: 'https://api.kie.ai/codex/v1/responses',
-      apiType: 'responses',
-      reasoningType: 'pills',
-      reasoningOptions: ['low', 'medium', 'high'],
-      defaultReasoning: 'medium',
-      icon: 'Argy/argy3.png',
-      iconFallback: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg'
-    },
-    claude: {
-      name: 'Claude Opus 5.5',
-      id: 'claude-opus-5-5',
-      endpoint: 'https://api.kie.ai/claude/v1/messages',
-      reasoningType: 'slider',
-      defaultReasoning: 'medium',
-      icon: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/claude-color.svg'
-    },
-    luna: {
-      name: 'GPT-6 Luna',
-      id: 'gpt-6-luna',
-      endpoint: 'https://api.kie.ai/codex/v1/responses',
-      reasoningType: 'pills',
-      reasoningOptions: ['low', 'medium', 'high'],
-      defaultReasoning: 'medium',
-      icon: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg'
-    },
-    deepseek: {
-      name: 'DeepSeek V4.1 Flash',
-      id: 'deepseek-v4-1-flash',
-      endpoint: 'https://api.kie.ai/openai/v1/responses',
-      reasoningType: 'pills',
-      reasoningOptions: ['low', 'medium', 'high'],
-      defaultReasoning: 'medium',
-      icon: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/deepseek-color.svg'
-    }
-  };
 
   const SYSTEM_PROMPTS = {
     coding: `You are an expert full-stack coding assistant working inside a chat workspace.
@@ -1483,18 +1328,48 @@ CORE RULES:
     simple: 'You are a concise assistant. Answer directly and briefly. Skip unnecessary explanation and filler. Use short sentences. No verbose intros or outros.'
   };
 
+  // Built-in fallback: used only when models.json cannot be fetched (e.g. file://).
+  const DEFAULT_CONFIG = {
+    settings: {
+      defaultModel: 'gemini',
+      accentColor: '#d97757',
+      accentHoverColor: '#e88a6c',
+      accentGlow: 'rgba(217, 119, 87, 0.15)',
+      backgroundGradient: 'radial-gradient(circle at 50% 0%, rgba(217, 119, 87, 0.03) 0%, transparent 50%), radial-gradient(circle at 50% 100%, rgba(180, 140, 100, 0.02) 0%, transparent 50%)',
+      codingBackgroundGradient: 'radial-gradient(circle at 50% 0%, rgba(66, 133, 244, 0.04) 0%, transparent 60%)',
+      backgroundImageOpacity: 0.06,
+      codingBackgroundImageOpacity: 0.05
+    },
+    models: [
+      { key: 'gemini', name: 'Gemini 4 Argon', id: 'gemini-4-argon', endpoint: 'https://api.kie.ai/gemini-4-argon-openai/v1/chat/completions', apiType: 'openai-chat', reasoningType: 'pills', reasoningOptions: ['low', 'medium', 'high'], defaultReasoning: 'medium', icon: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg', iconFallback: '', meta: 'Fast · multimodal', glowGradient: 'linear-gradient(45deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4)', sendModelInBody: false, supportsReasoningEffort: true, includeThoughts: true, includeInstructions: false, tools: [{ type: 'function', function: { name: 'googleSearch' } }], maxOutputTokens: null },
+      { key: 'argy', name: 'Argy 1.4 seconds', id: 'gemini-3-7-flash', endpoint: 'https://api.kie.ai/gemini/v1/models/gemini-3-7-flash:streamGenerateContent', apiType: 'gemini-native', reasoningType: 'pills', reasoningOptions: ['low', 'medium', 'high'], defaultReasoning: 'medium', icon: 'Argy/argy1.png', iconFallback: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg', meta: 'Fast · Gemini-powered', glowGradient: 'linear-gradient(45deg, #7a7a7a, #d8d8d8, #9a9a9a, #f0f0f0, #7a7a7a)' },
+      { key: 'argy2', name: 'Argy 1.5 minutes', id: 'gpt-5-2', endpoint: 'https://api.kie.ai/gpt-5-2/v1/chat/completions', apiType: 'openai-chat', reasoningType: 'pills', reasoningOptions: ['low', 'medium', 'high'], defaultReasoning: 'medium', icon: 'Argy/argy2.png', iconFallback: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg', meta: 'GPT-powered · reasoning', glowGradient: 'linear-gradient(45deg, #c9a94a, #f3dd8c, #e6c66a, #fff2c2, #c9a94a)', sendModelInBody: true, supportsReasoningEffort: true, includeThoughts: false, includeInstructions: false, tools: null, maxOutputTokens: null },
+      { key: 'argy3', name: 'Argy 2 inline', id: 'gpt-6-astra', endpoint: 'https://api.kie.ai/codex/v1/responses', apiType: 'openai-responses', reasoningType: 'pills', reasoningOptions: ['low', 'medium', 'high'], defaultReasoning: 'medium', icon: 'Argy/argy3.png', iconFallback: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg', meta: 'GPT Astra · Responses API', glowGradient: 'linear-gradient(45deg, #2d7d8a, #5fc4d1, #9fe3ea, #5fc4d1, #2d7d8a)', sendModelInBody: true, supportsReasoningEffort: true, includeInstructions: false, tools: [{ type: 'web_search' }], maxOutputTokens: null },
+      { key: 'claude', name: 'Claude Opus 5.5', id: 'claude-opus-5-5', endpoint: 'https://api.kie.ai/claude/v1/messages', apiType: 'anthropic', reasoningType: 'slider', reasoningOptions: ['minimal', 'low', 'medium', 'high', 'max'], defaultReasoning: 'medium', icon: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/claude-color.svg', iconFallback: '', meta: 'Top-tier reasoning', glowGradient: 'linear-gradient(45deg, #D97757, #E88A6C, #D97757)', sendModelInBody: true },
+      { key: 'luna', name: 'GPT-6 Luna', id: 'gpt-6-luna', endpoint: 'https://api.kie.ai/codex/v1/responses', apiType: 'openai-responses', reasoningType: 'pills', reasoningOptions: ['low', 'medium', 'high'], defaultReasoning: 'medium', icon: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg', iconFallback: '', meta: 'Advanced reasoning', glowGradient: 'linear-gradient(45deg, #10A37F, #0A7A5E, #10A37F)', sendModelInBody: true, supportsReasoningEffort: true, includeInstructions: false, tools: null, maxOutputTokens: 32000 },
+      { key: 'deepseek', name: 'DeepSeek V4.1 Flash', id: 'deepseek-v4-1-flash', endpoint: 'https://api.kie.ai/openai/v1/responses', apiType: 'openai-responses', reasoningType: 'pills', reasoningOptions: ['low', 'medium', 'high'], defaultReasoning: 'medium', icon: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/deepseek-color.svg', iconFallback: '', meta: 'Fast · efficient coding', glowGradient: 'linear-gradient(45deg, #4D6BFE, #8C52FF, #4D6BFE)', sendModelInBody: true, supportsReasoningEffort: true, includeInstructions: true, tools: null, maxOutputTokens: 32000 }
+    ]
+  };
+
+  /* ============================================================
+     RUNTIME CONFIG (filled after load)
+     ============================================================ */
+  let MODEL_CONFIG = {};      // key -> model config
+  let MODELS_LIST = [];       // ordered array
+  let SETTINGS = {};
+
   /* ============================================================
      STATE
      ============================================================ */
   const state = {
     mode: 'coding',
-    model: 'gemini',
+    model: null,
     reasoning: 'medium',
     messages: [],
     attachments: [],
     isGenerating: false,
     abortController: null,
-    currentModelAvatar: MODEL_CONFIG.gemini.icon,
+    currentModelAvatar: null,
     userHasScrolled: false
   };
 
@@ -1502,7 +1377,6 @@ CORE RULES:
      DOM
      ============================================================ */
   const chatScrollArea = document.getElementById('chatScrollArea');
-  const chatBottomBar = document.getElementById('chatBottomBar');
   const inputWrapper = document.getElementById('inputWrapper');
 
   const welcomeContainer = document.getElementById('welcomeContainer');
@@ -1595,6 +1469,203 @@ CORE RULES:
       return;
     }
     sendBtn.disabled = !chatInput.value.trim() && state.attachments.length === 0;
+  }
+
+  /* ============================================================
+     APPLY SETTINGS (background gradients, accent colors, etc.)
+     ============================================================ */
+  function applySettings() {
+    const root = document.documentElement;
+    if (SETTINGS.accentColor) root.style.setProperty('--accent', SETTINGS.accentColor);
+    if (SETTINGS.accentHoverColor) root.style.setProperty('--accent-hover', SETTINGS.accentHoverColor);
+    if (SETTINGS.accentGlow) root.style.setProperty('--accent-glow', SETTINGS.accentGlow);
+
+    if (SETTINGS.backgroundGradient || SETTINGS.codingBackgroundGradient ||
+        SETTINGS.backgroundImageOpacity != null || SETTINGS.codingBackgroundImageOpacity != null) {
+      let styleTag = document.getElementById('custom-bg-style');
+      if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'custom-bg-style';
+        document.head.appendChild(styleTag);
+      }
+      let css = '';
+      if (SETTINGS.backgroundGradient) {
+        css += `body::before { background: ${SETTINGS.backgroundGradient}; }\n`;
+      }
+      if (SETTINGS.backgroundImageOpacity != null) {
+        css += `body::after { opacity: ${SETTINGS.backgroundImageOpacity}; }\n`;
+      }
+      if (SETTINGS.codingBackgroundGradient) {
+        css += `body.mode-coding::before { background: ${SETTINGS.codingBackgroundGradient}; }\n`;
+      }
+      if (SETTINGS.codingBackgroundImageOpacity != null) {
+        css += `body.mode-coding::after { opacity: ${SETTINGS.codingBackgroundImageOpacity}; }\n`;
+      }
+      styleTag.textContent = css;
+    }
+  }
+
+  /* ============================================================
+     POPULATE MODEL DROPDOWN (from models.json)
+     ============================================================ */
+  function populateModelDropdown() {
+    modelDropdown.innerHTML = '';
+    MODELS_LIST.forEach(model => {
+      const option = document.createElement('div');
+      option.className = 'model-option';
+      option.dataset.model = model.key;
+      option.style.setProperty('--glow-gradient', model.glowGradient || 'linear-gradient(45deg, #666, #999, #666)');
+
+      const fbAttr = model.iconFallback ? ` data-fallback="${escapeHtml(model.iconFallback)}"` : '';
+      option.innerHTML = `
+        <div class="model-option-left">
+          <img class="model-brand-icon" src="${escapeHtml(model.icon)}" alt="${escapeHtml(model.name)}"${fbAttr}>
+          <div class="model-option-info">
+            <span class="model-option-name">${escapeHtml(model.name)}</span>
+            <span class="model-option-meta">${escapeHtml(model.meta || '')}</span>
+          </div>
+        </div>
+        <div class="model-status-icon"></div>
+      `;
+
+      const img = option.querySelector('.model-brand-icon');
+      img.addEventListener('error', function handleBrandIconError() {
+        const fb = img.dataset.fallback;
+        if (fb && img.src !== fb) { img.src = fb; }
+        else { img.style.visibility = 'hidden'; }
+      });
+
+      option.addEventListener('click', () => {
+        selectModel(model.key);
+        modelDropdown.classList.remove('active');
+        modelBtn.classList.remove('active');
+      });
+
+      modelDropdown.appendChild(option);
+    });
+  }
+
+  function selectModel(key) {
+    const config = MODEL_CONFIG[key];
+    if (!config) return;
+
+    state.model = key;
+    state.currentModelAvatar = config.icon;
+    currentModelName.textContent = config.name;
+    currentModelIcon.src = config.icon;
+
+    modelDropdown.querySelectorAll('.model-option').forEach(o => {
+      const isActive = o.dataset.model === key;
+      o.classList.toggle('active', isActive);
+      const statusIcon = o.querySelector('.model-status-icon');
+      if (statusIcon) {
+        statusIcon.innerHTML = isActive
+          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>'
+          : '';
+      }
+    });
+
+    renderReasoningUI();
+  }
+
+  // Toolbar icon fallback (also covers Argy custom icons that may 404)
+  currentModelIcon.addEventListener('error', function handleToolbarIconError() {
+    const cfg = MODEL_CONFIG[state.model];
+    if (cfg && cfg.iconFallback && this.src.indexOf(cfg.iconFallback) === -1) {
+      this.src = cfg.iconFallback;
+    }
+  });
+
+  /* ============================================================
+     REASONING UI
+     ============================================================ */
+  function renderReasoningUI() {
+    reasoningContainer.innerHTML = '';
+    const config = MODEL_CONFIG[state.model];
+    if (!config) return;
+
+    let defaultReasoning = config.defaultReasoning || 'medium';
+    if (config.reasoningType === 'pills' && state.mode === 'coding') defaultReasoning = 'high';
+    if (config.reasoningType === 'pills' && state.mode === 'simple') defaultReasoning = 'low';
+    state.reasoning = defaultReasoning;
+
+    if (config.reasoningType === 'slider') {
+      const levels = ['Minimal', 'Low', 'Medium', 'High', 'Max'];
+      const values = ['minimal', 'low', 'medium', 'high', 'max'];
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'claude-slider-wrapper';
+      wrapper.innerHTML = `
+        <div class="claude-level-bubble">Medium</div>
+        <div class="claude-slider-track">
+          <div class="claude-slider-fill"></div>
+          <div class="claude-slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <input type="range" class="claude-slider" min="0" max="4" step="1" value="2" aria-label="Reasoning effort">
+      `;
+
+      const slider = wrapper.querySelector('.claude-slider');
+      const bubble = wrapper.querySelector('.claude-level-bubble');
+      const ticks = Array.from(wrapper.querySelectorAll('.claude-slider-ticks span'));
+
+      let initialVal = 2;
+      if (state.mode === 'coding') initialVal = 4;
+      if (state.mode === 'simple') initialVal = 1;
+
+      const applySlider = (val, pop) => {
+        const pct = val / 4;
+        wrapper.style.setProperty('--pct', pct);
+        bubble.style.left = `calc(10px + (100% - 20px) * ${pct})`;
+        bubble.textContent = levels[val];
+        ticks.forEach((t, i) => t.classList.toggle('active', i <= val));
+        state.reasoning = values[val];
+        if (pop) {
+          try {
+            bubble.getAnimations().forEach(a => a.cancel());
+            bubble.animate(
+              [
+                { transform: 'translateX(-50%) scale(0.92)' },
+                { transform: 'translateX(-50%) scale(1.06)' },
+                { transform: 'translateX(-50%) scale(1)' }
+              ],
+              { duration: 220, easing: 'ease-out' }
+            );
+          } catch (e) {}
+        }
+      };
+
+      slider.value = initialVal;
+      applySlider(initialVal, false);
+
+      slider.addEventListener('input', (e) => applySlider(parseInt(e.target.value, 10), true));
+      slider.addEventListener('pointerdown', () => wrapper.classList.add('dragging'));
+      ['pointerup', 'pointercancel', 'pointerleave', 'blur'].forEach(ev =>
+        slider.addEventListener(ev, () => wrapper.classList.remove('dragging'))
+      );
+
+      reasoningContainer.appendChild(wrapper);
+    } else {
+      const options = config.reasoningOptions || ['low', 'medium', 'high'];
+      const wrapper = document.createElement('div');
+      wrapper.className = 'reasoning-toggle';
+
+      options.forEach(opt => {
+        const el = document.createElement('div');
+        el.className = `reasoning-option ${opt === defaultReasoning ? 'active' : ''}`;
+        el.dataset.level = opt;
+        el.textContent = opt.charAt(0).toUpperCase() + opt.slice(1, 3);
+
+        el.addEventListener('click', () => {
+          wrapper.querySelectorAll('.reasoning-option').forEach(o => o.classList.remove('active'));
+          el.classList.add('active');
+          state.reasoning = opt;
+        });
+
+        wrapper.appendChild(el);
+      });
+
+      reasoningContainer.appendChild(wrapper);
+    }
   }
 
   /* ============================================================
@@ -2145,7 +2216,6 @@ CORE RULES:
     const row = document.createElement('div');
     row.className = 'message-row assistant';
 
-    // Avatar built with JS to avoid inline-handler quoting bugs.
     const avatarEl = document.createElement('div');
     avatarEl.className = 'msg-avatar';
     const fallbackSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg>';
@@ -2153,10 +2223,10 @@ CORE RULES:
 
     const imgEl = document.createElement('img');
     imgEl.alt = 'Model';
-    imgEl.src = state.currentModelAvatar || config.icon;
+    imgEl.src = state.currentModelAvatar || (config && config.icon) || '';
     imgEl.addEventListener('error', function handleAvatarError() {
       imgEl.removeEventListener('error', handleAvatarError);
-      if (config.iconFallback) {
+      if (config && config.iconFallback) {
         const fallbackImg = document.createElement('img');
         fallbackImg.alt = 'Model';
         fallbackImg.src = config.iconFallback;
@@ -2173,10 +2243,11 @@ CORE RULES:
 
     const bubbleEl = document.createElement('div');
     bubbleEl.className = 'bubble';
+    const modelName = config ? config.name : 'Model';
     bubbleEl.innerHTML = `
       <div class="waiting-indicator">
         <div class="spinner"></div>
-        <span>${escapeHtml(config.name)} is thinking…</span>
+        <span>${escapeHtml(modelName)} is thinking…</span>
       </div>
     `;
 
@@ -2240,14 +2311,12 @@ CORE RULES:
       chatInput.placeholder = 'Describe what to build…';
       modeCoding.classList.add('active');
       modeSimple.classList.remove('active');
-      state.reasoning = 'high';
     } else {
       welcomeTitle.textContent = 'LocalMind';
       welcomeSubtitle.textContent = 'Chat with advanced models.';
       chatInput.placeholder = 'Message LocalMind…';
       modeCoding.classList.remove('active');
       modeSimple.classList.add('active');
-      state.reasoning = 'low';
     }
     renderReasoningUI();
   }
@@ -2255,7 +2324,7 @@ CORE RULES:
   modeSimple.addEventListener('click', () => setMode('simple'));
 
   /* ============================================================
-     MODEL SELECTOR & REASONING UI
+     MODEL SELECTOR TOGGLE
      ============================================================ */
   modelBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -2266,134 +2335,6 @@ CORE RULES:
     modelDropdown.classList.remove('active');
     modelBtn.classList.remove('active');
   });
-
-  // Fallback for the toolbar model icon so Argy/Argy2/Argy3 don't break the button.
-  currentModelIcon.addEventListener('error', function handleToolbarIconError() {
-    const cfg = MODEL_CONFIG[state.model];
-    if (cfg && cfg.iconFallback && this.src.indexOf(cfg.iconFallback) === -1) {
-      this.src = cfg.iconFallback;
-    }
-  });
-
-  // Fallback for any model dropdown brand icon that fails to load.
-  modelDropdown.querySelectorAll('.model-brand-icon').forEach(img => {
-    img.addEventListener('error', function handleBrandIconError() {
-      const fb = img.dataset.fallback;
-      if (fb && img.src !== fb) { img.src = fb; }
-      else { img.style.visibility = 'hidden'; }
-    });
-  });
-
-  modelDropdown.querySelectorAll('.model-option').forEach(option => {
-    option.addEventListener('click', () => {
-      const modelKey = option.dataset.model;
-      const config = MODEL_CONFIG[modelKey];
-
-      state.model = modelKey;
-      state.currentModelAvatar = config.icon;
-      currentModelName.textContent = config.name;
-      currentModelIcon.src = config.icon;
-
-      modelDropdown.querySelectorAll('.model-option').forEach(o => o.classList.remove('active'));
-      option.classList.add('active');
-
-      modelDropdown.querySelectorAll('.model-status-icon').forEach(el => el.innerHTML = '');
-      option.querySelector('.model-status-icon').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
-
-      modelDropdown.classList.remove('active');
-      modelBtn.classList.remove('active');
-
-      renderReasoningUI();
-    });
-  });
-
-  function renderReasoningUI() {
-    reasoningContainer.innerHTML = '';
-    const config = MODEL_CONFIG[state.model];
-
-    let defaultReasoning = config.defaultReasoning;
-    if (config.reasoningType === 'pills' && state.mode === 'coding') defaultReasoning = 'high';
-    if (config.reasoningType === 'pills' && state.mode === 'simple') defaultReasoning = 'low';
-
-    state.reasoning = defaultReasoning;
-
-    if (config.reasoningType === 'slider') {
-      const levels = ['Minimal', 'Low', 'Medium', 'High', 'Max'];
-      const values = ['minimal', 'low', 'medium', 'high', 'max'];
-
-      const wrapper = document.createElement('div');
-      wrapper.className = 'claude-slider-wrapper';
-      wrapper.innerHTML = `
-        <div class="claude-level-bubble">Medium</div>
-        <div class="claude-slider-track">
-          <div class="claude-slider-fill"></div>
-          <div class="claude-slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
-        </div>
-        <input type="range" class="claude-slider" min="0" max="4" step="1" value="2" aria-label="Reasoning effort">
-      `;
-
-      const slider = wrapper.querySelector('.claude-slider');
-      const bubble = wrapper.querySelector('.claude-level-bubble');
-      const ticks = Array.from(wrapper.querySelectorAll('.claude-slider-ticks span'));
-
-      let initialVal = 2;
-      if (state.mode === 'coding') initialVal = 4;
-      if (state.mode === 'simple') initialVal = 1;
-
-      const applySlider = (val, pop) => {
-        const pct = val / 4;
-        wrapper.style.setProperty('--pct', pct);
-        bubble.style.left = `calc(10px + (100% - 20px) * ${pct})`;
-        bubble.textContent = levels[val];
-        ticks.forEach((t, i) => t.classList.toggle('active', i <= val));
-        state.reasoning = values[val];
-        if (pop) {
-          try {
-            bubble.getAnimations().forEach(a => a.cancel());
-            bubble.animate(
-              [
-                { transform: 'translateX(-50%) scale(0.92)' },
-                { transform: 'translateX(-50%) scale(1.06)' },
-                { transform: 'translateX(-50%) scale(1)' }
-              ],
-              { duration: 220, easing: 'ease-out' }
-            );
-          } catch (e) {}
-        }
-      };
-
-      slider.value = initialVal;
-      applySlider(initialVal, false);
-
-      slider.addEventListener('input', (e) => applySlider(parseInt(e.target.value, 10), true));
-      slider.addEventListener('pointerdown', () => wrapper.classList.add('dragging'));
-      ['pointerup', 'pointercancel', 'pointerleave', 'blur'].forEach(ev =>
-        slider.addEventListener(ev, () => wrapper.classList.remove('dragging'))
-      );
-
-      reasoningContainer.appendChild(wrapper);
-    } else {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'reasoning-toggle';
-
-      config.reasoningOptions.forEach(opt => {
-        const el = document.createElement('div');
-        el.className = `reasoning-option ${opt === defaultReasoning ? 'active' : ''}`;
-        el.dataset.level = opt;
-        el.textContent = opt.charAt(0).toUpperCase() + opt.slice(1, 3);
-
-        el.addEventListener('click', () => {
-          wrapper.querySelectorAll('.reasoning-option').forEach(o => o.classList.remove('active'));
-          el.classList.add('active');
-          state.reasoning = opt;
-        });
-
-        wrapper.appendChild(el);
-      });
-
-      reasoningContainer.appendChild(wrapper);
-    }
-  }
 
   /* ============================================================
      CLEAR CHAT
@@ -2418,7 +2359,7 @@ CORE RULES:
   function handleStreamEvent(json, meta, onContent, onThinking) {
     if (!json || typeof json !== 'object') return;
 
-    // ── Gemini native (candidates array) ──
+    // Gemini native (candidates array)
     if (Array.isArray(json.candidates) && json.candidates.length) {
       const cand = json.candidates[0];
       if (cand.content && Array.isArray(cand.content.parts)) {
@@ -2435,7 +2376,7 @@ CORE RULES:
       return;
     }
 
-    // ── OpenAI Chat Completions (Gemini 4 Argon, GPT-5-2 / Argy 1.5 minutes) ──
+    // OpenAI Chat Completions
     if (Array.isArray(json.choices) && json.choices.length) {
       const choice = json.choices[0];
       const delta = choice.delta || choice.message || {};
@@ -2464,7 +2405,7 @@ CORE RULES:
     const type = json.type;
     if (typeof type !== 'string') return;
 
-    // ── Anthropic Messages ──
+    // Anthropic Messages
     if (type === 'content_block_start' && json.content_block) {
       const cb = json.content_block;
       if (cb.type === 'thinking' && typeof cb.thinking === 'string' && cb.thinking) onThinking(cb.thinking);
@@ -2486,10 +2427,7 @@ CORE RULES:
       return;
     }
 
-    // ── OpenAI Responses API (gpt-6-astra / Argy 2 inline, GPT-6 Luna, DeepSeek) ──
-    // IMPORTANT: only *delta* events carry incremental text. Every other
-    // response.* event (e.g. output_text.done, content_part.done, output_item.done)
-    // carries the FULL text again and must be ignored to avoid duplication.
+    // OpenAI Responses API
     if (type.startsWith('response.')) {
       if (type === 'response.output_text.delta' && typeof json.delta === 'string') {
         onContent(json.delta);
@@ -2507,8 +2445,6 @@ CORE RULES:
         if (json.response.status === 'incomplete' || json.response.incomplete_details) {
           meta.truncated = true;
         }
-        // Safety net: some proxies don't send delta events at all. If nothing
-        // was accumulated, pull text out of the final response object.
         if (!meta.text && Array.isArray(json.response.output)) {
           let extracted = '';
           let extractedThinking = '';
@@ -2535,8 +2471,6 @@ CORE RULES:
           'Response failed'
         );
       }
-      // Ignore every other response.* event (output_text.done, content_part.done,
-      // output_item.done, response.created, response.in_progress, etc.)
       return;
     }
 
@@ -2544,7 +2478,6 @@ CORE RULES:
       throw new Error((json.error && json.error.message) || json.message || 'Stream error');
     }
 
-    // ── Generic fallback (only for truly unknown/untyped events) ──
     if (json.delta && typeof json.delta === 'object') {
       if (typeof json.delta.content === 'string') onContent(json.delta.content);
       if (typeof json.delta.thinking === 'string') onThinking(json.delta.thinking);
@@ -2609,7 +2542,6 @@ CORE RULES:
     let thinking = '';
     let truncated = false;
 
-    // ── Gemini native array (non-SSE streamGenerateContent) ──
     if (Array.isArray(json)) {
       json.forEach(chunk => {
         if (!chunk) return;
@@ -2632,7 +2564,6 @@ CORE RULES:
       return { text, thinking, truncated };
     }
 
-    // ── Gemini native single object ──
     if (Array.isArray(json.candidates) && json.candidates.length) {
       const cand = json.candidates[0];
       if (cand.content && Array.isArray(cand.content.parts)) {
@@ -2670,7 +2601,6 @@ CORE RULES:
     };
 
     if (Array.isArray(json.content) && !Array.isArray(json.choices)) {
-      // Anthropic-style
       json.content.forEach(block => {
         if (!block) return;
         if (block.type === 'thinking' && typeof block.thinking === 'string') thinking += block.thinking;
@@ -2678,7 +2608,6 @@ CORE RULES:
       });
       if (json.stop_reason === 'max_tokens') truncated = true;
     } else if (Array.isArray(json.output)) {
-      // Responses API
       json.output.forEach(item => {
         if (!item) return;
         if (item.type === 'reasoning') {
@@ -2734,64 +2663,14 @@ CORE RULES:
       }
     }
 
-    if (config.id === 'deepseek-v4-1-flash') {
-      const input = augmentedMessages.map(m => {
-        const parts = [{
-          type: m.role === 'user' ? 'input_text' : 'output_text',
-          text: m.content
-        }];
-        return { type: 'message', role: m.role, content: parts };
-      });
+    const apiType = config.apiType || 'openai-chat';
 
-      if (imageAttachments.length > 0) {
-        const lastMsg = input[input.length - 1];
-        imageAttachments.forEach(img => {
-          lastMsg.content.push({ type: 'input_image', image_url: img });
-        });
-      }
-
-      body = {
-        model: config.id,
-        stream,
-        instructions: SYSTEM_PROMPTS[state.mode],
-        input: input,
-        reasoning: { effort: reasoning },
-        max_output_tokens: 32000
-      };
-    } else if (config.id === 'gemini-4-argon') {
+    if (apiType === 'openai-chat') {
+      // ── OpenAI Chat Completions ──
       const gMessages = [];
       if (SYSTEM_PROMPTS[state.mode]) {
         gMessages.push({ role: 'system', content: SYSTEM_PROMPTS[state.mode] });
       }
-
-      augmentedMessages.forEach(m => {
-        if (m.role === 'user') {
-          const contentParts = [{ type: 'text', text: m.content }];
-          if (m === augmentedMessages[augmentedMessages.length - 1] && imageAttachments.length > 0) {
-            imageAttachments.forEach(img => {
-              contentParts.push({ type: 'image_url', image_url: { url: img } });
-            });
-          }
-          gMessages.push({ role: 'user', content: contentParts });
-        } else {
-          gMessages.push({ role: m.role, content: m.content });
-        }
-      });
-
-      body = {
-        messages: gMessages,
-        tools: [{ type: 'function', function: { name: 'googleSearch' } }],
-        stream,
-        include_thoughts: true,
-        reasoning_effort: reasoning
-      };
-    } else if (config.id === 'gpt-5-2') {
-      // ── GPT-5.2 (OpenAI Chat Completions) — Argy 1.5 minutes ──
-      const gMessages = [];
-      if (SYSTEM_PROMPTS[state.mode]) {
-        gMessages.push({ role: 'system', content: SYSTEM_PROMPTS[state.mode] });
-      }
-
       augmentedMessages.forEach(m => {
         if (m.role === 'user') {
           const isLast = m === augmentedMessages[augmentedMessages.length - 1];
@@ -2809,14 +2688,13 @@ CORE RULES:
         }
       });
 
-      body = {
-        model: config.id,
-        messages: gMessages,
-        stream,
-        reasoning_effort: reasoning
-      };
-    } else if (config.id === 'gpt-6-astra') {
-      // ── GPT-6 Astra (OpenAI Responses API) — Argy 2 inline ──
+      body = { messages: gMessages, stream };
+      if (config.sendModelInBody) body.model = config.id;
+      if (config.supportsReasoningEffort) body.reasoning_effort = reasoning;
+      if (config.includeThoughts) body.include_thoughts = true;
+      if (Array.isArray(config.tools) && config.tools.length) body.tools = config.tools;
+    } else if (apiType === 'openai-responses') {
+      // ── OpenAI Responses API ──
       const input = augmentedMessages.map(m => {
         const parts = [{
           type: m.role === 'user' ? 'input_text' : 'output_text',
@@ -2832,37 +2710,13 @@ CORE RULES:
         });
       }
 
-      body = {
-        model: config.id,
-        stream,
-        input: input,
-        tools: [{ type: 'web_search' }],
-        reasoning: { effort: reasoning }
-      };
-    } else if (config.id === 'gpt-6-luna') {
-      const input = augmentedMessages.map(m => {
-        const parts = [{
-          type: m.role === 'user' ? 'input_text' : 'output_text',
-          text: m.content
-        }];
-        return { type: 'message', role: m.role, content: parts };
-      });
-
-      if (imageAttachments.length > 0) {
-        const lastMsg = input[input.length - 1];
-        imageAttachments.forEach(img => {
-          lastMsg.content.push({ type: 'input_image', image_url: img });
-        });
-      }
-
-      body = {
-        model: config.id,
-        stream,
-        input: input,
-        reasoning: { effort: reasoning },
-        max_output_tokens: 32000
-      };
-    } else if (config.apiType === 'gemini-native') {
+      body = { stream, input };
+      if (config.sendModelInBody !== false) body.model = config.id;
+      if (config.supportsReasoningEffort) body.reasoning = { effort: reasoning };
+      if (config.includeInstructions && SYSTEM_PROMPTS[state.mode]) body.instructions = SYSTEM_PROMPTS[state.mode];
+      if (Array.isArray(config.tools) && config.tools.length) body.tools = config.tools;
+      if (config.maxOutputTokens) body.max_output_tokens = config.maxOutputTokens;
+    } else if (apiType === 'gemini-native') {
       // ── Gemini native generateContent / streamGenerateContent ──
       const gContents = [];
       augmentedMessages.forEach(m => {
@@ -2900,8 +2754,8 @@ CORE RULES:
           parts: [{ text: SYSTEM_PROMPTS[state.mode] }]
         };
       }
-    } else {
-      // Claude
+    } else if (apiType === 'anthropic') {
+      // ── Claude / Anthropic Messages ──
       const claudeMaxTokens = {
         minimal: 8192,
         low: 12288,
@@ -2929,6 +2783,8 @@ CORE RULES:
         stream,
         thinkingFlag: true
       };
+    } else {
+      throw new Error(`Unknown apiType: ${apiType}`);
     }
 
     const res = await fetch(endpoint, {
@@ -2943,7 +2799,6 @@ CORE RULES:
 
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
-      // Graceful fallback: if the proxy rejects streaming, retry without it.
       if (stream && res.status >= 400 && res.status < 500 && /stream/i.test(errText)) {
         return fetchModelResponse(config, messages, reasoning, attachments, { stream: false });
       }
@@ -2963,6 +2818,7 @@ CORE RULES:
 
     const text = chatInput.value.trim();
     if (!text && state.attachments.length === 0) return;
+    if (!state.model) return;
 
     state.isGenerating = true;
     chatInput.value = '';
@@ -3209,9 +3065,52 @@ CORE RULES:
     }
   });
 
-  setMode('coding');
-  chatInput.focus();
-  updateSendBtn();
+  /* ============================================================
+     BOOTSTRAP
+     ============================================================ */
+  async function loadConfig() {
+    try {
+      if (location.protocol === 'file:') {
+        throw new Error('file:// protocol — local fetch blocked');
+      }
+      const res = await fetch('models.json', { cache: 'no-cache' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!data || !Array.isArray(data.models) || data.models.length === 0) {
+        throw new Error('models.json missing models array');
+      }
+      console.log('[LocalMind] Loaded models.json —', data.models.length, 'model(s)');
+      return data;
+    } catch (err) {
+      console.warn('[LocalMind] models.json load failed — using built-in fallback:', err.message);
+      return DEFAULT_CONFIG;
+    }
+  }
+
+  async function init() {
+    const cfg = await loadConfig();
+    SETTINGS = cfg.settings || {};
+    MODELS_LIST = cfg.models;
+    MODEL_CONFIG = {};
+    MODELS_LIST.forEach(m => { MODEL_CONFIG[m.key] = m; });
+
+    applySettings();
+    populateModelDropdown();
+
+    const defaultKey = SETTINGS.defaultModel && MODEL_CONFIG[SETTINGS.defaultModel]
+      ? SETTINGS.defaultModel
+      : MODELS_LIST[0].key;
+
+    selectModel(defaultKey);
+    setMode('coding');
+    chatInput.focus();
+    updateSendBtn();
+  }
+
+  init().catch(err => {
+    console.error('[LocalMind] Init failed:', err);
+    alert('Failed to initialize LocalMind. Check the console and models.json.');
+  });
 </script>
 </body>
 </html>
