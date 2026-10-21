@@ -32,6 +32,8 @@
 
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-top: env(safe-area-inset-top, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -64,11 +66,11 @@
     position: fixed;
     inset: 0;
     background: url('bg.png') center / cover no-repeat;
-    opacity: 0.06;
+    opacity: 0.10;
     z-index: 0;
     pointer-events: none;
     transition: opacity 0.4s ease;
-    filter: saturate(0.85);
+    filter: saturate(0.9);
   }
 
   body.mode-coding {
@@ -83,7 +85,7 @@
   body.mode-coding::before {
     background: radial-gradient(circle at 50% 0%, rgba(66, 133, 244, 0.04) 0%, transparent 60%);
   }
-  body.mode-coding::after { opacity: 0.05; }
+  body.mode-coding::after { opacity: 0.09; }
   body.mode-coding .welcome-title {
     font-family: var(--font-serif);
     font-weight: 400;
@@ -228,7 +230,7 @@
     flex: 1;
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: calc(40px + var(--safe-top)) 24px calc(160px + var(--safe-bottom)) 24px;
+    padding: calc(40px + var(--safe-top)) 24px calc(180px + var(--safe-bottom)) 24px;
     display: flex;
     flex-direction: column;
     gap: 32px;
@@ -290,7 +292,6 @@
   }
   .message-row.user { justify-content: flex-end; }
 
-  /* ── AI Avatar ── */
   .msg-avatar {
     width: 36px;
     height: 36px;
@@ -526,6 +527,69 @@
   }
   .thinking-panel.done .thinking-dot { display: none; }
 
+  /* ── Tool Call Cards ── */
+  .tool-call-card {
+    margin: 10px 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.02);
+    overflow: hidden;
+    animation: slideUp 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  .tool-call-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .tool-call-header.running { color: var(--accent); }
+  .tool-call-header.running .tool-icon { animation: spin 1s linear infinite; }
+  .tool-call-header .tool-icon { flex-shrink: 0; }
+  .tool-call-header .tool-name {
+    font-weight: 600;
+    color: var(--text-main);
+    flex-shrink: 0;
+  }
+  .tool-call-header.running .tool-name { color: var(--accent); }
+  .tool-call-header .tool-args {
+    color: var(--text-muted);
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+  }
+  .tool-call-header .tool-chevron {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: transform 0.3s;
+  }
+  .tool-call-card.expanded .tool-chevron { transform: rotate(180deg); }
+  .tool-call-body {
+    display: none;
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 260px;
+    overflow-y: auto;
+    border-top: 1px solid var(--border);
+    background: rgba(0,0,0,0.18);
+    color: #b0a89f;
+    line-height: 1.5;
+  }
+  .tool-call-card.expanded .tool-call-body { display: block; }
+
   /* ── Code Blocks ── */
   .code-block-wrapper {
     margin: 12px 0;
@@ -629,18 +693,20 @@
   }
   .msg-action-btn svg { width: 14px; height: 14px; }
 
-  /* ── Bottom Bar ── */
+  /* ── Bottom Bar (fixed full-width) ── */
   .bottom-bar {
-    position: absolute;
-    bottom: 0;
+    position: fixed;
     left: 0;
     right: 0;
-    padding: 20px 24px calc(24px + var(--safe-bottom)) 24px;
+    bottom: 0;
+    padding: 20px max(24px, var(--safe-right)) calc(24px + var(--safe-bottom)) max(24px, var(--safe-left));
     background: linear-gradient(0deg, var(--bg-base) 70%, transparent 100%);
     display: flex;
     justify-content: center;
     z-index: 3;
+    pointer-events: none;
   }
+  .bottom-bar > * { pointer-events: auto; }
   .input-wrapper {
     position: relative;
     width: 100%;
@@ -1080,9 +1146,25 @@
     cursor: pointer;
     transition: all 0.2s;
     flex-shrink: 0;
+    position: relative;
   }
   .icon-btn:hover { background: rgba(255,255,255,0.04); color: var(--text-main); }
   .icon-btn svg { width: 16px; height: 16px; }
+  .icon-btn .file-count-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--accent);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 1px 4px;
+    line-height: 1;
+    min-width: 12px;
+    text-align: center;
+  }
+  .icon-btn.has-files { color: var(--accent); }
 
   .send-btn {
     width: 36px; height: 36px;
@@ -1106,9 +1188,9 @@
 
   /* ── Scroll Bottom Button ── */
   .scroll-bottom-btn {
-    position: absolute;
+    position: fixed;
     right: 24px;
-    bottom: calc(110px + var(--safe-bottom));
+    bottom: calc(130px + var(--safe-bottom));
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -1194,8 +1276,8 @@
 
   /* ── Tablet / iPad improvements ── */
   @media (min-width: 768px) {
-    .chat-scroll-area { padding: calc(48px + var(--safe-top)) 32px calc(180px + var(--safe-bottom)) 32px; gap: 36px; }
-    .bottom-bar { padding: 24px 32px calc(28px + var(--safe-bottom)) 32px; }
+    .chat-scroll-area { padding: calc(48px + var(--safe-top)) 32px calc(200px + var(--safe-bottom)) 32px; gap: 36px; }
+    .bottom-bar { padding: 24px max(32px, var(--safe-right)) calc(28px + var(--safe-bottom)) max(32px, var(--safe-left)); }
     .welcome-icon { width: 80px; height: 80px; margin-bottom: 26px; }
     .welcome-title { font-size: 48px; }
     .welcome-subtitle { font-size: 16px; }
@@ -1212,13 +1294,13 @@
     .model-btn { font-size: 13.5px; padding: 10px 14px; max-width: 260px; }
     .chat-input { font-size: 16.5px; padding: 12px 18px; }
     .reasoning-option { padding: 6px 14px; font-size: 12px; }
-    .scroll-bottom-btn { right: 32px; bottom: calc(120px + var(--safe-bottom)); }
+    .scroll-bottom-btn { right: 32px; bottom: calc(140px + var(--safe-bottom)); }
     .thinking-panel.expanded .thinking-body-wrapper { max-height: min(480px, 55vh); }
   }
 
   @media (min-width: 1024px) and (orientation: landscape) {
-    .chat-scroll-area { padding: calc(56px + var(--safe-top)) 48px calc(200px + var(--safe-bottom)) 48px; }
-    .bottom-bar { padding: 28px 48px calc(32px + var(--safe-bottom)) 48px; }
+    .chat-scroll-area { padding: calc(56px + var(--safe-top)) 48px calc(220px + var(--safe-bottom)) 48px; }
+    .bottom-bar { padding: 28px max(48px, var(--safe-right)) calc(32px + var(--safe-bottom)) max(48px, var(--safe-left)); }
     .welcome-title { font-size: 52px; }
     .welcome-icon { width: 88px; height: 88px; }
   }
@@ -1238,12 +1320,12 @@
     .hamburger { width: 44px; height: 44px; }
   }
 
-  /* ── Small phones: fix dropdown overflow ── */
+  /* ── Small phones ── */
   @media (max-width: 600px) {
     .welcome-title { font-size: 32px; }
     .welcome-icon { width: 56px; height: 56px; margin-bottom: 16px; }
-    .chat-scroll-area { padding: calc(20px + var(--safe-top)) 16px calc(140px + var(--safe-bottom)) 16px; gap: 24px; }
-    .bottom-bar { padding: 16px 16px calc(16px + var(--safe-bottom)) 16px; }
+    .chat-scroll-area { padding: calc(20px + var(--safe-top)) 16px calc(160px + var(--safe-bottom)) 16px; gap: 24px; }
+    .bottom-bar { padding: 16px max(16px, var(--safe-right)) calc(16px + var(--safe-bottom)) max(16px, var(--safe-left)); }
     .model-dropdown {
       position: fixed;
       left: 50%;
@@ -1259,7 +1341,7 @@
     .msg-avatar { width: 30px; height: 30px; }
     .msg-avatar > svg { width: 20px; height: 20px; }
     .md-text, .bubble { font-size: 15.5px; }
-    .scroll-bottom-btn { right: 16px; bottom: calc(96px + var(--safe-bottom)); width: 36px; height: 36px; }
+    .scroll-bottom-btn { right: 16px; bottom: calc(116px + var(--safe-bottom)); width: 36px; height: 36px; }
     .preview-modal-content { width: 96vw; height: 90vh; }
     .claude-slider-wrapper { width: 132px; }
     .reasoning-option { padding: 3px 9px; font-size: 10.5px; }
@@ -1290,14 +1372,14 @@
     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
     <div>
       <div>Agent Workspace</div>
-      <div class="desc">Advanced coding & reasoning</div>
+      <div class="desc">Files · tools · full agent</div>
     </div>
   </button>
   <button class="sidebar-option" data-mode="simple" id="modeSimple">
     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
     <div>
       <div>Simple Chat</div>
-      <div class="desc">Fast, concise answers</div>
+      <div class="desc">Fast, concise + web</div>
     </div>
   </button>
 </div>
@@ -1307,14 +1389,10 @@
     <div class="welcome-container" id="welcomeContainer">
       <img src="icon.png" class="welcome-icon" alt="" onerror="this.style.display='none'">
       <h1 class="welcome-title" id="welcomeTitle">Agent Workspace</h1>
-      <p class="welcome-subtitle" id="welcomeSubtitle">System ready. Awaiting prompt.</p>
+      <p class="welcome-subtitle" id="welcomeSubtitle">System ready. Tools online. Awaiting prompt.</p>
     </div>
     <div id="messagesContainer" style="display: flex; flex-direction: column; gap: 32px;"></div>
   </div>
-
-  <button class="scroll-bottom-btn" id="scrollBottomBtn" title="Scroll to bottom">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-  </button>
 
   <div class="bottom-bar" id="chatBottomBar">
     <div class="input-wrapper" id="inputWrapper">
@@ -1327,6 +1405,11 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
           </button>
           <input type="file" id="fileInput" multiple accept=".txt,.html,.zip,image/*" style="display: none;">
+
+          <button class="icon-btn" id="filesBtn" title="Workspace files" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            <span class="file-count-badge" id="fileCountBadge">0</span>
+          </button>
 
           <div class="model-selector-wrapper">
             <button class="model-btn" id="modelBtn">
@@ -1353,6 +1436,10 @@
   </div>
 </div>
 
+<button class="scroll-bottom-btn" id="scrollBottomBtn" title="Scroll to bottom">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+</button>
+
 <div class="preview-modal" id="previewModal">
   <div class="preview-modal-backdrop"></div>
   <div class="preview-modal-content">
@@ -1366,19 +1453,19 @@
 
 <script>
   /* ============================================================
-     BUILT-IN FALLBACK (used only if models.json cannot be fetched)
+     BUILT-IN FALLBACK
      ============================================================ */
   const DEFAULT_CONFIG = {
     settings: {
       apiKey: '74448d346da387f028dc55cf96e194d3',
       defaultModel: 'gemini',
       systemPrompts: {
-        coding: 'You are an expert full-stack coding assistant. Output complete, working code. When a request needs multiple files, put each file in its own fenced code block with a filename comment on the first line.',
-        simple: 'You are a concise assistant. Answer directly and briefly.'
+        coding: 'You are an expert full-stack coding agent with a persistent virtual file system. Use the provided tools to list/read/write/edit files, run JS, search the web, and preview HTML. Prefer edit_file for surgical changes.',
+        simple: 'You are a concise assistant. Use web_search and fetch_url when needed.'
       },
       welcome: {
         codingTitle: 'Agent Workspace',
-        codingSubtitle: 'System ready. Awaiting prompt.',
+        codingSubtitle: 'System ready. Tools online. Awaiting prompt.',
         codingPlaceholder: 'Describe what to build…',
         simpleTitle: 'LocalMind',
         simpleSubtitle: 'Chat with advanced models.',
@@ -1393,16 +1480,15 @@
         apiType: 'openai-chat',
         reasoning: { type: 'pills', options: [{ value: 'low', label: 'Low' }, { value: 'medium', label: 'Medium' }, { value: 'high', label: 'High' }], default: 'medium', codingDefault: 'high', simpleDefault: 'low' },
         icon: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg', iconFallback: '',
-        meta: 'Fast · multimodal',
+        meta: 'Fast · multimodal · tools',
         glowGradient: 'linear-gradient(45deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4)',
-        sendModelInBody: false, supportsReasoningEffort: true, includeThoughts: true, includeInstructions: true,
-        tools: [{ type: 'function', function: { name: 'googleSearch' } }]
+        sendModelInBody: false, supportsReasoningEffort: true, includeThoughts: true, includeInstructions: true
       }
     ]
   };
 
   /* ============================================================
-     RUNTIME CONFIG
+     RUNTIME STATE
      ============================================================ */
   let MODEL_CONFIG = {};
   let MODELS_LIST = [];
@@ -1419,6 +1505,344 @@
     currentModelAvatar: null,
     userHasScrolled: false
   };
+
+  /* ============================================================
+     VIRTUAL FILE SYSTEM
+     ============================================================ */
+  const vfs = {
+    files: new Map(),
+    write(path, content) { this.files.set(path, String(content)); this.refreshUI(); },
+    read(path) { return this.files.get(path); },
+    exists(path) { return this.files.has(path); },
+    delete(path) { this.files.delete(path); this.refreshUI(); },
+    list() { return Array.from(this.files.keys()).sort(); },
+    clear() { this.files.clear(); this.refreshUI(); },
+    size() { return this.files.size; },
+    refreshUI() {
+      const btn = document.getElementById('filesBtn');
+      const badge = document.getElementById('fileCountBadge');
+      if (!btn || !badge) return;
+      const n = this.size();
+      if (n > 0) {
+        btn.style.display = 'flex';
+        btn.classList.add('has-files');
+        badge.textContent = n > 99 ? '99+' : String(n);
+        btn.title = `Workspace: ${n} file(s) — click to view`;
+      } else {
+        btn.style.display = 'none';
+        btn.classList.remove('has-files');
+      }
+    }
+  };
+
+  const zipStore = new Map(); // name -> Uint8Array
+
+  /* ============================================================
+     TOOL DEFINITIONS
+     ============================================================ */
+  function getToolDefinitions(mode) {
+    const tools = [];
+    if (mode === 'coding') {
+      tools.push(
+        { type: 'function', function: {
+          name: 'list_files',
+          description: 'List all files currently in the workspace VFS. Call this first to see what exists.',
+          parameters: { type: 'object', properties: {}, required: [] }
+        }},
+        { type: 'function', function: {
+          name: 'read_file',
+          description: 'Read the full contents of a file in the workspace.',
+          parameters: {
+            type: 'object',
+            properties: { path: { type: 'string', description: 'File path (e.g. "index.html")' } },
+            required: ['path']
+          }
+        }},
+        { type: 'function', function: {
+          name: 'write_file',
+          description: 'Create a new file or fully replace an existing file. Prefer edit_file for small modifications.',
+          parameters: {
+            type: 'object',
+            properties: {
+              path: { type: 'string' },
+              content: { type: 'string' }
+            },
+            required: ['path', 'content']
+          }
+        }},
+        { type: 'function', function: {
+          name: 'edit_file',
+          description: 'Surgically replace an exact string in a file with a new string. The old_string must appear exactly once. Use this to modify files WITHOUT rewriting them.',
+          parameters: {
+            type: 'object',
+            properties: {
+              path: { type: 'string' },
+              old_string: { type: 'string', description: 'The exact substring to find (must be unique)' },
+              new_string: { type: 'string', description: 'The replacement text' }
+            },
+            required: ['path', 'old_string', 'new_string']
+          }
+        }},
+        { type: 'function', function: {
+          name: 'delete_file',
+          description: 'Delete a file from the workspace.',
+          parameters: {
+            type: 'object',
+            properties: { path: { type: 'string' } },
+            required: ['path']
+          }
+        }},
+        { type: 'function', function: {
+          name: 'run_javascript',
+          description: 'Execute JavaScript in a sandboxed iframe and return console.log output and any return value. Useful for testing logic before shipping.',
+          parameters: {
+            type: 'object',
+            properties: { code: { type: 'string' } },
+            required: ['code']
+          }
+        }},
+        { type: 'function', function: {
+          name: 'open_zip',
+          description: 'Re-extract an attached .zip file into the workspace (usually already extracted on attach).',
+          parameters: {
+            type: 'object',
+            properties: { name: { type: 'string' } },
+            required: ['name']
+          }
+        }},
+        { type: 'function', function: {
+          name: 'preview_html',
+          description: 'Open a workspace HTML file in the preview modal, auto-inlining local CSS/JS.',
+          parameters: {
+            type: 'object',
+            properties: { path: { type: 'string' } },
+            required: ['path']
+          }
+        }}
+      );
+    }
+    // Web tools for all modes
+    tools.push(
+      { type: 'function', function: {
+        name: 'web_search',
+        description: 'Search the web for current information. Returns snippets and source URLs.',
+        parameters: {
+          type: 'object',
+          properties: { query: { type: 'string' } },
+          required: ['query']
+        }
+      }},
+      { type: 'function', function: {
+        name: 'fetch_url',
+        description: 'Fetch the text content of a URL (returns up to ~8KB). Useful for reading documentation or articles.',
+        parameters: {
+          type: 'object',
+          properties: { url: { type: 'string' } },
+          required: ['url']
+        }
+      }}
+    );
+    return tools;
+  }
+
+  function toolsForApi(tools, apiType) {
+    if (!tools.length) return null;
+    switch (apiType) {
+      case 'openai-chat':
+        return tools;
+      case 'openai-responses':
+        return tools.map(t => ({
+          type: 'function',
+          name: t.function.name,
+          description: t.function.description,
+          parameters: t.function.parameters
+        }));
+      case 'gemini-native':
+        return [{
+          functionDeclarations: tools.map(t => ({
+            name: t.function.name,
+            description: t.function.description,
+            parameters: t.function.parameters
+          }))
+        }];
+      case 'anthropic':
+        return tools.map(t => ({
+          name: t.function.name,
+          description: t.function.description,
+          input_schema: t.function.parameters
+        }));
+      default:
+        return null;
+    }
+  }
+
+  /* ============================================================
+     TOOL EXECUTION
+     ============================================================ */
+  async function executeTool(name, argsStr) {
+    let args;
+    try {
+      args = typeof argsStr === 'string' ? JSON.parse(argsStr || '{}') : (argsStr || {});
+    } catch (e) {
+      return `Error: invalid JSON arguments (${e.message})`;
+    }
+    try {
+      switch (name) {
+        case 'list_files': {
+          if (vfs.size() === 0) return 'Workspace is empty.';
+          return vfs.list().map(f => `- ${f} (${vfs.read(f).length} chars)`).join('\n');
+        }
+        case 'read_file': {
+          if (!vfs.exists(args.path)) return `Error: file "${args.path}" not found. Available: ${vfs.list().join(', ') || '(none)'}`;
+          return vfs.read(args.path);
+        }
+        case 'write_file': {
+          vfs.write(args.path, args.content ?? '');
+          return `Wrote ${(args.content || '').length} chars to ${args.path}`;
+        }
+        case 'edit_file': {
+          if (!vfs.exists(args.path)) return `Error: file "${args.path}" not found.`;
+          const content = vfs.read(args.path);
+          const oldS = args.old_string ?? '';
+          const newS = args.new_string ?? '';
+          if (!oldS) return 'Error: old_string is empty';
+          const count = content.split(oldS).length - 1;
+          if (count === 0) return `Error: old_string not found in ${args.path}`;
+          if (count > 1) return `Error: old_string appears ${count} times in ${args.path} — must be unique. Include more surrounding context.`;
+          vfs.write(args.path, content.replace(oldS, newS));
+          return `Edited ${args.path}`;
+        }
+        case 'delete_file': {
+          if (!vfs.exists(args.path)) return `Error: file "${args.path}" not found.`;
+          vfs.delete(args.path);
+          return `Deleted ${args.path}`;
+        }
+        case 'run_javascript': {
+          return await runJsSandbox(args.code || '');
+        }
+        case 'open_zip': {
+          const data = zipStore.get(args.name);
+          if (!data) return `Error: zip "${args.name}" not in store. Attached zips: ${Array.from(zipStore.keys()).join(', ') || '(none)'}`;
+          await extractZipData(data, args.name);
+          return `Extracted ${args.name} — workspace now has ${vfs.size()} file(s).`;
+        }
+        case 'preview_html': {
+          if (!vfs.exists(args.path)) return `Error: file "${args.path}" not found.`;
+          previewProjectFromVfs(args.path);
+          return `Opened preview for ${args.path}`;
+        }
+        case 'web_search': {
+          return await webSearch(args.query || '');
+        }
+        case 'fetch_url': {
+          return await fetchUrl(args.url || '');
+        }
+        default:
+          return `Error: unknown tool "${name}"`;
+      }
+    } catch (e) {
+      return `Error executing ${name}: ${e.message}`;
+    }
+  }
+
+  async function runJsSandbox(code) {
+    return new Promise((resolve) => {
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.sandbox = 'allow-scripts';
+      const id = 'sbx_' + Math.random().toString(36).slice(2);
+      const safeCode = code.replace(/<\/script/gi, '<\\/script');
+      iframe.srcdoc = `<script>
+        const __logs = [];
+        const _log = console.log;
+        console.log = (...a) => { __logs.push(a.map(x => { try { return typeof x === 'object' ? JSON.stringify(x) : String(x); } catch(e){ return String(x); } }).join(' ')); };
+        let __result, __error;
+        try {
+          __result = (function(){ ${safeCode} })();
+        } catch(e) { __error = e.message; }
+        let __ret = null;
+        try { __ret = __result === undefined ? null : (typeof __result === 'object' ? JSON.stringify(__result) : String(__result)); } catch(e) { __ret = String(__result); }
+        parent.postMessage({ id: '${id}', logs: __logs, error: __error, result: __ret }, '*');
+      <\/script>`;
+      const timer = setTimeout(() => {
+        window.removeEventListener('message', handler);
+        if (iframe.parentNode) iframe.remove();
+        resolve('Error: timeout (5s)');
+      }, 5000);
+      function handler(e) {
+        if (!e.data || e.data.id !== id) return;
+        clearTimeout(timer);
+        window.removeEventListener('message', handler);
+        if (iframe.parentNode) iframe.remove();
+        const logs = (e.data.logs || []).join('\n');
+        if (e.data.error) resolve(`Error: ${e.data.error}\n${logs ? 'Logs:\n' + logs : ''}`);
+        else {
+          let out = '';
+          if (logs) out += logs;
+          if (e.data.result !== null && e.data.result !== undefined) out += (out ? '\n' : '') + 'Return: ' + e.data.result;
+          resolve(out || 'No output.');
+        }
+      }
+      window.addEventListener('message', handler);
+      document.body.appendChild(iframe);
+    });
+  }
+
+  async function webSearch(query) {
+    if (!query.trim()) return 'Error: empty query';
+    try {
+      const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const results = [];
+      if (data.AbstractText) {
+        results.push(`Summary: ${data.AbstractText}` + (data.AbstractURL ? `\nSource: ${data.AbstractURL}` : ''));
+      }
+      if (Array.isArray(data.RelatedTopics)) {
+        const pushTopic = (t) => {
+          if (t.Text && t.FirstURL) results.push(`- ${t.Text} (${t.FirstURL})`);
+        };
+        data.RelatedTopics.slice(0, 8).forEach(t => {
+          pushTopic(t);
+          if (Array.isArray(t.Topics)) t.Topics.slice(0, 3).forEach(pushTopic);
+        });
+      }
+      return results.length ? results.join('\n') : `No results found for "${query}".`;
+    } catch (e) {
+      return `Search failed: ${e.message}`;
+    }
+  }
+
+  async function fetchUrl(url) {
+    if (!url) return 'Error: empty url';
+    const tryFetch = async (u) => {
+      const res = await fetch(u);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const txt = await res.text();
+      return txt.slice(0, 8000) + (txt.length > 8000 ? '\n...[truncated]' : '');
+    };
+    try {
+      return await tryFetch(url);
+    } catch (e) {
+      try {
+        return await tryFetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+      } catch (e2) {
+        return `Fetch failed: ${e2.message}`;
+      }
+    }
+  }
+
+  async function extractZipData(data, name) {
+    const zip = await JSZip.loadAsync(data);
+    const textExts = /\.(txt|md|html?|js|css|json|py|ts|tsx|jsx|c|cpp|h|hpp|java|cs|go|rs|rb|php|xml|yml|yaml|sh|svg)$/i;
+    for (const [path, entry] of Object.entries(zip.files)) {
+      if (entry.dir) continue;
+      if (!textExts.test(path)) continue;
+      const content = await entry.async('string');
+      vfs.write(path, content);
+    }
+  }
 
   /* ============================================================
      DOM
@@ -1438,6 +1862,7 @@
   const fileInput = document.getElementById('fileInput');
   const attachmentsContainer = document.getElementById('attachmentsContainer');
   const scrollBottomBtn = document.getElementById('scrollBottomBtn');
+  const filesBtn = document.getElementById('filesBtn');
 
   const modelBtn = document.getElementById('modelBtn');
   const modelDropdown = document.getElementById('modelDropdown');
@@ -1461,7 +1886,6 @@
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
-
   function abortError() { return new DOMException('Generation stopped', 'AbortError'); }
 
   function extForLang(lang) {
@@ -1481,19 +1905,16 @@
     }
     updateScrollBtn();
   }
-
   function updateScrollBtn() {
     if (!scrollBottomBtn) return;
     const dist = chatScrollArea.scrollHeight - chatScrollArea.scrollTop - chatScrollArea.clientHeight;
     scrollBottomBtn.classList.toggle('visible', dist > 200 && state.messages.length > 0);
   }
-
   chatScrollArea.addEventListener('scroll', () => {
     const isAtBottom = chatScrollArea.scrollHeight - chatScrollArea.scrollTop - chatScrollArea.clientHeight < 50;
     state.userHasScrolled = !isAtBottom;
     updateScrollBtn();
   });
-
   scrollBottomBtn.addEventListener('click', () => {
     chatScrollArea.scrollTo({ top: chatScrollArea.scrollHeight, behavior: 'smooth' });
   });
@@ -1501,14 +1922,13 @@
   function hideWelcome() {
     if (welcomeContainer.style.display !== 'none') welcomeContainer.classList.add('hidden');
   }
-
   function updateSendBtn() {
     if (state.isGenerating) { sendBtn.disabled = false; return; }
     sendBtn.disabled = !chatInput.value.trim() && state.attachments.length === 0;
   }
 
   /* ============================================================
-     SETTINGS / AUTH / SYSTEM PROMPT
+     SETTINGS
      ============================================================ */
   function applySettings() {
     const root = document.documentElement;
@@ -1529,7 +1949,6 @@
     if (SETTINGS.codingBackgroundImageOpacity != null) css += `body.mode-coding::after { opacity: ${SETTINGS.codingBackgroundImageOpacity}; }\n`;
     styleTag.textContent = css;
 
-    // Welcome icon override
     const welcomeIconEl = document.querySelector('.welcome-icon');
     if (welcomeIconEl && SETTINGS.welcome && SETTINGS.welcome.icon) {
       welcomeIconEl.src = SETTINGS.welcome.icon;
@@ -1545,37 +1964,35 @@
   }
 
   function getSystemPrompt(config) {
-    if (config.systemPrompt && config.systemPrompt[state.mode]) {
-      return config.systemPrompt[state.mode];
-    }
-    if (SETTINGS.systemPrompts && SETTINGS.systemPrompts[state.mode]) {
-      return SETTINGS.systemPrompts[state.mode];
-    }
+    if (config.systemPrompt && config.systemPrompt[state.mode]) return config.systemPrompt[state.mode];
+    if (SETTINGS.systemPrompts && SETTINGS.systemPrompts[state.mode]) return SETTINGS.systemPrompts[state.mode];
     return '';
   }
 
+  function getFullSystemPrompt(config) {
+    let p = getSystemPrompt(config);
+    if (state.mode === 'coding' && vfs.size() > 0) {
+      p += `\n\n=== WORKSPACE (${vfs.size()} file${vfs.size() === 1 ? '' : 's'}) ===\n${vfs.list().map(f => '- ' + f).join('\n')}\n\nUse list_files / read_file / write_file / edit_file / delete_file to manage these. Prefer edit_file for small changes.`;
+    }
+    return p;
+  }
+
   /* ============================================================
-     REASONING CONFIG RESOLUTION
+     REASONING CONFIG
      ============================================================ */
   function getReasoningConfig() {
     const config = MODEL_CONFIG[state.model];
     if (!config) return null;
-
     const r = config.reasoning;
     const hasNewFormat = r && typeof r === 'object' && Array.isArray(r.options) && r.options.length > 0;
-
     let type, options, defaultVal, codingDefault, simpleDefault;
 
     if (hasNewFormat) {
       type = r.type || 'pills';
       if (type === 'none') return null;
       options = r.options.map(opt => {
-        if (typeof opt === 'string') {
-          return { value: opt, label: opt.charAt(0).toUpperCase() + opt.slice(1) };
-        }
-        const value = opt.value;
-        const label = opt.label || (value.charAt(0).toUpperCase() + value.slice(1));
-        return { value, label };
+        if (typeof opt === 'string') return { value: opt, label: opt.charAt(0).toUpperCase() + opt.slice(1) };
+        return { value: opt.value, label: opt.label || (opt.value.charAt(0).toUpperCase() + opt.value.slice(1)) };
       });
       const midOpt = options[Math.floor((options.length - 1) / 2)];
       defaultVal = r.default && options.some(o => o.value === r.default) ? r.default : (midOpt ? midOpt.value : options[0].value);
@@ -1585,30 +2002,17 @@
       type = config.reasoningType;
       if (type === 'none') return null;
       const rawOptions = config.reasoningOptions || ['low', 'medium', 'high'];
-      options = rawOptions.map(opt => {
-        if (typeof opt === 'string') {
-          return { value: opt, label: opt.charAt(0).toUpperCase() + opt.slice(1) };
-        }
-        return { value: opt.value, label: opt.label || String(opt.value) };
-      });
+      options = rawOptions.map(opt => typeof opt === 'string' ? { value: opt, label: opt.charAt(0).toUpperCase() + opt.slice(1) } : { value: opt.value, label: opt.label || String(opt.value) });
       defaultVal = config.defaultReasoning || 'medium';
-      if (type === 'pills') {
-        codingDefault = 'high';
-        simpleDefault = 'low';
-      } else {
-        const values = options.map(o => o.value);
-        codingDefault = values[values.length - 1] || defaultVal;
-        simpleDefault = values[1] || values[0] || defaultVal;
-      }
-    } else {
-      return null;
-    }
+      if (type === 'pills') { codingDefault = 'high'; simpleDefault = 'low'; }
+      else { const values = options.map(o => o.value); codingDefault = values[values.length - 1] || defaultVal; simpleDefault = values[1] || values[0] || defaultVal; }
+    } else return null;
 
     return { type, options, default: defaultVal, codingDefault, simpleDefault };
   }
 
   /* ============================================================
-     MODEL DROPDOWN / SELECTION
+     MODEL DROPDOWN
      ============================================================ */
   function populateModelDropdown() {
     modelDropdown.innerHTML = '';
@@ -1617,7 +2021,6 @@
       option.className = 'model-option';
       option.dataset.model = model.key;
       if (model.glowGradient) option.style.setProperty('--glow-gradient', model.glowGradient);
-
       const meta = model.meta || '';
       option.innerHTML =
         '<div class="model-option-left">' +
@@ -1628,24 +2031,17 @@
           '</div>' +
         '</div>' +
         '<div class="model-status-icon"></div>';
-
       const img = option.querySelector('.model-brand-icon');
       img.src = model.icon || '';
       img.addEventListener('error', function () {
-        if (img.dataset.swapped !== '1' && model.iconFallback) {
-          img.dataset.swapped = '1';
-          img.src = model.iconFallback;
-        } else {
-          img.style.visibility = 'hidden';
-        }
+        if (img.dataset.swapped !== '1' && model.iconFallback) { img.dataset.swapped = '1'; img.src = model.iconFallback; }
+        else img.style.visibility = 'hidden';
       });
-
       option.addEventListener('click', () => {
         selectModel(model.key);
         modelDropdown.classList.remove('active');
         modelBtn.classList.remove('active');
       });
-
       modelDropdown.appendChild(option);
     });
   }
@@ -1653,37 +2049,24 @@
   function selectModel(key) {
     const config = MODEL_CONFIG[key];
     if (!config) return;
-
     state.model = key;
     state.currentModelAvatar = config.icon;
-
     currentModelName.textContent = config.name;
     currentModelIcon.dataset.swapped = '';
     currentModelIcon.style.visibility = 'visible';
     currentModelIcon.src = config.icon || '';
-
     modelDropdown.querySelectorAll('.model-option').forEach(o => {
       const isActive = o.dataset.model === key;
       o.classList.toggle('active', isActive);
       const s = o.querySelector('.model-status-icon');
-      if (s) {
-        s.innerHTML = isActive
-          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>'
-          : '';
-      }
+      if (s) s.innerHTML = isActive ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>' : '';
     });
-
     renderReasoningUI();
   }
-
   currentModelIcon.addEventListener('error', function () {
     const cfg = MODEL_CONFIG[state.model];
-    if (cfg && cfg.iconFallback && currentModelIcon.dataset.swapped !== '1') {
-      currentModelIcon.dataset.swapped = '1';
-      currentModelIcon.src = cfg.iconFallback;
-    } else {
-      currentModelIcon.style.visibility = 'hidden';
-    }
+    if (cfg && cfg.iconFallback && currentModelIcon.dataset.swapped !== '1') { currentModelIcon.dataset.swapped = '1'; currentModelIcon.src = cfg.iconFallback; }
+    else currentModelIcon.style.visibility = 'hidden';
   });
 
   /* ============================================================
@@ -1693,15 +2076,11 @@
     reasoningContainer.innerHTML = '';
     const r = getReasoningConfig();
     if (!r) return;
-
     let defaultReasoning;
     if (state.mode === 'coding') defaultReasoning = r.codingDefault;
     else if (state.mode === 'simple') defaultReasoning = r.simpleDefault;
     else defaultReasoning = r.default;
-
-    if (!r.options.some(o => o.value === defaultReasoning)) {
-      defaultReasoning = r.options[0].value;
-    }
+    if (!r.options.some(o => o.value === defaultReasoning)) defaultReasoning = r.options[0].value;
     state.reasoning = defaultReasoning;
 
     if (r.type === 'slider') {
@@ -1709,7 +2088,6 @@
       const labels = r.options.map(o => o.label);
       const maxIdx = values.length - 1;
       const initialIdx = Math.max(0, values.indexOf(defaultReasoning));
-
       const wrapper = document.createElement('div');
       wrapper.className = 'claude-slider-wrapper';
       const ticksHtml = values.map(() => '<span></span>').join('');
@@ -1720,11 +2098,9 @@
           '<div class="claude-slider-ticks">' + ticksHtml + '</div>' +
         '</div>' +
         '<input type="range" class="claude-slider" min="0" max="' + maxIdx + '" step="1" value="' + initialIdx + '" aria-label="Reasoning effort">';
-
       const slider = wrapper.querySelector('.claude-slider');
       const bubble = wrapper.querySelector('.claude-level-bubble');
       const tickEls = Array.from(wrapper.querySelectorAll('.claude-slider-ticks span'));
-
       const applySlider = (idx, pop) => {
         const pct = maxIdx > 0 ? idx / maxIdx : 0;
         wrapper.style.setProperty('--pct', pct);
@@ -1736,26 +2112,17 @@
           try {
             bubble.getAnimations().forEach(a => a.cancel());
             bubble.animate(
-              [
-                { transform: 'translateX(-50%) scale(0.92)' },
-                { transform: 'translateX(-50%) scale(1.06)' },
-                { transform: 'translateX(-50%) scale(1)' }
-              ],
+              [{ transform: 'translateX(-50%) scale(0.92)' }, { transform: 'translateX(-50%) scale(1.06)' }, { transform: 'translateX(-50%) scale(1)' }],
               { duration: 220, easing: 'ease-out' }
             );
           } catch (e) {}
         }
       };
-
       slider.value = initialIdx;
       applySlider(initialIdx, false);
-
       slider.addEventListener('input', (e) => applySlider(parseInt(e.target.value, 10), true));
       slider.addEventListener('pointerdown', () => wrapper.classList.add('dragging'));
-      ['pointerup', 'pointercancel', 'pointerleave', 'blur'].forEach(ev =>
-        slider.addEventListener(ev, () => wrapper.classList.remove('dragging'))
-      );
-
+      ['pointerup', 'pointercancel', 'pointerleave', 'blur'].forEach(ev => slider.addEventListener(ev, () => wrapper.classList.remove('dragging')));
       reasoningContainer.appendChild(wrapper);
     } else {
       const wrapper = document.createElement('div');
@@ -1818,29 +2185,18 @@
     let html = '';
     let inList = null;
     let paraLines = [];
-
     const flushPara = () => {
       if (paraLines.length) {
         html += `<p>${paraLines.map(renderInline).join('<br>')}</p>`;
         paraLines = [];
       }
     };
-    const closeList = () => {
-      if (inList) { html += `</${inList}>`; inList = null; }
-    };
-
+    const closeList = () => { if (inList) { html += `</${inList}>`; inList = null; } };
     for (let raw of lines) {
       const line = raw.replace(/\r$/, '');
       if (/^\s*$/.test(line)) { flushPara(); closeList(); continue; }
-
       const h = line.match(/^(#{1,6})\s+(.*)$/);
-      if (h) {
-        flushPara(); closeList();
-        const lvl = h[1].length;
-        html += `<h${lvl}>${renderInline(h[2])}</h${lvl}>`;
-        continue;
-      }
-
+      if (h) { flushPara(); closeList(); const lvl = h[1].length; html += `<h${lvl}>${renderInline(h[2])}</h${lvl}>`; continue; }
       const ul = line.match(/^\s*[-*+]\s+(.*)$/);
       if (ul) {
         flushPara();
@@ -1848,7 +2204,6 @@
         html += `<li>${renderInline(ul[1])}</li>`;
         continue;
       }
-
       const ol = line.match(/^\s*\d+[.)]\s+(.*)$/);
       if (ol) {
         flushPara();
@@ -1856,23 +2211,11 @@
         html += `<li>${renderInline(ol[1])}</li>`;
         continue;
       }
-
-      if (/^\s*---+\s*$/.test(line)) {
-        flushPara(); closeList();
-        html += '<hr>';
-        continue;
-      }
-
-      if (/^\s*>\s?/.test(line)) {
-        flushPara(); closeList();
-        html += `<blockquote>${renderInline(line.replace(/^\s*>\s?/, ''))}</blockquote>`;
-        continue;
-      }
-
+      if (/^\s*---+\s*$/.test(line)) { flushPara(); closeList(); html += '<hr>'; continue; }
+      if (/^\s*>\s?/.test(line)) { flushPara(); closeList(); html += `<blockquote>${renderInline(line.replace(/^\s*>\s?/, ''))}</blockquote>`; continue; }
       closeList();
       paraLines.push(line);
     }
-
     flushPara();
     closeList();
     return html;
@@ -1919,17 +2262,14 @@
     const wrapper = document.createElement('div');
     wrapper.className = 'code-block-wrapper' + (part.unclosed ? ' streaming' : '');
     wrapper.dataset.lang = displayLang;
-
     const header = document.createElement('div');
     header.className = 'code-block-header';
     const langLabel = document.createElement('span');
     langLabel.className = 'code-lang';
     langLabel.textContent = displayLang + (part.unclosed ? ' · writing…' : (part.truncated ? ' · truncated' : ''));
     header.appendChild(langLabel);
-
     const actions = document.createElement('div');
     actions.className = 'code-actions';
-
     if (!part.unclosed) {
       if (isRunnable && !part.truncated) {
         const runBtn = document.createElement('button');
@@ -1947,16 +2287,13 @@
       actions.appendChild(dlBtn);
     }
     header.appendChild(actions);
-
     const pre = document.createElement('pre');
     const code = document.createElement('code');
     code.className = `language-${displayLang}`;
     code.textContent = part.code;
     pre.appendChild(code);
-
     wrapper.appendChild(header);
     wrapper.appendChild(pre);
-
     if (!part.unclosed) {
       try { if (window.hljs) hljs.highlightElement(code); } catch (e) {}
     }
@@ -1982,13 +2319,8 @@
   function updateStreamingContent(container, text, renderState) {
     const parts = parseMarkdownParts(text);
     let common = 0;
-    while (common < parts.length && common < renderState.renderedParts.length &&
-           partsEqual(parts[common], renderState.renderedParts[common].part)) {
-      common++;
-    }
-    for (let j = common; j < renderState.renderedParts.length; j++) {
-      renderState.renderedParts[j].node.remove();
-    }
+    while (common < parts.length && common < renderState.renderedParts.length && partsEqual(parts[common], renderState.renderedParts[common].part)) common++;
+    for (let j = common; j < renderState.renderedParts.length; j++) renderState.renderedParts[j].node.remove();
     renderState.renderedParts = renderState.renderedParts.slice(0, common);
     for (let j = common; j < parts.length; j++) {
       const node = createPartNode(parts[j]);
@@ -1999,14 +2331,9 @@
 
   function ensureCursor(container) {
     let cursor = container.querySelector(':scope > .stream-cursor');
-    if (!cursor) {
-      cursor = document.createElement('span');
-      cursor.className = 'stream-cursor';
-      cursor.textContent = '▍';
-    }
+    if (!cursor) { cursor = document.createElement('span'); cursor.className = 'stream-cursor'; cursor.textContent = '▍'; }
     if (container.lastElementChild !== cursor) container.appendChild(cursor);
   }
-
   function removeCursor(container) {
     const cursor = container.querySelector(':scope > .stream-cursor');
     if (cursor) cursor.remove();
@@ -2015,13 +2342,7 @@
   function finalizeContent(container, text, renderState) {
     container.innerHTML = '';
     renderState.renderedParts = [];
-    if (!text || !text.trim()) {
-      const div = document.createElement('div');
-      div.className = 'md-block md-text';
-      div.innerHTML = '<p><em>[No response received]</em></p>';
-      container.appendChild(div);
-      return;
-    }
+    if (!text || !text.trim()) return;
     const parts = parseMarkdownParts(text);
     if (parts.length && parts[parts.length - 1].type === 'code' && parts[parts.length - 1].unclosed) {
       parts[parts.length - 1].unclosed = false;
@@ -2031,6 +2352,24 @@
       const node = createPartNode(part);
       container.appendChild(node);
       renderState.renderedParts.push({ part, node });
+    });
+  }
+
+  /* ============================================================
+     VFS SYNC FROM CODE BLOCKS
+     ============================================================ */
+  function detectFilename(code, lang) {
+    const firstLine = (code.split('\n')[0] || '').trim();
+    const m = firstLine.match(/(?:\/\/|<!--|#|\/\*)\s*(?:file(?:name)?\s*[:=]\s*)?([\w./-]+\.[a-z0-9]{1,8})/i);
+    return m ? m[1] : null;
+  }
+  function syncCodeBlocksToVfs(text) {
+    if (!text) return;
+    const parts = parseMarkdownParts(text);
+    parts.forEach(p => {
+      if (p.type !== 'code' || p.unclosed) return;
+      const filename = detectFilename(p.code, p.lang);
+      if (filename) vfs.write(filename, p.code);
     });
   }
 
@@ -2088,7 +2427,6 @@
       navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
     } else fallbackCopy(text, done);
   }
-
   function fallbackCopy(text, done) {
     const ta = document.createElement('textarea');
     ta.value = text;
@@ -2104,52 +2442,39 @@
     previewIframe.srcdoc = html;
     previewModal.classList.add('open');
   }
-
   previewCloseBtn.addEventListener('click', () => previewModal.classList.remove('open'));
   previewModal.querySelector('.preview-modal-backdrop').addEventListener('click', () => previewModal.classList.remove('open'));
 
-  function previewProject(codeParts) {
-    const htmlPart = codeParts.find(p => /^(html|htm)$/i.test(p.lang || ''));
-    const cssParts = codeParts.filter(p => /^css$/i.test(p.lang || ''));
-    const jsParts = codeParts.filter(p => /^(js|javascript)$/i.test(p.lang || ''));
-
-    let base = htmlPart ? htmlPart.code
-      : '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n</head>\n<body>\n</body>\n</html>';
-
-    const css = cssParts.map(p => p.code).join('\n');
-    const js = jsParts.map(p => p.code.replace(/<\/script/gi, '<\\/script')).join('\n');
-
-    if (css) {
-      if (/<\/head>/i.test(base)) base = base.replace(/<\/head>/i, `<style>\n${css}\n</style>\n</head>`);
-      else base = `<style>\n${css}\n</style>\n` + base;
+  function previewProjectFromVfs(mainHtmlPath) {
+    let htmlPath = mainHtmlPath;
+    if (!htmlPath || !vfs.exists(htmlPath)) {
+      htmlPath = vfs.list().find(p => /\.html?$/i.test(p));
     }
-    if (js) {
-      if (/<\/body>/i.test(base)) base = base.replace(/<\/body>/i, `<script>\n${js}\n<\/script>\n</body>`);
-      else base = base + `\n<script>\n${js}\n<\/script>`;
+    if (!htmlPath || !vfs.exists(htmlPath)) { alert('No HTML file in workspace.'); return; }
+    let html = vfs.read(htmlPath);
+
+    // Inline CSS
+    const cssFiles = vfs.list().filter(p => /\.css$/i.test(p));
+    for (const p of cssFiles) {
+      const css = vfs.read(p);
+      if (/<\/head>/i.test(html)) html = html.replace(/<\/head>/i, `<style>\n${css}\n</style>\n</head>`);
+      else html = `<style>\n${css}\n</style>\n` + html;
     }
-    openPreviewModal(base);
+    // Inline JS
+    const jsFiles = vfs.list().filter(p => /\.js$/i.test(p));
+    for (const p of jsFiles) {
+      const js = vfs.read(p).replace(/<\/script/gi, '<\\/script');
+      if (/<\/body>/i.test(html)) html = html.replace(/<\/body>/i, `<script>\n${js}\n<\/script>\n</body>`);
+      else html = html + `\n<script>\n${js}\n<\/script>`;
+    }
+    openPreviewModal(html);
   }
 
-  async function downloadZip(codeParts) {
+  async function downloadVfsAsZip() {
     if (typeof JSZip === 'undefined') { alert('ZIP library not loaded.'); return; }
+    if (vfs.size() === 0) { alert('Workspace is empty.'); return; }
     const zip = new JSZip();
-    const usedNames = new Set();
-    codeParts.forEach((p, i) => {
-      const lang = (p.lang || 'txt').toLowerCase();
-      let filename = `file${i + 1}.${extForLang(lang)}`;
-      const firstLine = (p.code.split('\n')[0] || '').trim();
-      const m = firstLine.match(/(?:\/\/|<!--|#|\/\*)\s*(?:file(?:name)?\s*[:=]\s*)?([\w.-]+\.[a-z0-9]{1,8})/i);
-      if (m) filename = m[1];
-      let unique = filename;
-      let n = 1;
-      while (usedNames.has(unique)) {
-        const dot = filename.lastIndexOf('.');
-        unique = dot > 0 ? `${filename.slice(0, dot)}-${n}${filename.slice(dot)}` : `${filename}-${n}`;
-        n++;
-      }
-      usedNames.add(unique);
-      zip.file(unique, p.code);
-    });
+    for (const path of vfs.list()) zip.file(path, vfs.read(path));
     try {
       const blob = await zip.generateAsync({ type: 'blob' });
       const url = URL.createObjectURL(blob);
@@ -2165,9 +2490,6 @@
 
   function addMessageActions(bubble, text) {
     if (!text || !text.trim()) return;
-    const parts = parseMarkdownParts(text);
-    const codeParts = parts.filter(p => p.type === 'code');
-
     const actions = document.createElement('div');
     actions.className = 'message-actions';
 
@@ -2177,19 +2499,21 @@
     copyBtn.addEventListener('click', () => copyText(text, copyBtn));
     actions.appendChild(copyBtn);
 
-    if (codeParts.length) {
-      const hasPreviewable = codeParts.some(p => /^(html|htm|css|js|javascript)$/i.test(p.lang || ''));
-      if (hasPreviewable) {
-        const previewBtn = document.createElement('button');
-        previewBtn.className = 'msg-action-btn preview-project-btn';
-        previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Preview Project';
-        previewBtn.addEventListener('click', () => previewProject(codeParts));
-        actions.appendChild(previewBtn);
-      }
+    const hasHtml = vfs.list().some(p => /\.html?$/i.test(p));
+    const hasFiles = vfs.size() > 0;
+
+    if (hasHtml) {
+      const previewBtn = document.createElement('button');
+      previewBtn.className = 'msg-action-btn';
+      previewBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Preview Project';
+      previewBtn.addEventListener('click', () => previewProjectFromVfs());
+      actions.appendChild(previewBtn);
+    }
+    if (hasFiles) {
       const zipBtn = document.createElement('button');
       zipBtn.className = 'msg-action-btn';
       zipBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Download ZIP';
-      zipBtn.addEventListener('click', () => downloadZip(codeParts));
+      zipBtn.addEventListener('click', () => downloadVfsAsZip());
       actions.appendChild(zipBtn);
     }
     bubble.appendChild(actions);
@@ -2203,24 +2527,26 @@
   fileInput.addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
     for (const file of files) {
-      if (file.size > 5 * 1024 * 1024) { alert(`File ${file.name} is too large (max 5MB).`); continue; }
+      if (file.size > 10 * 1024 * 1024) { alert(`File ${file.name} is too large (max 10MB).`); continue; }
       let content = '';
       let type = 'text';
 
       if (file.name.endsWith('.zip')) {
         try {
-          const zip = await JSZip.loadAsync(file);
-          const textFiles = [];
-          for (const [filename, zipEntry] of Object.entries(zip.files)) {
-            if (!zipEntry.dir && /\.(txt|md|html|js|css|json|py|ts|tsx|jsx|c|cpp|h|hpp|java|cs|go|rs|rb|php)$/i.test(filename)) {
-              const fileContent = await zipEntry.async('string');
-              textFiles.push(`--- File: ${filename} ---\n${fileContent}`);
-            }
-          }
-          content = textFiles.join('\n\n');
-        } catch (err) { console.error('Error reading zip:', err); alert('Failed to read zip file.'); continue; }
-      } else if (/\.(txt|md|html|js|css|json|py|ts|tsx|jsx|c|cpp|h|hpp|java|cs|go|rs|rb|php)$/i.test(file.name) || file.type.startsWith('text/')) {
+          const arrayBuffer = await file.arrayBuffer();
+          const bytes = new Uint8Array(arrayBuffer);
+          zipStore.set(file.name, bytes);
+          await extractZipData(bytes, file.name);
+          content = `[Zip "${file.name}" extracted to workspace: ${vfs.list().join(', ')}]`;
+        } catch (err) {
+          console.error('Error reading zip:', err);
+          alert('Failed to read zip file.');
+          continue;
+        }
+      } else if (/\.(txt|md|html|js|css|json|py|ts|tsx|jsx|c|cpp|h|hpp|java|cs|go|rs|rb|php|xml|yml|yaml)$/i.test(file.name) || file.type.startsWith('text/')) {
         content = await file.text();
+        // Also add to VFS
+        vfs.write(file.name, content);
       } else if (file.type.startsWith('image/')) {
         content = await new Promise((resolve) => {
           const reader = new FileReader();
@@ -2265,13 +2591,11 @@
     hideWelcome();
     const row = document.createElement('div');
     row.className = 'message-row user';
-
     let attHtml = '';
     if (attachments && attachments.length > 0) {
       attHtml = '<div style="margin-bottom:8px;font-size:12px;color:var(--text-muted);">Attachments: ' +
         attachments.map(a => escapeHtml(a.name)).join(', ') + '</div>';
     }
-
     row.innerHTML = `<div class="bubble">${attHtml}<div style="white-space:pre-wrap;">${escapeHtml(text)}</div></div>`;
     messagesContainer.appendChild(row);
     scrollToBottom(true);
@@ -2281,23 +2605,17 @@
     hideWelcome();
     const row = document.createElement('div');
     row.className = 'message-row assistant';
-
     const avatarEl = document.createElement('div');
     avatarEl.className = 'msg-avatar';
     const fallbackSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg>';
     const config = MODEL_CONFIG[state.model];
-
     const imgEl = document.createElement('img');
     imgEl.alt = 'Model';
     imgEl.src = state.currentModelAvatar || (config && config.icon) || '';
     let swapped = false;
     imgEl.addEventListener('error', function () {
-      if (!swapped && config && config.iconFallback) {
-        swapped = true;
-        imgEl.src = config.iconFallback;
-      } else {
-        avatarEl.innerHTML = fallbackSvg;
-      }
+      if (!swapped && config && config.iconFallback) { swapped = true; imgEl.src = config.iconFallback; }
+      else { avatarEl.innerHTML = fallbackSvg; }
     });
     avatarEl.appendChild(imgEl);
 
@@ -2310,16 +2628,11 @@
         <span>${escapeHtml(modelName)} is thinking…</span>
       </div>
     `;
-
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'content';
-    bubbleEl.appendChild(contentDiv);
-
     row.appendChild(avatarEl);
     row.appendChild(bubbleEl);
     messagesContainer.appendChild(row);
     scrollToBottom(true);
-    return { row, bubble: bubbleEl, avatar: avatarEl, contentDiv };
+    return { row, bubble: bubbleEl, avatar: avatarEl };
   }
 
   function createThinkingPanel() {
@@ -2361,11 +2674,10 @@
     document.body.className = `mode-${mode}`;
     sidebar.classList.remove('active');
     sidebarOverlay.classList.remove('active');
-
     const w = (SETTINGS.welcome) || {};
     if (mode === 'coding') {
       welcomeTitle.textContent = w.codingTitle || 'Agent Workspace';
-      welcomeSubtitle.textContent = w.codingSubtitle || 'System ready. Awaiting prompt.';
+      welcomeSubtitle.textContent = w.codingSubtitle || 'System ready. Tools online. Awaiting prompt.';
       chatInput.placeholder = w.codingPlaceholder || 'Describe what to build…';
       modeCoding.classList.add('active');
       modeSimple.classList.remove('active');
@@ -2382,7 +2694,7 @@
   modeSimple.addEventListener('click', () => setMode('simple'));
 
   /* ============================================================
-     MODEL BUTTON TOGGLE
+     MODEL TOGGLE
      ============================================================ */
   modelBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -2402,6 +2714,8 @@
     state.messages = [];
     state.attachments = [];
     state.userHasScrolled = false;
+    vfs.clear();
+    zipStore.clear();
     renderAttachments();
     messagesContainer.innerHTML = '';
     welcomeContainer.classList.remove('hidden');
@@ -2412,27 +2726,32 @@
   });
 
   /* ============================================================
-     STREAM EVENT HANDLING
+     STREAM EVENT HANDLING (with tool calls)
      ============================================================ */
   function handleStreamEvent(json, meta, onContent, onThinking) {
     if (!json || typeof json !== 'object') return;
+    if (!meta.toolCallsMap) meta.toolCallsMap = {};
+    if (!meta.toolCalls) meta.toolCalls = [];
 
-    if (Array.isArray(json.candidates) && json.candidates.length) {
-      const cand = json.candidates[0];
-      if (cand.content && Array.isArray(cand.content.parts)) {
-        cand.content.parts.forEach(part => {
-          if (!part) return;
-          if (part.thought === true) { if (typeof part.text === 'string') onThinking(part.text); }
-          else if (typeof part.text === 'string') onContent(part.text);
-        });
-      }
-      if (cand.finishReason === 'MAX_TOKENS' || cand.finishReason === 'LENGTH') meta.truncated = true;
-      return;
-    }
-
+    // OpenAI Chat completions
     if (Array.isArray(json.choices) && json.choices.length) {
       const choice = json.choices[0];
       const delta = choice.delta || choice.message || {};
+
+      if (Array.isArray(delta.tool_calls)) {
+        for (const tc of delta.tool_calls) {
+          const idx = tc.index ?? 0;
+          if (!meta.toolCallsMap[idx]) meta.toolCallsMap[idx] = { id: '', type: 'function', function: { name: '', arguments: '' } };
+          const entry = meta.toolCallsMap[idx];
+          if (tc.id) entry.id = tc.id;
+          if (tc.type) entry.type = tc.type;
+          if (tc.function) {
+            if (tc.function.name) entry.function.name += tc.function.name;
+            if (tc.function.arguments) entry.function.arguments += tc.function.arguments;
+          }
+        }
+      }
+
       if (typeof delta.reasoning_content === 'string') onThinking(delta.reasoning_content);
       if (typeof delta.reasoning === 'string') onThinking(delta.reasoning);
       if (typeof delta.thinking === 'string') onThinking(delta.thinking);
@@ -2451,48 +2770,62 @@
       return;
     }
 
+    // Gemini native
+    if (Array.isArray(json.candidates) && json.candidates.length) {
+      const cand = json.candidates[0];
+      if (cand.content && Array.isArray(cand.content.parts)) {
+        cand.content.parts.forEach(part => {
+          if (!part) return;
+          if (part.functionCall) {
+            meta.toolCalls.push({
+              id: 'call_' + Math.random().toString(36).slice(2, 10),
+              type: 'function',
+              function: {
+                name: part.functionCall.name,
+                arguments: JSON.stringify(part.functionCall.args || {})
+              }
+            });
+          } else if (part.thought === true) {
+            if (typeof part.text === 'string') onThinking(part.text);
+          } else if (typeof part.text === 'string') {
+            onContent(part.text);
+          }
+        });
+      }
+      if (cand.finishReason === 'MAX_TOKENS' || cand.finishReason === 'LENGTH') meta.truncated = true;
+      return;
+    }
+
     const type = json.type;
     if (typeof type !== 'string') return;
 
-    if (type === 'content_block_start' && json.content_block) {
-      const cb = json.content_block;
-      if (cb.type === 'thinking' && typeof cb.thinking === 'string' && cb.thinking) onThinking(cb.thinking);
-      if (cb.type === 'text' && typeof cb.text === 'string' && cb.text) onContent(cb.text);
-      return;
-    }
-    if (type === 'content_block_delta' && json.delta) {
-      const d = json.delta;
-      if (d.type === 'thinking_delta' && typeof d.thinking === 'string') onThinking(d.thinking);
-      else if (d.type === 'text_delta' && typeof d.text === 'string') onContent(d.text);
-      return;
-    }
-    if (type === 'message_delta') { if (json.delta && json.delta.stop_reason === 'max_tokens') meta.truncated = true; return; }
-    if (type === 'message_start' || type === 'message_stop' || type === 'content_block_stop' || type === 'ping') return;
-
+    // OpenAI Responses API
     if (type.startsWith('response.')) {
+      if (type === 'response.output_item.added' && json.item && json.item.type === 'function_call') {
+        const idx = json.output_index ?? 0;
+        meta.toolCallsMap[idx] = {
+          id: json.item.id || json.item.call_id,
+          call_id: json.item.call_id,
+          type: 'function',
+          function: { name: json.item.name || '', arguments: json.item.arguments || '' }
+        };
+        return;
+      }
+      if (type === 'response.function_call_arguments.delta') {
+        const idx = json.output_index ?? 0;
+        if (meta.toolCallsMap[idx]) meta.toolCallsMap[idx].function.arguments += json.delta || '';
+        return;
+      }
+      if (type === 'response.function_call_arguments.done') {
+        const idx = json.output_index ?? 0;
+        if (meta.toolCallsMap[idx] && json.arguments) meta.toolCallsMap[idx].function.arguments = json.arguments;
+        return;
+      }
       if (type === 'response.output_text.delta' && typeof json.delta === 'string') { onContent(json.delta); return; }
       if (type === 'response.reasoning_summary_text.delta' && typeof json.delta === 'string') { onThinking(json.delta); return; }
       if (type === 'response.reasoning_text.delta' && typeof json.delta === 'string') { onThinking(json.delta); return; }
       if (type === 'response.completed' && json.response) {
         if (json.response.status === 'incomplete' || json.response.incomplete_details) meta.truncated = true;
-        if (!meta.text && Array.isArray(json.response.output)) {
-          let extracted = '';
-          let extractedThinking = '';
-          json.response.output.forEach(item => {
-            if (!item) return;
-            if (item.type === 'reasoning') {
-              if (Array.isArray(item.summary)) extractedThinking += item.summary.map(s => s.text || '').join('\n');
-              if (Array.isArray(item.content)) extractedThinking += item.content.map(c => c.text || '').join('');
-            }
-            if (item.type === 'message' && Array.isArray(item.content)) {
-              item.content.forEach(c => {
-                if ((c.type === 'output_text' || c.type === 'text') && c.text) extracted += c.text;
-              });
-            }
-          });
-          if (extractedThinking) onThinking(extractedThinking);
-          if (extracted) onContent(extracted);
-        }
         return;
       }
       if (type === 'response.failed') {
@@ -2501,22 +2834,51 @@
       return;
     }
 
+    // Anthropic
+    if (type === 'content_block_start' && json.content_block) {
+      const cb = json.content_block;
+      if (cb.type === 'tool_use') {
+        meta.toolCallsMap[json.index ?? 0] = {
+          id: cb.id,
+          type: 'function',
+          function: { name: cb.name, arguments: '' }
+        };
+        return;
+      }
+      if (cb.type === 'thinking' && typeof cb.thinking === 'string' && cb.thinking) onThinking(cb.thinking);
+      if (cb.type === 'text' && typeof cb.text === 'string' && cb.text) onContent(cb.text);
+      return;
+    }
+    if (type === 'content_block_delta' && json.delta) {
+      const d = json.delta;
+      if (d.type === 'input_json_delta') {
+        const idx = json.index ?? 0;
+        if (meta.toolCallsMap[idx]) meta.toolCallsMap[idx].function.arguments += d.partial_json || '';
+        return;
+      }
+      if (d.type === 'thinking_delta' && typeof d.thinking === 'string') onThinking(d.thinking);
+      else if (d.type === 'text_delta' && typeof d.text === 'string') onContent(d.text);
+      return;
+    }
+    if (type === 'message_delta') {
+      if (json.delta && json.delta.stop_reason === 'max_tokens') meta.truncated = true;
+      return;
+    }
+    if (type === 'message_start' || type === 'message_stop' || type === 'content_block_stop' || type === 'ping') return;
+
     if (type === 'error') throw new Error((json.error && json.error.message) || json.message || 'Stream error');
 
     if (json.delta && typeof json.delta === 'object') {
       if (typeof json.delta.content === 'string') onContent(json.delta.content);
       if (typeof json.delta.thinking === 'string') onThinking(json.delta.thinking);
-      if (typeof json.delta.reasoning === 'string') onThinking(json.delta.reasoning);
     }
-    if (typeof json.thinking === 'string') onThinking(json.thinking);
-    if (typeof json.text === 'string') onContent(json.text);
   }
 
   async function processStreamingResponse(response, onContent, onThinking) {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-    const meta = { text: '', thinking: '', truncated: false };
+    const meta = { text: '', thinking: '', truncated: false, toolCalls: [], toolCallsMap: {} };
     const emitContent = (c) => { if (c) { meta.text += c; onContent(c); } };
     const emitThinking = (c) => { if (c) { meta.thinking += c; onThinking(c); } };
     let finished = false;
@@ -2553,6 +2915,11 @@
     } finally {
       try { await reader.cancel(); } catch (e) {}
     }
+
+    // Merge streamed tool calls from map into final list
+    const streamed = Object.values(meta.toolCallsMap).filter(tc => tc.function && tc.function.name);
+    meta.toolCalls = [...meta.toolCalls, ...streamed];
+    meta.toolCallsMap = {};
     return meta;
   }
 
@@ -2563,9 +2930,9 @@
     if (!json || typeof json !== 'object') throw new Error('Empty response');
     if (json.error) throw new Error(json.error.message || JSON.stringify(json.error));
 
+    const result = { text: '', thinking: '', truncated: false, toolCalls: [] };
     let text = '';
     let thinking = '';
-    let truncated = false;
 
     if (Array.isArray(json)) {
       json.forEach(chunk => {
@@ -2576,14 +2943,21 @@
           if (cand.content && Array.isArray(cand.content.parts)) {
             cand.content.parts.forEach(part => {
               if (!part) return;
-              if (part.thought === true) { if (typeof part.text === 'string') thinking += part.text; }
+              if (part.functionCall) {
+                result.toolCalls.push({
+                  id: 'call_' + Math.random().toString(36).slice(2, 10),
+                  type: 'function',
+                  function: { name: part.functionCall.name, arguments: JSON.stringify(part.functionCall.args || {}) }
+                });
+              } else if (part.thought === true) { if (typeof part.text === 'string') thinking += part.text; }
               else if (typeof part.text === 'string') text += part.text;
             });
           }
-          if (cand.finishReason === 'MAX_TOKENS' || cand.finishReason === 'LENGTH') truncated = true;
+          if (cand.finishReason === 'MAX_TOKENS' || cand.finishReason === 'LENGTH') result.truncated = true;
         }
       });
-      return { text, thinking, truncated };
+      result.text = text; result.thinking = thinking;
+      return result;
     }
 
     if (Array.isArray(json.candidates) && json.candidates.length) {
@@ -2591,16 +2965,33 @@
       if (cand.content && Array.isArray(cand.content.parts)) {
         cand.content.parts.forEach(part => {
           if (!part) return;
-          if (part.thought === true) { if (typeof part.text === 'string') thinking += part.text; }
+          if (part.functionCall) {
+            result.toolCalls.push({
+              id: 'call_' + Math.random().toString(36).slice(2, 10),
+              type: 'function',
+              function: { name: part.functionCall.name, arguments: JSON.stringify(part.functionCall.args || {}) }
+            });
+          } else if (part.thought === true) { if (typeof part.text === 'string') thinking += part.text; }
           else if (typeof part.text === 'string') text += part.text;
         });
       }
-      if (cand.finishReason === 'MAX_TOKENS' || cand.finishReason === 'LENGTH') truncated = true;
-      return { text, thinking, truncated };
+      if (cand.finishReason === 'MAX_TOKENS' || cand.finishReason === 'LENGTH') result.truncated = true;
+      result.text = text; result.thinking = thinking;
+      return result;
     }
 
     const consumeChatMessage = (msg) => {
       if (!msg) return;
+      if (Array.isArray(msg.tool_calls)) {
+        msg.tool_calls.forEach(tc => {
+          result.toolCalls.push({
+            id: tc.id || ('call_' + Math.random().toString(36).slice(2, 10)),
+            call_id: tc.id,
+            type: tc.type || 'function',
+            function: { name: tc.function?.name || '', arguments: tc.function?.arguments || '' }
+          });
+        });
+      }
       if (typeof msg.content === 'string') text += msg.content;
       else if (Array.isArray(msg.content)) {
         msg.content.forEach(part => {
@@ -2618,13 +3009,27 @@
     if (Array.isArray(json.content) && !Array.isArray(json.choices)) {
       json.content.forEach(block => {
         if (!block) return;
-        if (block.type === 'thinking' && typeof block.thinking === 'string') thinking += block.thinking;
+        if (block.type === 'tool_use') {
+          result.toolCalls.push({
+            id: block.id,
+            type: 'function',
+            function: { name: block.name, arguments: JSON.stringify(block.input || {}) }
+          });
+        } else if (block.type === 'thinking' && typeof block.thinking === 'string') thinking += block.thinking;
         else if (block.type === 'text' && typeof block.text === 'string') text += block.text;
       });
-      if (json.stop_reason === 'max_tokens') truncated = true;
+      if (json.stop_reason === 'max_tokens') result.truncated = true;
     } else if (Array.isArray(json.output)) {
       json.output.forEach(item => {
         if (!item) return;
+        if (item.type === 'function_call') {
+          result.toolCalls.push({
+            id: item.id,
+            call_id: item.call_id,
+            type: 'function',
+            function: { name: item.name, arguments: item.arguments || '' }
+          });
+        }
         if (item.type === 'reasoning') {
           if (Array.isArray(item.summary)) thinking += item.summary.map(s => s.text || '').join('\n');
           if (Array.isArray(item.content)) thinking += item.content.map(c => c.text || '').join('');
@@ -2637,28 +3042,29 @@
         }
       });
       if (!text && typeof json.output_text === 'string') text = json.output_text;
-      if (json.status === 'incomplete' || json.incomplete_details) truncated = true;
+      if (json.status === 'incomplete' || json.incomplete_details) result.truncated = true;
     } else if (Array.isArray(json.choices) && json.choices.length) {
       const choice = json.choices[0];
       consumeChatMessage(choice.message);
-      if (choice.finish_reason === 'length') truncated = true;
+      if (choice.finish_reason === 'length') result.truncated = true;
     } else {
       if (typeof json.output_text === 'string') text = json.output_text;
       if (!text && typeof json.content === 'string') text = json.content;
       consumeChatMessage(json.message);
     }
 
-    return { text, thinking, truncated };
+    result.text = text; result.thinking = thinking;
+    return result;
   }
 
   /* ============================================================
-     FETCH RESPONSE
+     FETCH MODEL RESPONSE
      ============================================================ */
-  async function fetchModelResponse(config, messages, reasoning, attachments, opts = {}) {
+  async function fetchModelResponse(config, messages, reasoning, attachments, signal, opts = {}) {
     const stream = opts.stream !== false;
     const endpoint = config.endpoint;
     const apiType = config.apiType || 'openai-chat';
-    const systemPrompt = getSystemPrompt(config);
+    const systemPrompt = getFullSystemPrompt(config);
     const authHeaders = getAuthHeaders(config);
     let body = {};
 
@@ -2671,107 +3077,201 @@
 
     const augmentedMessages = JSON.parse(JSON.stringify(messages));
     if (textContext) {
-      const lastMsg = augmentedMessages[augmentedMessages.length - 1];
-      if (lastMsg && lastMsg.role === 'user') lastMsg.content += textContext;
+      for (let i = augmentedMessages.length - 1; i >= 0; i--) {
+        if (augmentedMessages[i].role === 'user') {
+          augmentedMessages[i].content += textContext;
+          break;
+        }
+      }
     }
 
-    // System-prompt inclusion flag (default depends on apiType to preserve past behaviour)
     const defaultInclude = apiType === 'openai-responses' ? false : true;
     const includeInstructions = config.includeInstructions !== undefined
       ? config.includeInstructions === true
       : defaultInclude;
 
+    // Tools payload
+    const toolsEnabled = !opts.noTools && config.supportsTools !== false;
+    const toolDefs = toolsEnabled ? toolsForApi(getToolDefinitions(state.mode), apiType) : null;
+
     if (apiType === 'openai-chat') {
       const gMessages = [];
-      if (includeInstructions && systemPrompt) {
-        gMessages.push({ role: 'system', content: systemPrompt });
-      }
-      augmentedMessages.forEach((m, idx) => {
-        const isLast = idx === augmentedMessages.length - 1;
+      if (includeInstructions && systemPrompt) gMessages.push({ role: 'system', content: systemPrompt });
+
+      augmentedMessages.forEach((m) => {
         if (m.role === 'user') {
-          if (isLast && imageAttachments.length > 0) {
-            const contentParts = [{ type: 'text', text: m.content }];
-            imageAttachments.forEach(img => contentParts.push({ type: 'image_url', image_url: { url: img } }));
-            gMessages.push({ role: 'user', content: contentParts });
-          } else {
-            gMessages.push({ role: 'user', content: m.content });
+          // Attach images to the LAST user message (the new one)
+          gMessages.push({ role: 'user', content: m.content });
+        } else if (m.role === 'assistant') {
+          const out = { role: 'assistant', content: m.content || null };
+          if (Array.isArray(m.tool_calls) && m.tool_calls.length) {
+            out.tool_calls = m.tool_calls.map(tc => ({
+              id: tc.id || tc.call_id,
+              type: 'function',
+              function: { name: tc.function.name, arguments: tc.function.arguments }
+            }));
+            if (!out.content) delete out.content;
           }
-        } else {
-          gMessages.push({ role: m.role, content: m.content });
+          gMessages.push(out);
+        } else if (m.role === 'tool') {
+          gMessages.push({
+            role: 'tool',
+            tool_call_id: m.tool_call_id,
+            content: m.content
+          });
         }
       });
+
+      // Attach images to the last user message
+      if (imageAttachments.length > 0) {
+        for (let i = gMessages.length - 1; i >= 0; i--) {
+          if (gMessages[i].role === 'user') {
+            const existing = typeof gMessages[i].content === 'string' ? gMessages[i].content : '';
+            const contentParts = [{ type: 'text', text: existing }];
+            imageAttachments.forEach(img => contentParts.push({ type: 'image_url', image_url: { url: img } }));
+            gMessages[i].content = contentParts;
+            break;
+          }
+        }
+      }
 
       body = { messages: gMessages, stream };
       if (config.sendModelInBody) body.model = config.id;
       if (config.supportsReasoningEffort && reasoning) body.reasoning_effort = reasoning;
       if (config.includeThoughts) body.include_thoughts = true;
-      if (Array.isArray(config.tools) && config.tools.length) body.tools = config.tools;
+      if (toolDefs && toolDefs.length) body.tools = toolDefs;
       if (config.maxOutputTokens) body.max_tokens = config.maxOutputTokens;
+
     } else if (apiType === 'openai-responses') {
-      const input = augmentedMessages.map(m => ({
-        type: 'message',
-        role: m.role,
-        content: [{
-          type: m.role === 'user' ? 'input_text' : 'output_text',
-          text: m.content
-        }]
-      }));
+      const input = [];
+      augmentedMessages.forEach(m => {
+        if (m.role === 'user') {
+          input.push({ type: 'message', role: 'user', content: [{ type: 'input_text', text: m.content }] });
+        } else if (m.role === 'assistant') {
+          if (m.content) input.push({ type: 'message', role: 'assistant', content: [{ type: 'output_text', text: m.content }] });
+          if (Array.isArray(m.tool_calls)) {
+            m.tool_calls.forEach(tc => {
+              input.push({
+                type: 'function_call',
+                id: tc.id || tc.call_id,
+                call_id: tc.call_id || tc.id,
+                name: tc.function.name,
+                arguments: tc.function.arguments,
+                status: 'completed'
+              });
+            });
+          }
+        } else if (m.role === 'tool') {
+          input.push({ type: 'function_call_output', call_id: m.tool_call_id, output: m.content });
+        }
+      });
 
       if (imageAttachments.length > 0) {
-        const lastMsg = input[input.length - 1];
-        imageAttachments.forEach(img => lastMsg.content.push({ type: 'input_image', image_url: img }));
+        for (let i = input.length - 1; i >= 0; i--) {
+          if (input[i].type === 'message' && input[i].role === 'user') {
+            imageAttachments.forEach(img => input[i].content.push({ type: 'input_image', image_url: img }));
+            break;
+          }
+        }
       }
 
       body = { stream, input };
       if (config.sendModelInBody !== false) body.model = config.id;
       if (config.supportsReasoningEffort && reasoning) body.reasoning = { effort: reasoning };
       if (includeInstructions && systemPrompt) body.instructions = systemPrompt;
-      if (Array.isArray(config.tools) && config.tools.length) body.tools = config.tools;
+      if (toolDefs && toolDefs.length) body.tools = toolDefs;
       if (config.maxOutputTokens) body.max_output_tokens = config.maxOutputTokens;
+
     } else if (apiType === 'gemini-native') {
-      const gContents = augmentedMessages.map(m => ({
-        role: m.role === 'user' ? 'user' : 'model',
-        parts: [{ text: m.content }]
-      }));
+      const gContents = [];
+      augmentedMessages.forEach(m => {
+        if (m.role === 'user') {
+          gContents.push({ role: 'user', parts: [{ text: m.content }] });
+        } else if (m.role === 'assistant') {
+          const parts = [];
+          if (m.content) parts.push({ text: m.content });
+          if (Array.isArray(m.tool_calls)) {
+            m.tool_calls.forEach(tc => {
+              let args = {};
+              try { args = JSON.parse(tc.function.arguments || '{}'); } catch (e) {}
+              parts.push({ functionCall: { name: tc.function.name, args } });
+            });
+          }
+          if (parts.length) gContents.push({ role: 'model', parts });
+        } else if (m.role === 'tool') {
+          gContents.push({
+            role: 'user',
+            parts: [{ functionResponse: { name: m.name || 'tool', response: { result: m.content } } }]
+          });
+        }
+      });
 
       if (imageAttachments.length > 0) {
-        const lastContent = gContents[gContents.length - 1];
-        imageAttachments.forEach(img => {
-          const match = img.match(/^data:([^;]+);base64,(.+)$/);
-          if (match) lastContent.parts.push({ inlineData: { mimeType: match[1], data: match[2] } });
-        });
+        for (let i = gContents.length - 1; i >= 0; i--) {
+          if (gContents[i].role === 'user') {
+            imageAttachments.forEach(img => {
+              const match = img.match(/^data:([^;]+);base64,(.+)$/);
+              if (match) gContents[i].parts.push({ inlineData: { mimeType: match[1], data: match[2] } });
+            });
+            break;
+          }
+        }
       }
 
       body = {
         stream: true,
         contents: gContents,
-        generationConfig: {
-          thinkingConfig: { includeThoughts: config.includeThoughts !== false, thinkingLevel: reasoning }
-        }
+        generationConfig: { thinkingConfig: { includeThoughts: config.includeThoughts !== false, thinkingLevel: reasoning } }
       };
       if (includeInstructions && systemPrompt) body.systemInstruction = { parts: [{ text: systemPrompt }] };
+      if (toolDefs) body.tools = toolDefs;
+
     } else if (apiType === 'anthropic') {
-      const claudeMessages = augmentedMessages.map((m, idx) => {
-        const isLast = idx === augmentedMessages.length - 1;
-        if (m.role === 'user' && isLast && imageAttachments.length > 0) {
-          const contentParts = [{ type: 'text', text: m.content }];
-          imageAttachments.forEach(img => contentParts.push({ type: 'image_url', image_url: { url: img } }));
-          return { role: 'user', content: contentParts };
+      const claudeMessages = [];
+      augmentedMessages.forEach(m => {
+        if (m.role === 'user') {
+          claudeMessages.push({ role: 'user', content: m.content });
+        } else if (m.role === 'assistant') {
+          const content = [];
+          if (m.content) content.push({ type: 'text', text: m.content });
+          if (Array.isArray(m.tool_calls)) {
+            m.tool_calls.forEach(tc => {
+              let input = {};
+              try { input = JSON.parse(tc.function.arguments || '{}'); } catch (e) {}
+              content.push({ type: 'tool_use', id: tc.id, name: tc.function.name, input });
+            });
+          }
+          if (content.length) claudeMessages.push({ role: 'assistant', content });
+        } else if (m.role === 'tool') {
+          claudeMessages.push({
+            role: 'user',
+            content: [{ type: 'tool_result', tool_use_id: m.tool_call_id, content: m.content }]
+          });
         }
-        return { role: m.role, content: m.content };
       });
+
+      if (imageAttachments.length > 0) {
+        for (let i = claudeMessages.length - 1; i >= 0; i--) {
+          if (claudeMessages[i].role === 'user' && typeof claudeMessages[i].content === 'string') {
+            const text = claudeMessages[i].content;
+            const parts = [{ type: 'text', text }];
+            imageAttachments.forEach(img => {
+              const m = img.match(/^data:([^;]+);base64,(.+)$/);
+              if (m) parts.push({ type: 'image', source: { type: 'base64', media_type: m[1], data: m[2] } });
+            });
+            claudeMessages[i].content = parts;
+            break;
+          }
+        }
+      }
 
       const maxTokensMap = config.maxTokens || { minimal: 8192, low: 12288, medium: 16384, high: 24576, max: 32000 };
       const maxTokens = maxTokensMap[reasoning] || config.maxOutputTokens || 32000;
 
-      body = {
-        model: config.id,
-        messages: claudeMessages,
-        max_tokens: maxTokens,
-        stream,
-        thinkingFlag: true
-      };
+      body = { model: config.id, messages: claudeMessages, max_tokens: maxTokens, stream };
       if (includeInstructions && systemPrompt) body.system = systemPrompt;
+      if (toolDefs && toolDefs.length) body.tools = toolDefs;
+
     } else {
       throw new Error(`Unknown apiType: ${apiType}`);
     }
@@ -2781,13 +3281,18 @@
       method: 'POST',
       headers,
       body: JSON.stringify(body),
-      signal: state.abortController.signal
+      signal
     });
 
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
+      // If tools caused the failure, retry without them
+      if (body.tools && !opts.noTools && res.status >= 400 && res.status < 500) {
+        console.warn('[tools retry] API rejected tools, retrying without:', errText.slice(0, 200));
+        return fetchModelResponse(config, messages, reasoning, attachments, signal, { ...opts, noTools: true });
+      }
       if (stream && res.status >= 400 && res.status < 500 && /stream/i.test(errText)) {
-        return fetchModelResponse(config, messages, reasoning, attachments, { stream: false });
+        return fetchModelResponse(config, messages, reasoning, attachments, signal, { ...opts, stream: false });
       }
       throw new Error(`HTTP ${res.status}: ${errText.slice(0, 300)}`);
     }
@@ -2795,7 +3300,7 @@
   }
 
   /* ============================================================
-     GENERATE RESPONSE
+     GENERATE RESPONSE (multi-round + tools)
      ============================================================ */
   async function generateResponse() {
     if (state.isGenerating) {
@@ -2823,141 +3328,227 @@
     state.attachments = [];
     renderAttachments();
 
-    const { bubble, avatar, contentDiv } = createAssistantRow();
-    const streamState = { renderedParts: [] };
-
-    let rawText = '';
-    let rawThinking = '';
-    let hasThinking = false;
-    let hasContent = false;
-    let thinkingPanel = null;
-    let thinkingBody = null;
-    let thinkingTimeEl = null;
-    let thinkingTimer = null;
-    let thinkingStart = 0;
-    let renderTimer = null;
-    let pendingThinking = false;
+    const { bubble, avatar } = createAssistantRow();
 
     state.abortController = new AbortController();
     const signal = state.abortController.signal;
+
+    // Multi-round state
+    const maxRounds = 12;
+    let round = 0;
+    let allRenderedText = '';
+    let finalPushed = false;
+
+    // Per-round state (reset at start of each round)
+    let currentThinking = null;
+    let currentThinkingTimer = null;
+    let currentThinkingStart = 0;
+    let currentContent = null;
+    let currentRenderState = null;
+    let currentText = '';
+    let renderTimer = null;
 
     function removeWaiting() {
       const w = bubble.querySelector('.waiting-indicator');
       if (w) w.remove();
     }
-    function ensureThinkingPanel() {
-      if (thinkingPanel) return;
-      removeWaiting();
-      thinkingPanel = createThinkingPanel();
-      thinkingBody = thinkingPanel.querySelector('.thinking-body');
-      thinkingTimeEl = thinkingPanel.querySelector('.thinking-time');
-      thinkingStart = performance.now();
-      thinkingTimer = setInterval(() => {
-        if (thinkingTimeEl) thinkingTimeEl.textContent = ((performance.now() - thinkingStart) / 1000).toFixed(1) + 's';
-      }, 100);
-      bubble.insertBefore(thinkingPanel, contentDiv);
+
+    function startRound() {
+      currentThinking = null;
+      if (currentThinkingTimer) { clearInterval(currentThinkingTimer); currentThinkingTimer = null; }
+      currentContent = null;
+      currentRenderState = { renderedParts: [] };
+      currentText = '';
+      if (renderTimer) { clearTimeout(renderTimer); renderTimer = null; }
     }
-    function scheduleContentRender() {
-      if (renderTimer) return;
-      renderTimer = setTimeout(() => {
-        renderTimer = null;
-        updateStreamingContent(contentDiv, rawText, streamState);
-        ensureCursor(contentDiv);
-        scrollToBottom();
-      }, 30);
-    }
-    function finalizeThinking(forceCollapse = true) {
-      if (!thinkingPanel || thinkingPanel.dataset.finalized) return;
-      thinkingPanel.dataset.finalized = 'true';
-      thinkingPanel.classList.add('done');
-      if (thinkingTimer) { clearInterval(thinkingTimer); thinkingTimer = null; }
-      const elapsed = thinkingStart ? ((performance.now() - thinkingStart) / 1000) : 0;
-      const userWantsExpanded = thinkingPanel.dataset.userExpanded === 'true';
-      if (forceCollapse && !userWantsExpanded) thinkingPanel.classList.remove('expanded');
-      const label = thinkingPanel.querySelector('.thinking-label');
+
+    function finalizeThinking() {
+      if (!currentThinking || currentThinking.dataset.finalized) return;
+      currentThinking.dataset.finalized = 'true';
+      currentThinking.classList.add('done');
+      if (currentThinkingTimer) { clearInterval(currentThinkingTimer); currentThinkingTimer = null; }
+      const elapsed = currentThinkingStart ? ((performance.now() - currentThinkingStart) / 1000) : 0;
+      const userWantsExpanded = currentThinking.dataset.userExpanded === 'true';
+      if (!userWantsExpanded) currentThinking.classList.remove('expanded');
+      const label = currentThinking.querySelector('.thinking-label');
       if (label) {
         label.innerHTML = `<svg class="thought-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M20 6L9 17l-5-5"/></svg><span class="thinking-text">Thought for ${elapsed.toFixed(1)}s</span>`;
       }
       avatar.classList.remove('thinking');
     }
+
+    function ensureThinkingPanel() {
+      if (currentThinking && !currentThinking.dataset.finalized) return currentThinking;
+      removeWaiting();
+      currentThinking = createThinkingPanel();
+      bubble.appendChild(currentThinking);
+      currentThinkingStart = performance.now();
+      currentThinkingTimer = setInterval(() => {
+        const t = currentThinking && currentThinking.querySelector('.thinking-time');
+        if (t) t.textContent = ((performance.now() - currentThinkingStart) / 1000).toFixed(1) + 's';
+      }, 100);
+      avatar.classList.add('thinking');
+      return currentThinking;
+    }
+
+    function ensureContentDiv() {
+      if (currentContent) return currentContent;
+      removeWaiting();
+      finalizeThinking();
+      currentContent = document.createElement('div');
+      currentContent.className = 'content';
+      bubble.appendChild(currentContent);
+      return currentContent;
+    }
+
     function onThinking(chunk) {
       if (!chunk) return;
-      rawThinking += chunk;
-      if (!hasThinking) { hasThinking = true; ensureThinkingPanel(); avatar.classList.add('thinking'); }
-      if (pendingThinking) return;
-      pendingThinking = true;
-      requestAnimationFrame(() => {
-        pendingThinking = false;
-        if (thinkingBody) {
-          thinkingBody.textContent = rawThinking;
-          const wrapper = thinkingBody.parentElement;
-          if (wrapper && thinkingPanel && thinkingPanel.classList.contains('expanded')) {
-            const nearBottom = wrapper.scrollHeight - wrapper.scrollTop - wrapper.clientHeight < 40;
-            if (nearBottom) wrapper.scrollTop = wrapper.scrollHeight;
-          }
-        }
-        scrollToBottom();
-      });
+      const panel = ensureThinkingPanel();
+      const body = panel.querySelector('.thinking-body');
+      if (body) body.textContent += chunk;
+      scrollToBottom();
     }
+
+    function scheduleRender() {
+      if (renderTimer) return;
+      renderTimer = setTimeout(() => {
+        renderTimer = null;
+        if (currentContent && currentRenderState) {
+          updateStreamingContent(currentContent, currentText, currentRenderState);
+          ensureCursor(currentContent);
+          scrollToBottom();
+        }
+      }, 30);
+    }
+
     function onContent(chunk) {
       if (!chunk) return;
-      rawText += chunk;
-      if (!hasContent) {
-        hasContent = true;
-        removeWaiting();
-        if (hasThinking) finalizeThinking();
-      }
-      scheduleContentRender();
+      ensureContentDiv();
+      currentText += chunk;
+      allRenderedText += chunk;
+      scheduleRender();
+    }
+
+    function renderToolCard(tc) {
+      const card = document.createElement('div');
+      card.className = 'tool-call-card';
+      const argSummary = summarizeArgs(tc.function.arguments);
+      card.innerHTML = `
+        <div class="tool-call-header running">
+          <svg class="tool-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="28" stroke-dashoffset="10"/></svg>
+          <span class="tool-name">${escapeHtml(tc.function.name)}</span>
+          <span class="tool-args">${escapeHtml(argSummary)}</span>
+          <svg class="tool-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="tool-call-body"></div>
+      `;
+      card.querySelector('.tool-call-header').addEventListener('click', () => {
+        card.classList.toggle('expanded');
+      });
+      bubble.appendChild(card);
+      scrollToBottom();
+      return card;
+    }
+
+    function completeToolCard(card, result) {
+      const header = card.querySelector('.tool-call-header');
+      header.classList.remove('running');
+      const iconEl = header.querySelector('.tool-icon');
+      if (iconEl) iconEl.outerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>';
+      const body = card.querySelector('.tool-call-body');
+      const txt = String(result);
+      const maxLen = 4000;
+      body.textContent = txt.length > maxLen ? txt.slice(0, maxLen) + `\n…[${txt.length - maxLen} chars omitted]` : txt;
     }
 
     try {
       const config = MODEL_CONFIG[state.model];
-      let requestMessages = [...state.messages];
-      let accumulated = '';
-      const maxAttempts = 3;
 
-      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      while (round < maxRounds) {
         if (signal.aborted) throw abortError();
-        const response = await fetchModelResponse(config, requestMessages, state.reasoning, attempt === 0 ? currentAttachments : []);
-        const contentType = (response.headers.get('content-type') || '').toLowerCase();
-        let result;
+        startRound();
 
-        if (contentType.includes('text/event-stream') && response.body) {
-          result = await processStreamingResponse(response, onContent, onThinking);
-        } else {
-          const json = await response.json();
-          result = extractFromJson(json);
-          if (result.thinking) await typewriterReveal(result.thinking, onThinking, signal, { maxDuration: 1600 });
-          if (signal.aborted) throw abortError();
-          if (result.text) await typewriterReveal(result.text, onContent, signal);
-          if (signal.aborted) throw abortError();
+        const result = await callModelOnce(config, state.messages, state.reasoning, round === 0 ? currentAttachments : [], signal, onContent, onThinking);
+
+        // Finalize current round visuals
+        if (renderTimer) { clearTimeout(renderTimer); renderTimer = null; }
+        if (currentContent) {
+          removeCursor(currentContent);
+          if (currentText.trim()) finalizeContent(currentContent, currentText, currentRenderState);
+          else currentContent.remove();
+        }
+        finalizeThinking();
+
+        if (!result.toolCalls || result.toolCalls.length === 0) {
+          state.messages.push({ role: 'assistant', content: currentText });
+          finalPushed = true;
+          break;
         }
 
-        accumulated += result.text || '';
-        if (!result.truncated) break;
-        if (attempt === maxAttempts - 1) break;
-        requestMessages = [
-          ...requestMessages,
-          { role: 'assistant', content: accumulated },
-          { role: 'user', content: 'Continue from exactly where you stopped. Do not repeat any previous content. Output only the continuation.' }
-        ];
+        // Save assistant turn with tool calls
+        state.messages.push({
+          role: 'assistant',
+          content: currentText,
+          tool_calls: result.toolCalls
+        });
+
+        // Execute each tool call
+        for (const tc of result.toolCalls) {
+          if (signal.aborted) throw abortError();
+          const card = renderToolCard(tc);
+          let toolResult;
+          try {
+            toolResult = await Promise.race([
+              executeTool(tc.function.name, tc.function.arguments),
+              new Promise((_, rej) => setTimeout(() => rej(new Error('Tool timeout (30s)')), 30000))
+            ]);
+          } catch (e) {
+            toolResult = `Error: ${e.message}`;
+          }
+          completeToolCard(card, toolResult);
+          state.messages.push({
+            role: 'tool',
+            tool_call_id: tc.call_id || tc.id,
+            name: tc.function.name,
+            content: typeof toolResult === 'string' ? toolResult : JSON.stringify(toolResult)
+          });
+        }
+        round++;
+      }
+
+      if (round >= maxRounds) {
+        onContent('\n\n*[Reached maximum tool-use iterations]*');
       }
     } catch (err) {
-      if (err.name === 'AbortError') rawText = rawText ? rawText + '\n\n*[Generation stopped]*' : '*[Generation stopped]*';
-      else { console.error(err); const errMsg = `⚠️ **Error:** ${err.message}`; rawText = rawText ? rawText + '\n\n' + errMsg : errMsg; }
-      hasContent = true;
-      removeWaiting();
-      scheduleContentRender();
+      if (renderTimer) { clearTimeout(renderTimer); renderTimer = null; }
+      if (currentContent) { removeCursor(currentContent); }
+      finalizeThinking();
+      if (err.name === 'AbortError') {
+        onContent('\n\n*[Generation stopped]*');
+      } else {
+        console.error(err);
+        const errMsg = `⚠️ **Error:** ${err.message}`;
+        onContent(errMsg);
+      }
     } finally {
       if (renderTimer) { clearTimeout(renderTimer); renderTimer = null; }
-      if (thinkingTimer) { clearInterval(thinkingTimer); thinkingTimer = null; }
+      if (currentThinkingTimer) { clearInterval(currentThinkingTimer); currentThinkingTimer = null; }
       removeWaiting();
-      removeCursor(contentDiv);
-      finalizeContent(contentDiv, rawText, streamState);
-      if (hasThinking) finalizeThinking();
+      if (currentContent) {
+        removeCursor(currentContent);
+        finalizeContent(currentContent, currentText, currentRenderState);
+      }
+      finalizeThinking();
       avatar.classList.remove('thinking');
-      addMessageActions(bubble, rawText);
-      if (rawText.trim()) state.messages.push({ role: 'assistant', content: rawText });
+
+      // Sync any filename-tagged code blocks into the workspace
+      syncCodeBlocksToVfs(allRenderedText);
+
+      if (allRenderedText.trim()) addMessageActions(bubble, allRenderedText);
+
+      if (!finalPushed && allRenderedText.trim()) {
+        state.messages.push({ role: 'assistant', content: allRenderedText });
+      }
 
       state.isGenerating = false;
       state.abortController = null;
@@ -2971,6 +3562,50 @@
       updateScrollBtn();
     }
   }
+
+  function summarizeArgs(argsStr) {
+    if (!argsStr) return '';
+    try {
+      const o = JSON.parse(argsStr);
+      const entries = Object.entries(o).slice(0, 2).map(([k, v]) => {
+        let s = typeof v === 'string' ? v : JSON.stringify(v);
+        if (s.length > 40) s = s.slice(0, 40) + '…';
+        return `${k}: ${s}`;
+      });
+      return entries.join(', ') + (Object.keys(o).length > 2 ? ', …' : '');
+    } catch (e) {
+      return argsStr.length > 60 ? argsStr.slice(0, 60) + '…' : argsStr;
+    }
+  }
+
+  async function callModelOnce(config, messages, reasoning, attachments, signal, onContent, onThinking) {
+    const response = await fetchModelResponse(config, messages, reasoning, attachments, signal);
+    const contentType = (response.headers.get('content-type') || '').toLowerCase();
+
+    if (contentType.includes('text/event-stream') && response.body) {
+      return await processStreamingResponse(response, onContent, onThinking);
+    } else {
+      const json = await response.json();
+      const result = extractFromJson(json);
+      if (result.thinking) await typewriterReveal(result.thinking, onThinking, signal, { maxDuration: 1600 });
+      if (signal.aborted) throw abortError();
+      if (result.text) await typewriterReveal(result.text, onContent, signal);
+      if (signal.aborted) throw abortError();
+      return result;
+    }
+  }
+
+  /* ============================================================
+     FILES BUTTON
+     ============================================================ */
+  filesBtn.addEventListener('click', () => {
+    const files = vfs.list();
+    if (files.length === 0) return;
+    const list = files.map(f => `• ${f} (${vfs.read(f).length} chars)`).join('\n');
+    if (confirm(`Workspace files (${files.length}):\n\n${list}\n\nDownload as project.zip?`)) {
+      downloadVfsAsZip();
+    }
+  });
 
   /* ============================================================
      EVENTS
@@ -3022,16 +3657,11 @@
     MODELS_LIST = cfg.models;
     MODEL_CONFIG = {};
     MODELS_LIST.forEach(m => { MODEL_CONFIG[m.key] = m; });
-
     applySettings();
     populateModelDropdown();
-
     const defaultKey = (SETTINGS.defaultModel && MODEL_CONFIG[SETTINGS.defaultModel])
       ? SETTINGS.defaultModel
       : MODELS_LIST[0].key;
-
-    // setMode must run BEFORE selectModel so state.mode is correct
-    // when renderReasoningUI picks the mode-specific default.
     setMode('coding');
     selectModel(defaultKey);
     chatInput.focus();
