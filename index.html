@@ -257,7 +257,6 @@
     object-fit: contain;
     opacity: 0.85;
     filter: drop-shadow(0 8px 28px rgba(217,119,87,0.22));
-    animation: avatarBreathe 4s ease-in-out infinite;
   }
   .welcome-title {
     font-family: var(--font-serif);
@@ -310,20 +309,20 @@
     height: 100%;
     object-fit: contain;
     filter: drop-shadow(0 2px 8px rgba(217, 119, 87, 0.25));
-    animation: avatarBreathe 4s ease-in-out infinite;
-    transform-origin: center;
   }
-  @keyframes avatarBreathe {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-1.5px) scale(1.04); }
+  .msg-avatar > svg {
+    width: 24px;
+    height: 24px;
+    color: var(--accent);
   }
+  /* Thinking state: glow + opacity pulse only, no resizing */
   .msg-avatar.thinking img {
-    animation: avatarThink 1.4s ease-in-out infinite;
+    animation: avatarGlow 1.4s ease-in-out infinite;
     filter: drop-shadow(0 0 12px rgba(217, 119, 87, 0.7));
   }
-  @keyframes avatarThink {
-    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.85; }
-    50% { transform: scale(1.1) rotate(4deg); opacity: 1; }
+  @keyframes avatarGlow {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
   }
   .message-row.user .msg-avatar { display: none; }
 
@@ -1287,7 +1286,7 @@
               </div>
               <div class="model-option" data-model="argy" data-id="gemini-3-7-flash" data-name="Argy 1.4 seconds">
                 <div class="model-option-left">
-                  <img src="Argy/argy1.png" class="model-brand-icon" alt="Argy" onerror="this.src='https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg'">
+                  <img src="Argy/argy1.png" class="model-brand-icon" alt="Argy" data-fallback="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg">
                   <div class="model-option-info">
                     <span class="model-option-name">Argy 1.4 seconds</span>
                     <span class="model-option-meta">Fast · Gemini-powered</span>
@@ -1381,7 +1380,8 @@
       reasoningType: 'pills',
       reasoningOptions: ['low', 'medium', 'high'],
       defaultReasoning: 'medium',
-      icon: 'Argy/argy1.png'
+      icon: 'Argy/argy1.png',
+      iconFallback: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg'
     },
     claude: {
       name: 'Claude Opus 5.5',
@@ -1549,6 +1549,28 @@ CORE RULES:
       return;
     }
     sendBtn.disabled = !chatInput.value.trim() && state.attachments.length === 0;
+  }
+
+  /* ============================================================
+     ATTACH A SAFE IMAGE FALLBACK
+     Builds <img> in JS so a fallback SVG can never break the HTML
+     (previously caused a stray '"> next to the avatar).
+     ============================================================ */
+  function attachImageWithFallback(container, src, fallbackSvg, altText, onFallback) {
+    if (!src) {
+      container.innerHTML = fallbackSvg;
+      if (onFallback) onFallback();
+      return;
+    }
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = altText || '';
+    img.addEventListener('error', function handleError() {
+      img.removeEventListener('error', handleError);
+      container.innerHTML = fallbackSvg;
+      if (onFallback) onFallback();
+    }, { once: true });
+    container.appendChild(img);
   }
 
   /* ============================================================
@@ -2098,31 +2120,54 @@ CORE RULES:
     hideWelcome();
     const row = document.createElement('div');
     row.className = 'message-row assistant';
-    const avatarSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg>`;
-    const avatarContent = state.currentModelAvatar
-      ? `<img src="${state.currentModelAvatar}" alt="Model" onerror="this.outerHTML='${avatarSvg.replace(/'/g, "\\'")}'">`
-      : avatarSvg;
 
-    const modelName = MODEL_CONFIG[state.model].name;
+    // Avatar built with JS to avoid inline-handler quoting bugs.
+    const avatarEl = document.createElement('div');
+    avatarEl.className = 'msg-avatar';
+    const fallbackSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg>';
+    const config = MODEL_CONFIG[state.model];
 
-    row.innerHTML = `
-      <div class="msg-avatar">${avatarContent}</div>
-      <div class="bubble">
-        <div class="waiting-indicator">
-          <div class="spinner"></div>
-          <span>${escapeHtml(modelName)} is thinking…</span>
-        </div>
+    const imgEl = document.createElement('img');
+    imgEl.alt = 'Model';
+    imgEl.src = state.currentModelAvatar || config.icon;
+    imgEl.addEventListener('error', function handleAvatarError() {
+      imgEl.removeEventListener('error', handleAvatarError);
+      // Swap in the configured fallback image if one exists (e.g. Argy → Gemini SVG),
+      // otherwise use the inline star SVG.
+      if (config.iconFallback) {
+        const fallbackImg = document.createElement('img');
+        fallbackImg.alt = 'Model';
+        fallbackImg.src = config.iconFallback;
+        fallbackImg.addEventListener('error', function handleFallbackError() {
+          fallbackImg.removeEventListener('error', handleFallbackError);
+          avatarEl.innerHTML = fallbackSvg;
+        }, { once: true });
+        avatarEl.replaceChild(fallbackImg, imgEl);
+      } else {
+        avatarEl.innerHTML = fallbackSvg;
+      }
+    }, { once: true });
+    avatarEl.appendChild(imgEl);
+
+    const bubbleEl = document.createElement('div');
+    bubbleEl.className = 'bubble';
+    bubbleEl.innerHTML = `
+      <div class="waiting-indicator">
+        <div class="spinner"></div>
+        <span>${escapeHtml(config.name)} is thinking…</span>
       </div>
     `;
 
-    const bubble = row.querySelector('.bubble');
     const contentDiv = document.createElement('div');
     contentDiv.className = 'content';
-    bubble.appendChild(contentDiv);
+    bubbleEl.appendChild(contentDiv);
+
+    row.appendChild(avatarEl);
+    row.appendChild(bubbleEl);
 
     messagesContainer.appendChild(row);
     scrollToBottom(true);
-    return { row, bubble, avatar: row.querySelector('.msg-avatar'), contentDiv };
+    return { row, bubble: bubbleEl, avatar: avatarEl, contentDiv };
   }
 
   function createThinkingPanel() {
@@ -2198,6 +2243,23 @@ CORE RULES:
   document.addEventListener('click', () => {
     modelDropdown.classList.remove('active');
     modelBtn.classList.remove('active');
+  });
+
+  // Fallback for the toolbar model icon so Argy doesn't break the button.
+  currentModelIcon.addEventListener('error', function handleToolbarIconError() {
+    const cfg = MODEL_CONFIG[state.model];
+    if (cfg && cfg.iconFallback && this.src.indexOf(cfg.iconFallback) === -1) {
+      this.src = cfg.iconFallback;
+    }
+  });
+
+  // Fallback for any model dropdown brand icon that fails to load.
+  modelDropdown.querySelectorAll('.model-brand-icon').forEach(img => {
+    img.addEventListener('error', function handleBrandIconError() {
+      const fb = img.dataset.fallback;
+      if (fb && img.src !== fb) { img.src = fb; }
+      else { img.style.visibility = 'hidden'; }
+    });
   });
 
   modelDropdown.querySelectorAll('.model-option').forEach(option => {
