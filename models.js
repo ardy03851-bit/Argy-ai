@@ -1,7 +1,7 @@
 /* LocalMind model registry.
    Add a model here and add a request adapter in fetchModelResponse() if its API shape differs.
    Keep provider API keys on a backend in production; browser keys are visible to users. */
-window.LOCALMIND_API_KEY = ''; // Development only: paste your Kie.ai key here, or inject at runtime.
+window.LOCALMIND_API_KEY = '74448d346da387f028dc55cf96e194d3'; // Development only: paste your Kie.ai key here, or inject at runtime.
 
 window.MODEL_CONFIG = {
   gemini: {
