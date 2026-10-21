@@ -813,6 +813,8 @@
     display: flex;
     flex-direction: column;
     isolation: isolate;
+    max-height: 70vh;
+    overflow-y: auto;
   }
   .model-dropdown.active {
     opacity: 1;
@@ -833,6 +835,7 @@
     background: #121316;
     z-index: 1;
     margin-bottom: 2px;
+    flex-shrink: 0;
   }
   .model-option:last-child { margin-bottom: 0; }
 
@@ -863,11 +866,12 @@
     100% { background-position: 0% 50%; }
   }
 
-  .model-option[data-model="gemini"] { --glow-gradient: linear-gradient(45deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4); }
-  .model-option[data-model="claude"] { --glow-gradient: linear-gradient(45deg, #D97757, #E88A6C, #D97757); }
-  .model-option[data-model="luna"] { --glow-gradient: linear-gradient(45deg, #10A37F, #0A7A5E, #10A37F); }
-  .model-option[data-model="deepseek"] { --glow-gradient: linear-gradient(45deg, #4D6BFE, #8C52FF, #4D6BFE); }
-  .model-option[data-model="argy"] { --glow-gradient: linear-gradient(45deg, #7a7a7a, #d8d8d8, #9a9a9a, #f0f0f0, #7a7a7a); }
+  .model-option[data-model="gemini"]  { --glow-gradient: linear-gradient(45deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4); }
+  .model-option[data-model="claude"]  { --glow-gradient: linear-gradient(45deg, #D97757, #E88A6C, #D97757); }
+  .model-option[data-model="luna"]    { --glow-gradient: linear-gradient(45deg, #10A37F, #0A7A5E, #10A37F); }
+  .model-option[data-model="deepseek"]{ --glow-gradient: linear-gradient(45deg, #4D6BFE, #8C52FF, #4D6BFE); }
+  .model-option[data-model="argy"]    { --glow-gradient: linear-gradient(45deg, #7a7a7a, #d8d8d8, #9a9a9a, #f0f0f0, #7a7a7a); }
+  .model-option[data-model="argy2"]   { --glow-gradient: linear-gradient(45deg, #c9a94a, #f3dd8c, #e6c66a, #fff2c2, #c9a94a); }
 
   .model-option-left {
     display: flex;
@@ -1294,6 +1298,16 @@
                 </div>
                 <div class="model-status-icon"></div>
               </div>
+              <div class="model-option" data-model="argy2" data-id="gpt-5-2" data-name="Argy 1.5 minutes">
+                <div class="model-option-left">
+                  <img src="Argy/argy2.png" class="model-brand-icon" alt="Argy" data-fallback="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg">
+                  <div class="model-option-info">
+                    <span class="model-option-name">Argy 1.5 minutes</span>
+                    <span class="model-option-meta">GPT-powered · reasoning</span>
+                  </div>
+                </div>
+                <div class="model-status-icon"></div>
+              </div>
               <div class="model-option" data-model="claude" data-id="claude-opus-5-5" data-name="Claude Opus 5.5">
                 <div class="model-option-left">
                   <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/claude-color.svg" class="model-brand-icon" alt="Claude">
@@ -1382,6 +1396,16 @@
       defaultReasoning: 'medium',
       icon: 'Argy/argy1.png',
       iconFallback: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg'
+    },
+    argy2: {
+      name: 'Argy 1.5 minutes',
+      id: 'gpt-5-2',
+      endpoint: 'https://api.kie.ai/gpt-5-2/v1/chat/completions',
+      reasoningType: 'pills',
+      reasoningOptions: ['low', 'medium', 'high'],
+      defaultReasoning: 'medium',
+      icon: 'Argy/argy2.png',
+      iconFallback: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg'
     },
     claude: {
       name: 'Claude Opus 5.5',
@@ -1549,28 +1573,6 @@ CORE RULES:
       return;
     }
     sendBtn.disabled = !chatInput.value.trim() && state.attachments.length === 0;
-  }
-
-  /* ============================================================
-     ATTACH A SAFE IMAGE FALLBACK
-     Builds <img> in JS so a fallback SVG can never break the HTML
-     (previously caused a stray '"> next to the avatar).
-     ============================================================ */
-  function attachImageWithFallback(container, src, fallbackSvg, altText, onFallback) {
-    if (!src) {
-      container.innerHTML = fallbackSvg;
-      if (onFallback) onFallback();
-      return;
-    }
-    const img = document.createElement('img');
-    img.src = src;
-    img.alt = altText || '';
-    img.addEventListener('error', function handleError() {
-      img.removeEventListener('error', handleError);
-      container.innerHTML = fallbackSvg;
-      if (onFallback) onFallback();
-    }, { once: true });
-    container.appendChild(img);
   }
 
   /* ============================================================
@@ -2132,8 +2134,6 @@ CORE RULES:
     imgEl.src = state.currentModelAvatar || config.icon;
     imgEl.addEventListener('error', function handleAvatarError() {
       imgEl.removeEventListener('error', handleAvatarError);
-      // Swap in the configured fallback image if one exists (e.g. Argy → Gemini SVG),
-      // otherwise use the inline star SVG.
       if (config.iconFallback) {
         const fallbackImg = document.createElement('img');
         fallbackImg.alt = 'Model';
@@ -2245,7 +2245,7 @@ CORE RULES:
     modelBtn.classList.remove('active');
   });
 
-  // Fallback for the toolbar model icon so Argy doesn't break the button.
+  // Fallback for the toolbar model icon so Argy/Argy2 don't break the button.
   currentModelIcon.addEventListener('error', function handleToolbarIconError() {
     const cfg = MODEL_CONFIG[state.model];
     if (cfg && cfg.iconFallback && this.src.indexOf(cfg.iconFallback) === -1) {
@@ -2413,7 +2413,7 @@ CORE RULES:
       return;
     }
 
-    // ── OpenAI Chat Completions ──
+    // ── OpenAI Chat Completions (Gemini 4 Argon, GPT-5-2 / Argy 1.5 minutes, etc.) ──
     if (Array.isArray(json.choices) && json.choices.length) {
       const choice = json.choices[0];
       const delta = choice.delta || choice.message || {};
@@ -2761,6 +2761,36 @@ CORE RULES:
         tools: [{ type: 'function', function: { name: 'googleSearch' } }],
         stream,
         include_thoughts: true,
+        reasoning_effort: reasoning
+      };
+    } else if (config.id === 'gpt-5-2') {
+      // ── GPT-5.2 (OpenAI Chat Completions) — Argy 1.5 minutes ──
+      const gMessages = [];
+      if (SYSTEM_PROMPTS[state.mode]) {
+        gMessages.push({ role: 'system', content: SYSTEM_PROMPTS[state.mode] });
+      }
+
+      augmentedMessages.forEach(m => {
+        if (m.role === 'user') {
+          const isLast = m === augmentedMessages[augmentedMessages.length - 1];
+          if (isLast && imageAttachments.length > 0) {
+            const contentParts = [{ type: 'text', text: m.content }];
+            imageAttachments.forEach(img => {
+              contentParts.push({ type: 'image_url', image_url: { url: img } });
+            });
+            gMessages.push({ role: 'user', content: contentParts });
+          } else {
+            gMessages.push({ role: 'user', content: m.content });
+          }
+        } else {
+          gMessages.push({ role: m.role, content: m.content });
+        }
+      });
+
+      body = {
+        model: config.id,
+        messages: gMessages,
+        stream,
         reasoning_effort: reasoning
       };
     } else if (config.id === 'gpt-6-luna') {
