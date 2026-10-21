@@ -177,7 +177,7 @@
         "codingDefault": "high",
         "simpleDefault": "low"
       },
-      "icon": "Argy/gpt1.png",
+      "icon": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg",
       "iconFallback": "",
       "meta": "Advanced reasoning · tools",
       "glowGradient": "linear-gradient(45deg, #10A37F, #0A7A5E, #10A37F)",
