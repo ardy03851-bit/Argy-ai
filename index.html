@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body class="mode-coding">
 
@@ -29,7 +29,7 @@
     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
     <div>
       <div>Agent Workspace</div>
-      <div class="desc">Advanced coding & reasoning</div>
+      <div class="desc">Advanced coding &amp; reasoning</div>
     </div>
   </button>
   <button class="sidebar-option" data-mode="simple" id="modeSimple">
@@ -61,7 +61,7 @@
     <div class="input-wrapper" id="inputWrapper">
       <div class="attachments-container" id="attachmentsContainer"></div>
       <textarea class="chat-input" id="chatInput" rows="1" placeholder="Message your AI..."></textarea>
-      
+
       <div class="input-actions">
         <div class="left-actions">
           <button class="icon-btn" id="attachBtn" title="Attach files (txt, html, zip)">
@@ -69,58 +69,14 @@
           </button>
           <input type="file" id="fileInput" multiple accept=".txt,.html,.zip,image/*" style="display: none;">
 
-          <!-- Model Selector -->
+          <!-- Model Selector (options are generated from models.js) -->
           <div class="model-selector-wrapper">
             <button class="model-btn" id="modelBtn">
               <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg" class="model-icon" id="currentModelIcon" alt="">
               <span id="currentModelName">Gemini 4 Argon</span>
               <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </button>
-            
-            <div class="model-dropdown" id="modelDropdown">
-              <div class="model-option active" data-model="gemini" data-id="gemini-4-argon" data-name="Gemini 4 Argon">
-                <div class="model-option-left">
-                  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg" class="model-brand-icon" alt="Gemini">
-                  <div class="model-option-info">
-                    <span class="model-option-name">Gemini 4 Argon</span>
-                    <span class="model-option-meta">Fast · multimodal</span>
-                  </div>
-                </div>
-                <div class="model-status-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                </div>
-              </div>
-              <div class="model-option" data-model="claude" data-id="claude-opus-5-5" data-name="Claude Opus 5.5">
-                <div class="model-option-left">
-                  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/claude-color.svg" class="model-brand-icon" alt="Claude">
-                  <div class="model-option-info">
-                    <span class="model-option-name">Claude Opus 5.5</span>
-                    <span class="model-option-meta">Top-tier reasoning</span>
-                  </div>
-                </div>
-                <div class="model-status-icon"></div>
-              </div>
-              <div class="model-option" data-model="luna" data-id="gpt-6-luna" data-name="GPT-6 Luna">
-                <div class="model-option-left">
-                  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg" class="model-brand-icon" alt="Luna">
-                  <div class="model-option-info">
-                    <span class="model-option-name">GPT-6 Luna</span>
-                    <span class="model-option-meta">Advanced reasoning</span>
-                  </div>
-                </div>
-                <div class="model-status-icon"></div>
-              </div>
-              <div class="model-option" data-model="deepseek" data-id="deepseek-v4-1-flash" data-name="DeepSeek V4.1 Flash">
-                <div class="model-option-left">
-                  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/deepseek-color.svg" class="model-brand-icon" alt="DeepSeek">
-                  <div class="model-option-info">
-                    <span class="model-option-name">DeepSeek V4.1 Flash</span>
-                    <span class="model-option-meta">Fast · efficient coding</span>
-                  </div>
-                </div>
-                <div class="model-status-icon"></div>
-              </div>
-            </div>
+            <div class="model-dropdown" id="modelDropdown"></div>
           </div>
 
           <!-- Dynamic Reasoning Container -->
@@ -130,7 +86,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
           </button>
         </div>
-        
+
         <button class="send-btn" id="sendBtn" disabled>
           <svg id="sendIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           <svg id="stopIcon" style="display:none" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
@@ -157,7 +113,7 @@
   /* ============================================================
      CONFIG
      ============================================================ */
-
+  const API_KEY = '74448d346da387f028dc55cf96e194d3';
 
   const SYSTEM_PROMPTS = {
     coding: `You are an expert full-stack coding assistant working inside a chat workspace.
@@ -185,6 +141,8 @@ CORE RULES:
     simple: 'You are a concise assistant. Answer directly and briefly. Skip unnecessary explanation and filler. Use short sentences. No verbose intros or outros.'
   };
 
+  const CONTINUE_PROMPT = 'Continue from exactly where you stopped. Do not repeat any previous content. Output only the continuation.';
+
   /* ============================================================
      STATE
      ============================================================ */
@@ -196,7 +154,6 @@ CORE RULES:
     attachments: [],
     isGenerating: false,
     abortController: null,
-    currentModelAvatar: MODEL_CONFIG.gemini.icon,
     userHasScrolled: false
   };
 
@@ -204,8 +161,6 @@ CORE RULES:
      DOM
      ============================================================ */
   const chatScrollArea = document.getElementById('chatScrollArea');
-  const chatBottomBar = document.getElementById('chatBottomBar');
-  
   const welcomeContainer = document.getElementById('welcomeContainer');
   const welcomeTitle = document.getElementById('welcomeTitle');
   const welcomeSubtitle = document.getElementById('welcomeSubtitle');
@@ -236,12 +191,15 @@ CORE RULES:
   const previewIframe = document.getElementById('previewIframe');
   const previewCloseBtn = document.getElementById('previewCloseBtn');
 
+  const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+
   /* ============================================================
      HELPERS
      ============================================================ */
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
+  function capitalize(s) { return String(s).charAt(0).toUpperCase() + String(s).slice(1); }
 
   function extForLang(lang) {
     const map = {
@@ -272,22 +230,16 @@ CORE RULES:
     state.userHasScrolled = !isAtBottom;
     updateScrollBtn();
   });
-
   scrollBottomBtn.addEventListener('click', () => {
     chatScrollArea.scrollTo({ top: chatScrollArea.scrollHeight, behavior: 'smooth' });
   });
 
   function hideWelcome() {
-    if (welcomeContainer.style.display !== 'none') {
-      welcomeContainer.classList.add('hidden');
-    }
+    if (welcomeContainer.style.display !== 'none') welcomeContainer.classList.add('hidden');
   }
 
   function updateSendBtn() {
-    if (state.isGenerating) {
-      sendBtn.disabled = false;
-      return;
-    }
+    if (state.isGenerating) { sendBtn.disabled = false; return; }
     sendBtn.disabled = !chatInput.value.trim() && state.attachments.length === 0;
   }
 
@@ -316,9 +268,7 @@ CORE RULES:
         paraLines = [];
       }
     };
-    const closeList = () => {
-      if (inList) { html += `</${inList}>`; inList = null; }
-    };
+    const closeList = () => { if (inList) { html += `</${inList}>`; inList = null; } };
 
     for (let raw of lines) {
       const line = raw.replace(/\r$/, '');
@@ -331,7 +281,6 @@ CORE RULES:
         html += `<h${lvl}>${renderInline(h[2])}</h${lvl}>`;
         continue;
       }
-
       const ul = line.match(/^\s*[-*+]\s+(.*)$/);
       if (ul) {
         flushPara();
@@ -339,7 +288,6 @@ CORE RULES:
         html += `<li>${renderInline(ul[1])}</li>`;
         continue;
       }
-
       const ol = line.match(/^\s*\d+[.)]\s+(.*)$/);
       if (ol) {
         flushPara();
@@ -347,25 +295,16 @@ CORE RULES:
         html += `<li>${renderInline(ol[1])}</li>`;
         continue;
       }
-
-      if (/^\s*---+\s*$/.test(line)) {
-        flushPara(); closeList();
-        html += '<hr>';
-        continue;
-      }
-
+      if (/^\s*---+\s*$/.test(line)) { flushPara(); closeList(); html += '<hr>'; continue; }
       if (/^\s*>\s?/.test(line)) {
         flushPara(); closeList();
         html += `<blockquote>${renderInline(line.replace(/^\s*>\s?/, ''))}</blockquote>`;
         continue;
       }
-
       closeList();
       paraLines.push(line);
     }
-
-    flushPara();
-    closeList();
+    flushPara(); closeList();
     return html;
   }
 
@@ -379,9 +318,7 @@ CORE RULES:
         if (i < len) parts.push({ type: 'text', content: text.slice(i) });
         break;
       }
-      if (fenceStart > i) {
-        parts.push({ type: 'text', content: text.slice(i, fenceStart) });
-      }
+      if (fenceStart > i) parts.push({ type: 'text', content: text.slice(i, fenceStart) });
       const lineEnd = text.indexOf('\n', fenceStart);
       let lang = '';
       let codeStart;
@@ -422,7 +359,6 @@ CORE RULES:
 
     const actions = document.createElement('div');
     actions.className = 'code-actions';
-
     if (!part.unclosed) {
       if (isRunnable && !part.truncated) {
         const runBtn = document.createElement('button');
@@ -434,7 +370,6 @@ CORE RULES:
       copyBtn.className = 'code-action-btn copy-btn';
       copyBtn.textContent = 'Copy';
       actions.appendChild(copyBtn);
-
       const dlBtn = document.createElement('button');
       dlBtn.className = 'code-action-btn dl-btn';
       dlBtn.textContent = 'Download';
@@ -447,14 +382,12 @@ CORE RULES:
     code.className = `language-${displayLang}`;
     code.textContent = part.code;
     pre.appendChild(code);
-
     wrapper.appendChild(header);
     wrapper.appendChild(pre);
 
     if (!part.unclosed) {
       try { if (window.hljs) hljs.highlightElement(code); } catch (e) {}
     }
-
     return wrapper;
   }
 
@@ -481,12 +414,8 @@ CORE RULES:
       common < parts.length &&
       common < renderState.renderedParts.length &&
       partsEqual(parts[common], renderState.renderedParts[common].part)
-    ) {
-      common++;
-    }
-    for (let j = common; j < renderState.renderedParts.length; j++) {
-      renderState.renderedParts[j].node.remove();
-    }
+    ) common++;
+    for (let j = common; j < renderState.renderedParts.length; j++) renderState.renderedParts[j].node.remove();
     renderState.renderedParts = renderState.renderedParts.slice(0, common);
     for (let j = common; j < parts.length; j++) {
       const node = createPartNode(parts[j]);
@@ -502,11 +431,8 @@ CORE RULES:
       cursor.className = 'stream-cursor';
       cursor.textContent = '▍';
     }
-    if (container.lastElementChild !== cursor) {
-      container.appendChild(cursor);
-    }
+    if (container.lastElementChild !== cursor) container.appendChild(cursor);
   }
-
   function removeCursor(container) {
     const cursor = container.querySelector(':scope > .stream-cursor');
     if (cursor) cursor.remove();
@@ -609,7 +535,6 @@ CORE RULES:
     previewIframe.srcdoc = html;
     previewModal.classList.add('open');
   }
-
   previewCloseBtn.addEventListener('click', () => previewModal.classList.remove('open'));
   previewModal.querySelector('.preview-modal-backdrop').addEventListener('click', () => previewModal.classList.remove('open'));
 
@@ -637,10 +562,7 @@ CORE RULES:
   }
 
   async function downloadZip(codeParts) {
-    if (typeof JSZip === 'undefined') {
-      alert('ZIP library not loaded.');
-      return;
-    }
+    if (typeof JSZip === 'undefined') { alert('ZIP library not loaded.'); return; }
     const zip = new JSZip();
     const usedNames = new Set();
     codeParts.forEach((p, i) => {
@@ -653,9 +575,7 @@ CORE RULES:
       let n = 1;
       while (usedNames.has(unique)) {
         const dot = filename.lastIndexOf('.');
-        unique = dot > 0
-          ? `${filename.slice(0, dot)}-${n}${filename.slice(dot)}`
-          : `${filename}-${n}`;
+        unique = dot > 0 ? `${filename.slice(0, dot)}-${n}${filename.slice(dot)}` : `${filename}-${n}`;
         n++;
       }
       usedNames.add(unique);
@@ -745,10 +665,7 @@ CORE RULES:
       } else {
         continue;
       }
-
-      if (content) {
-        state.attachments.push({ name: file.name, content, type });
-      }
+      if (content) state.attachments.push({ name: file.name, content, type });
     }
     fileInput.value = '';
     renderAttachments();
@@ -762,7 +679,9 @@ CORE RULES:
       chip.className = 'attachment-chip';
       chip.innerHTML = `
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          ${att.type === 'image' ? '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>' : '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/>'}
+          ${att.type === 'image'
+            ? '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>'
+            : '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/>'}
         </svg>
         <span>${escapeHtml(att.name)}</span>
         <button class="remove-btn" onclick="removeAttachment(${index})">×</button>
@@ -770,7 +689,6 @@ CORE RULES:
       attachmentsContainer.appendChild(chip);
     });
   }
-
   window.removeAttachment = (index) => {
     state.attachments.splice(index, 1);
     renderAttachments();
@@ -784,13 +702,11 @@ CORE RULES:
     hideWelcome();
     const row = document.createElement('div');
     row.className = 'message-row user';
-
     let attHtml = '';
     if (attachments && attachments.length > 0) {
       attHtml = '<div style="margin-bottom:8px;font-size:12px;color:var(--text-muted);">Attachments: ' +
         attachments.map(a => escapeHtml(a.name)).join(', ') + '</div>';
     }
-
     row.innerHTML = `<div class="bubble">${attHtml}<div style="white-space:pre-wrap;">${escapeHtml(text)}</div></div>`;
     messagesContainer.appendChild(row);
     scrollToBottom(true);
@@ -800,17 +716,19 @@ CORE RULES:
     hideWelcome();
     const row = document.createElement('div');
     row.className = 'message-row assistant';
+
+    const model = MODELS[state.model];
+    if (model && model.glow) row.style.setProperty('--avatar-glow', model.glow);
+
     const avatarSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg>`;
-    const avatarContent = state.currentModelAvatar
-      ? `<img src="${state.currentModelAvatar}" alt="Model">`
-      : avatarSvg;
+    const avatarContent = model && model.icon ? `<img src="${model.icon}" alt="Model">` : avatarSvg;
 
     row.innerHTML = `
       <div class="msg-avatar">${avatarContent}</div>
       <div class="bubble">
         <div class="waiting-indicator">
           <div class="spinner"></div>
-          <span>Connecting...</span>
+          <span>Connecting…</span>
         </div>
       </div>
     `;
@@ -832,7 +750,7 @@ CORE RULES:
       <button class="thinking-header" type="button">
         <span class="thinking-label">
           <span class="thinking-dot"></span>
-          <span class="thinking-text">Reasoning...</span>
+          <span class="thinking-text">Reasoning…</span>
         </span>
         <svg class="thinking-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
       </button>
@@ -871,13 +789,11 @@ CORE RULES:
       welcomeSubtitle.textContent = 'System ready. Awaiting prompt.';
       modeCoding.classList.add('active');
       modeSimple.classList.remove('active');
-      state.reasoning = 'high';
     } else {
       welcomeTitle.textContent = 'LocalMind';
       welcomeSubtitle.textContent = 'Chat with advanced models.';
       modeCoding.classList.remove('active');
       modeSimple.classList.add('active');
-      state.reasoning = 'low';
     }
     renderReasoningUI();
   }
@@ -885,137 +801,153 @@ CORE RULES:
   modeSimple.addEventListener('click', () => setMode('simple'));
 
   /* ============================================================
-     MODEL SELECTOR & REASONING UI
+     MODEL SELECTOR (built from models.js)
      ============================================================ */
-  // Build the picker from the central registry so adding a model is a single-source change.
-  function renderModelOptions() {
-    modelDropdown.innerHTML = '';
-    Object.entries(MODEL_CONFIG).forEach(([key, config]) => {
-      const option = document.createElement('div');
-      option.className = 'model-option' + (key === state.model ? ' active' : '');
-      option.dataset.model = key;
-      option.dataset.id = config.id;
-      option.dataset.name = config.name;
-      option.style.setProperty('--glow-gradient', config.gradient || 'linear-gradient(120deg,#d97757,#e88a6c)');
-      option.innerHTML = `
-        <div class="model-option-left">
-          <img src="${escapeHtml(config.icon || '')}" class="model-brand-icon" alt="" loading="lazy">
-          <div class="model-option-info">
-            <span class="model-option-name">${escapeHtml(config.name)}</span>
-            <span class="model-option-meta">${escapeHtml(config.meta || 'AI model')}</span>
-          </div>
-        </div>
-        <div class="model-status-icon">${key === state.model ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>' : ''}</div>`;
-      modelDropdown.appendChild(option);
-    });
-  }
-  renderModelOptions();
-
   modelBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     const isActive = modelDropdown.classList.toggle('active');
     modelBtn.classList.toggle('active', isActive);
   });
+  modelDropdown.addEventListener('click', (e) => e.stopPropagation());
   document.addEventListener('click', () => {
     modelDropdown.classList.remove('active');
     modelBtn.classList.remove('active');
   });
 
-  modelDropdown.querySelectorAll('.model-option').forEach(option => {
-    option.addEventListener('click', () => {
-      const modelKey = option.dataset.model;
-      const config = MODEL_CONFIG[modelKey];
-
-      state.model = modelKey;
-      state.currentModelAvatar = config.icon;
-      document.documentElement.style.setProperty('--accent', config.accent || '#d97757');
-      document.documentElement.style.setProperty('--accent-hover', config.accentHover || '#e88a6c');
-      document.documentElement.style.setProperty('--accent-glow', config.accentGlow || 'rgba(217,119,87,.15)');
-      currentModelName.textContent = config.name;
-      currentModelIcon.src = config.icon;
-
-      modelDropdown.querySelectorAll('.model-option').forEach(o => o.classList.remove('active'));
-      option.classList.add('active');
-
-      modelDropdown.querySelectorAll('.model-status-icon').forEach(el => el.innerHTML = '');
-      option.querySelector('.model-status-icon').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
-
-      modelDropdown.classList.remove('active');
-      modelBtn.classList.remove('active');
-
-      renderReasoningUI();
+  function buildModelDropdown() {
+    modelDropdown.innerHTML = '';
+    MODEL_ORDER.forEach(key => {
+      const m = MODELS[key];
+      if (!m) return;
+      const opt = document.createElement('div');
+      opt.className = 'model-option';
+      opt.dataset.model = key;
+      opt.style.setProperty('--glow-gradient', m.gradient);
+      opt.innerHTML = `
+        <div class="model-option-left">
+          <img src="${m.icon}" class="model-brand-icon" alt="">
+          <div class="model-option-info">
+            <span class="model-option-name">${escapeHtml(m.name)}</span>
+            <span class="model-option-meta">${escapeHtml(m.meta || '')}</span>
+          </div>
+        </div>
+        <div class="model-status-icon"></div>
+      `;
+      opt.addEventListener('click', () => selectModel(key));
+      modelDropdown.appendChild(opt);
     });
-  });
+    syncModelDropdown();
+  }
 
+  function syncModelDropdown() {
+    modelDropdown.querySelectorAll('.model-option').forEach(opt => {
+      const active = opt.dataset.model === state.model;
+      opt.classList.toggle('active', active);
+      opt.querySelector('.model-status-icon').innerHTML = active ? CHECK_SVG : '';
+    });
+  }
+
+  function syncModelButton() {
+    const m = MODELS[state.model];
+    if (!m) return;
+    currentModelName.textContent = m.name;
+    currentModelIcon.src = m.icon;
+  }
+
+  function selectModel(key) {
+    if (!MODELS[key]) return;
+    state.model = key;
+    syncModelButton();
+    syncModelDropdown();
+    renderReasoningUI();
+    modelDropdown.classList.remove('active');
+    modelBtn.classList.remove('active');
+  }
+
+  /* ============================================================
+     REASONING UI (built from the selected model's config)
+     ============================================================ */
   function renderReasoningUI() {
     reasoningContainer.innerHTML = '';
-    const config = MODEL_CONFIG[state.model];
+    const m = MODELS[state.model];
+    if (!m || !m.reasoning) return;
+    const cfg = m.reasoning;
+    const modeDefault = cfg.defaults[state.mode]
+      || cfg.defaults.default
+      || (cfg.options && cfg.options[Math.floor(cfg.options.length / 2)])
+      || 'medium';
 
-    let defaultReasoning = config.defaultReasoning;
-    if (config.reasoningType === 'pills' && state.mode === 'coding') defaultReasoning = 'high';
-    if (config.reasoningType === 'pills' && state.mode === 'simple') defaultReasoning = 'low';
+    if (cfg.type === 'slider') {
+      const options = cfg.options;
+      const idx = Math.max(0, options.indexOf(modeDefault));
+      state.reasoning = options[idx];
 
-    state.reasoning = defaultReasoning;
+      const group = document.createElement('div');
+      group.className = 'claude-slider-group';
 
-    if (config.reasoningType === 'slider') {
       const wrapper = document.createElement('div');
       wrapper.className = 'claude-slider-wrapper';
-      wrapper.setAttribute('aria-label', 'Claude thinking effort');
-      wrapper.innerHTML = `
-        <div class="claude-slider-track-bg"><div class="claude-slider-fill"></div></div>
-        <input type="range" class="claude-slider" min="0" max="4" step="1" value="2" aria-label="Thinking effort" aria-valuetext="Medium">
-        <span class="claude-slider-value" aria-live="polite">Medium</span>
-      `;
 
-      const slider = wrapper.querySelector('.claude-slider');
-      const fill = wrapper.querySelector('.claude-slider-fill');
-      const options = ['minimal', 'low', 'medium', 'high', 'max'];
-      const valueLabel = wrapper.querySelector('.claude-slider-value');
-      const pretty = ['Minimal', 'Low', 'Balanced', 'High', 'Maximum'];
+      const track = document.createElement('div');
+      track.className = 'claude-slider-track-bg';
 
-      let initialVal = 2;
-      if (state.mode === 'coding') initialVal = 4;
-      if (state.mode === 'simple') initialVal = 1;
-
-      slider.value = initialVal;
-      fill.style.width = `${(initialVal / 4) * 100}%`;
-      valueLabel.textContent = pretty[initialVal];
-      slider.setAttribute('aria-valuetext', pretty[initialVal]);
-      wrapper.dataset.level = options[initialVal];
-      state.reasoning = options[initialVal];
-
-      slider.addEventListener('input', (e) => {
-        const val = parseInt(e.target.value);
-        fill.style.width = `${(val / 4) * 100}%`;
-        valueLabel.textContent = pretty[val];
-        slider.setAttribute('aria-valuetext', pretty[val]);
-        wrapper.dataset.level = options[val];
-        wrapper.classList.add('is-adjusting');
-        clearTimeout(wrapper._settleTimer);
-        wrapper._settleTimer = setTimeout(() => wrapper.classList.remove('is-adjusting'), 220);
-        state.reasoning = options[val];
+      const ticks = document.createElement('div');
+      ticks.className = 'claude-slider-ticks';
+      options.forEach((_, i) => {
+        const tick = document.createElement('span');
+        tick.className = 'tick';
+        tick.style.left = `${(i / (options.length - 1)) * 100}%`;
+        ticks.appendChild(tick);
       });
 
-      reasoningContainer.appendChild(wrapper);
+      const fill = document.createElement('div');
+      fill.className = 'claude-slider-fill';
+      fill.style.width = `${(idx / (options.length - 1)) * 100}%`;
+
+      track.appendChild(ticks);
+      track.appendChild(fill);
+
+      const slider = document.createElement('input');
+      slider.type = 'range';
+      slider.className = 'claude-slider';
+      slider.min = 0;
+      slider.max = options.length - 1;
+      slider.step = 1;
+      slider.value = idx;
+
+      wrapper.appendChild(track);
+      wrapper.appendChild(slider);
+
+      const label = document.createElement('span');
+      label.className = 'claude-slider-label';
+      label.textContent = capitalize(options[idx]);
+
+      group.appendChild(wrapper);
+      group.appendChild(label);
+
+      slider.addEventListener('input', (e) => {
+        const v = parseInt(e.target.value, 10);
+        fill.style.width = `${(v / (options.length - 1)) * 100}%`;
+        label.textContent = capitalize(options[v]);
+        state.reasoning = options[v];
+      });
+
+      reasoningContainer.appendChild(group);
     } else {
       const wrapper = document.createElement('div');
       wrapper.className = 'reasoning-toggle';
-
-      config.reasoningOptions.forEach(opt => {
+      cfg.options.forEach(opt => {
         const el = document.createElement('div');
-        el.className = `reasoning-option ${opt === defaultReasoning ? 'active' : ''}`;
+        el.className = 'reasoning-option' + (opt === modeDefault ? ' active' : '');
         el.dataset.level = opt;
-        el.textContent = opt.charAt(0).toUpperCase() + opt.slice(1, 3);
-
+        el.textContent = capitalize(opt);
         el.addEventListener('click', () => {
           wrapper.querySelectorAll('.reasoning-option').forEach(o => o.classList.remove('active'));
           el.classList.add('active');
           state.reasoning = opt;
         });
-
         wrapper.appendChild(el);
       });
-
       reasoningContainer.appendChild(wrapper);
     }
   }
@@ -1038,251 +970,106 @@ CORE RULES:
   });
 
   /* ============================================================
-     API CALLS
+     API TRANSPORT
      ============================================================ */
-  async function fetchModelResponse(config, messages, reasoning, attachments) {
-    let endpoint = config.endpoint;
-    let body = {};
-
-    let textContext = '';
-    const imageAttachments = [];
-
-    attachments.forEach(att => {
-      if (att.type === 'text') {
-        textContext += `\n\n--- Attached File: ${att.name} ---\n${att.content}`;
-      } else if (att.type === 'image') {
-        imageAttachments.push(att.content);
+  function buildAugmentedMessages(messages, attachments) {
+    const textAtts = attachments.filter(a => a.type === 'text');
+    const copy = messages.map(m => ({ role: m.role, content: m.content }));
+    if (textAtts.length) {
+      for (let i = copy.length - 1; i >= 0; i--) {
+        if (copy[i].role === 'user') {
+          copy[i].content += textAtts.map(a => `\n\n--- Attached File: ${a.name} ---\n${a.content}`).join('');
+          break;
+        }
       }
+    }
+    return copy;
+  }
+
+  async function sendRequest(config, attachments, messages, signal) {
+    const augmented = buildAugmentedMessages(messages, attachments);
+    const req = config.buildRequest({
+      messages: augmented,
+      systemPrompt: SYSTEM_PROMPTS[state.mode],
+      reasoning: state.reasoning,
+      attachments,
+      mode: state.mode
     });
-
-    let augmentedMessages = JSON.parse(JSON.stringify(messages));
-    if (textContext) {
-      const lastMsg = augmentedMessages[augmentedMessages.length - 1];
-      if (lastMsg && lastMsg.role === 'user') {
-        lastMsg.content += textContext;
-      }
-    }
-
-    if (config.id === 'deepseek-v4-1-flash') {
-      const input = augmentedMessages.map(m => {
-        const parts = [{
-          type: m.role === 'user' ? 'input_text' : 'output_text',
-          text: m.content
-        }];
-        return { type: 'message', role: m.role, content: parts };
-      });
-
-      if (imageAttachments.length > 0) {
-        const lastMsg = input[input.length - 1];
-        imageAttachments.forEach(img => {
-          lastMsg.content.push({ type: 'input_image', image_url: img });
-        });
-      }
-
-      body = {
-        model: config.id,
-        stream: false,
-        instructions: SYSTEM_PROMPTS[state.mode],
-        input: input,
-        reasoning: { effort: reasoning },
-        max_output_tokens: 32000
-      };
-    } else if (config.id === 'gemini-4-argon') {
-      const gMessages = [];
-      if (SYSTEM_PROMPTS[state.mode]) {
-        gMessages.push({ role: 'system', content: SYSTEM_PROMPTS[state.mode] });
-      }
-
-      augmentedMessages.forEach(m => {
-        if (m.role === 'user') {
-          const contentParts = [{ type: 'text', text: m.content }];
-          if (m === augmentedMessages[augmentedMessages.length - 1] && imageAttachments.length > 0) {
-            imageAttachments.forEach(img => {
-              contentParts.push({ type: 'image_url', image_url: { url: img } });
-            });
-          }
-          gMessages.push({ role: 'user', content: contentParts });
-        } else {
-          gMessages.push({ role: m.role, content: m.content });
-        }
-      });
-
-      body = {
-        messages: gMessages,
-        tools: [{ type: 'function', function: { name: 'googleSearch' } }],
-        stream: true,
-        include_thoughts: true,
-        reasoning_effort: reasoning
-      };
-    } else if (config.id === 'gpt-6-luna') {
-      const input = augmentedMessages.map(m => {
-        const parts = [{
-          type: m.role === 'user' ? 'input_text' : 'output_text',
-          text: m.content
-        }];
-        return { type: 'message', role: m.role, content: parts };
-      });
-
-      if (imageAttachments.length > 0) {
-        const lastMsg = input[input.length - 1];
-        imageAttachments.forEach(img => {
-          lastMsg.content.push({ type: 'input_image', image_url: img });
-        });
-      }
-
-      body = {
-        model: config.id,
-        stream: false,
-        input: input,
-        reasoning: { effort: reasoning },
-        max_output_tokens: 32000
-      };
-    } else {
-      // Claude
-      const claudeMaxTokens = {
-        minimal: 8192,
-        low: 12288,
-        medium: 16384,
-        high: 24576,
-        max: 32000
-      };
-
-      const claudeMessages = augmentedMessages.map(m => {
-        if (m.role === 'user' && m === augmentedMessages[augmentedMessages.length - 1] && imageAttachments.length > 0) {
-          const contentParts = [{ type: 'text', text: m.content }];
-          imageAttachments.forEach(img => {
-            contentParts.push({ type: 'image_url', image_url: { url: img } });
-          });
-          return { role: 'user', content: contentParts };
-        }
-        return { role: m.role, content: m.content };
-      });
-
-      body = {
-        model: config.id,
-        messages: claudeMessages,
-        system: SYSTEM_PROMPTS[state.mode],
-        max_tokens: claudeMaxTokens[reasoning] || 32000,
-        stream: false,
-        thinkingFlag: true
-      };
-    }
-
-    if (!window.LOCALMIND_API_KEY) {
-      throw new Error('API key not configured. Add your provider key to models.js (LOCALMIND_API_KEY). For production, use a secure backend proxy instead of exposing keys in browser code.');
-    }
-
-    const res = await fetch(endpoint, {
+    const res = await fetch(req.endpoint, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${window.LOCALMIND_API_KEY || ''}`,
-        'Content-Type': 'application/json'
+        'Authorization': `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json',
+        ...(req.headers || {})
       },
-      body: JSON.stringify(body),
-      signal: state.abortController.signal
+      body: JSON.stringify(req.body),
+      signal
     });
-
     if (!res.ok) {
-      const err = await res.text().catch(() => '');
-      throw new Error(`HTTP ${res.status}: ${err.slice(0, 300)}`);
+      const errText = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status}: ${errText.slice(0, 300)}`);
     }
     return res;
   }
 
-  async function parseNonStreamingResponse(response, config) {
-    const json = await response.json();
-    if (json.error) throw new Error(json.error.message || JSON.stringify(json.error));
-
-    let text = '';
-    let thinking = '';
-    let truncated = false;
-
-    if (config.id === 'claude-opus-5-5') {
-      if (Array.isArray(json.content)) {
-        json.content.forEach(block => {
-          if (block.type === 'thinking' && block.thinking) thinking += block.thinking;
-          if (block.type === 'text' && block.text) text += block.text;
-        });
-      } else if (typeof json.content === 'string') {
-        text = json.content;
-      }
-      if (json.stop_reason === 'max_tokens') truncated = true;
-    } else {
-      const output = json.output || [];
-      output.forEach(item => {
-        if (item.type === 'reasoning') {
-          if (Array.isArray(item.summary)) {
-            thinking += item.summary.map(s => s.text || '').join('\n');
-          }
-          if (Array.isArray(item.content)) {
-            thinking += item.content.map(c => c.text || '').join('');
-          }
-        }
-        if (item.type === 'message' && Array.isArray(item.content)) {
-          item.content.forEach(c => {
-            if ((c.type === 'output_text' || c.type === 'text') && c.text) text += c.text;
-          });
-        }
-      });
-      if (!text && typeof json.output_text === 'string') text = json.output_text;
-      if (json.status === 'incomplete' || json.incomplete_details) truncated = true;
-    }
-
-    return { text, thinking, truncated };
-  }
-
-  async function processStreamingResponse(response, onContent, onThinking) {
+  /* Real SSE processing for streaming models (Gemini) */
+  async function processSSE(response, config, onThinking, onContent, signal) {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-
     while (true) {
+      if (signal && signal.aborted) {
+        try { reader.cancel(); } catch (e) {}
+        throw new DOMException('Aborted', 'AbortError');
+      }
       const { done, value } = await reader.read();
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
-
       const lines = buffer.split('\n');
       buffer = lines.pop();
-
       for (const line of lines) {
         const trimmed = line.trim();
-        if (!trimmed) continue;
-        if (trimmed.startsWith('event: ')) continue;
-        if (!trimmed.startsWith('data: ')) continue;
-
-        const payload = trimmed.slice(6).trim();
+        if (!trimmed || trimmed.startsWith('event:')) continue;
+        if (!trimmed.startsWith('data:')) continue;
+        const payload = trimmed.slice(5).trim();
         if (payload === '[DONE]') return;
-
         let json;
-        try { json = JSON.parse(payload); } catch { continue; }
-        if (json.error) throw new Error(json.error.message || JSON.stringify(json.error));
-
-        if (json.choices && json.choices[0]) {
-          const choice = json.choices[0];
-          const delta = choice.delta || {};
-
-          if (delta.reasoning_content) onThinking(delta.reasoning_content);
-          if (delta.reasoning) onThinking(delta.reasoning);
-          if (delta.thinking) onThinking(delta.thinking);
-
-          if (delta.content != null) {
-            if (typeof delta.content === 'string') {
-              if (delta.content) onContent(delta.content);
-            } else if (Array.isArray(delta.content)) {
-              for (const part of delta.content) {
-                if (!part) continue;
-                const isThought = part.thought === true || (part.type && /thought|reasoning/i.test(part.type));
-                if (isThought) {
-                  if (part.text) onThinking(part.text);
-                } else if (part.type === 'text' || typeof part.text === 'string') {
-                  if (part.text) onContent(part.text);
-                }
-              }
-            }
-          }
-        }
+        try { json = JSON.parse(payload); } catch (e) { continue; }
+        const result = config.parseStreamEvent(json);
+        if (!result) continue;
+        if (result.thinking) onThinking(result.thinking);
+        if (result.content) onContent(result.content);
       }
     }
+  }
+
+  /* Progressive reveal for non-streaming endpoints — looks like streaming,
+     keeps live thinking + answer for every model. */
+  function revealDuration(len, min, max, factor) {
+    return Math.min(max, Math.max(min, len * factor));
+  }
+
+  function animateText(fullText, onChunk, { duration = 1500, signal } = {}) {
+    if (!fullText) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const start = performance.now();
+      let revealed = 0;
+      function step(now) {
+        if (signal && signal.aborted) return reject(new DOMException('Aborted', 'AbortError'));
+        const t = Math.min(1, (now - start) / duration);
+        const target = Math.floor(fullText.length * t);
+        if (target > revealed) {
+          onChunk(fullText.slice(revealed, target));
+          revealed = target;
+        }
+        if (t < 1) requestAnimationFrame(step);
+        else {
+          if (revealed < fullText.length) onChunk(fullText.slice(revealed));
+          resolve();
+        }
+      }
+      requestAnimationFrame(step);
+    });
   }
 
   /* ============================================================
@@ -1296,6 +1083,9 @@ CORE RULES:
 
     const text = chatInput.value.trim();
     if (!text && state.attachments.length === 0) return;
+
+    const config = MODELS[state.model];
+    if (!config) return;
 
     state.isGenerating = true;
     chatInput.value = '';
@@ -1313,7 +1103,7 @@ CORE RULES:
     state.attachments = [];
     renderAttachments();
 
-    const { row, bubble, avatar, contentDiv } = createAssistantRow();
+    const { bubble, avatar, contentDiv } = createAssistantRow();
     const streamState = { renderedParts: [] };
 
     let rawText = '';
@@ -1324,10 +1114,16 @@ CORE RULES:
     let thinkingBody = null;
     let renderTimer = null;
     let pendingThinking = false;
+    let waitingTimer = null;
+    const requestStart = performance.now();
 
-    state.abortController = new AbortController();
+    const waitingTextEl = bubble.querySelector('.waiting-indicator span');
+    waitingTimer = setTimeout(() => {
+      if (waitingTextEl && waitingTextEl.isConnected) waitingTextEl.textContent = 'Thinking…';
+    }, 900);
 
     function removeWaiting() {
+      clearTimeout(waitingTimer);
       const w = bubble.querySelector('.waiting-indicator');
       if (w) w.remove();
     }
@@ -1354,15 +1150,13 @@ CORE RULES:
       if (!thinkingPanel || thinkingPanel.dataset.finalized) return;
       thinkingPanel.dataset.finalized = 'true';
       thinkingPanel.classList.add('done');
-
       const userWantsExpanded = thinkingPanel.dataset.userExpanded === 'true';
-      if (forceCollapse && !userWantsExpanded) {
-        thinkingPanel.classList.remove('expanded');
-      }
+      if (forceCollapse && !userWantsExpanded) thinkingPanel.classList.remove('expanded');
 
       const label = thinkingPanel.querySelector('.thinking-label');
       if (label) {
-        label.innerHTML = `<svg class="thought-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M20 6L9 17l-5-5"/></svg><span class="thinking-text">Thought process</span>`;
+        const elapsed = ((performance.now() - requestStart) / 1000).toFixed(1);
+        label.innerHTML = `<svg class="thought-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M20 6L9 17l-5-5"/></svg><span class="thinking-text">Thought for ${elapsed}s</span>`;
       }
       avatar.classList.remove('thinking');
     }
@@ -1370,13 +1164,11 @@ CORE RULES:
     function onThinking(chunk) {
       if (!chunk) return;
       rawThinking += chunk;
-
       if (!hasThinking) {
         hasThinking = true;
         ensureThinkingPanel();
         avatar.classList.add('thinking');
       }
-
       if (pendingThinking) return;
       pendingThinking = true;
       requestAnimationFrame(() => {
@@ -1396,7 +1188,6 @@ CORE RULES:
     function onContent(chunk) {
       if (!chunk) return;
       rawText += chunk;
-
       if (!hasContent) {
         hasContent = true;
         removeWaiting();
@@ -1405,35 +1196,42 @@ CORE RULES:
       scheduleContentRender();
     }
 
-    try {
-      const config = MODEL_CONFIG[state.model];
-      const isStreaming = config.id === 'gemini-4-argon';
+    state.abortController = new AbortController();
+    const signal = state.abortController.signal;
 
-      if (isStreaming) {
-        const response = await fetchModelResponse(config, state.messages, state.reasoning, currentAttachments);
-        await processStreamingResponse(response, onContent, onThinking);
+    try {
+      if (config.streaming) {
+        const res = await sendRequest(config, currentAttachments, state.messages, signal);
+        await processSSE(res, config, onThinking, onContent, signal);
       } else {
-        let requestMessages = [...state.messages];
+        let reqMessages = state.messages.map(m => ({ ...m }));
         let accumulated = '';
 
         for (let attempt = 0; attempt < 3; attempt++) {
-          if (state.abortController.signal.aborted) break;
-          const response = await fetchModelResponse(
-            config,
-            requestMessages,
-            state.reasoning,
-            attempt === 0 ? currentAttachments : []
-          );
-          const result = await parseNonStreamingResponse(response, config);
-          if (result.thinking) onThinking(result.thinking);
-          if (result.text) onContent(result.text);
-          accumulated += result.text;
-          if (!result.truncated) break;
+          if (signal.aborted) break;
+          const res = await sendRequest(config, attempt === 0 ? currentAttachments : [], reqMessages, signal);
+          const json = await res.json();
+          const { text: t, thinking: th, truncated } = config.parseResponse(json);
 
-          requestMessages = [
-            ...requestMessages,
+          if (th) {
+            await animateText(th, onThinking, {
+              duration: revealDuration(th.length, 600, 2600, 2),
+              signal
+            });
+          }
+          if (t) {
+            await animateText(t, onContent, {
+              duration: revealDuration(t.length, 800, 4500, 1.4),
+              signal
+            });
+          }
+
+          accumulated += t;
+          if (!truncated) break;
+          reqMessages = [
+            ...reqMessages,
             { role: 'assistant', content: accumulated },
-            { role: 'user', content: 'Continue from exactly where you stopped. Do not repeat any previous content. Output only the continuation.' }
+            { role: 'user', content: CONTINUE_PROMPT }
           ];
         }
       }
@@ -1449,19 +1247,15 @@ CORE RULES:
       removeWaiting();
       scheduleContentRender();
     } finally {
-      if (renderTimer) {
-        clearTimeout(renderTimer);
-        renderTimer = null;
-      }
+      clearTimeout(waitingTimer);
+      if (renderTimer) { clearTimeout(renderTimer); renderTimer = null; }
       removeCursor(contentDiv);
       finalizeContent(contentDiv, rawText, streamState);
       if (hasThinking) finalizeThinking();
       avatar.classList.remove('thinking');
       addMessageActions(bubble, rawText);
 
-      if (rawText.trim()) {
-        state.messages.push({ role: 'assistant', content: rawText });
-      }
+      if (rawText.trim()) state.messages.push({ role: 'assistant', content: rawText });
 
       state.isGenerating = false;
       state.abortController = null;
@@ -1483,7 +1277,7 @@ CORE RULES:
   chatInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
       e.preventDefault();
-      generateResponse();
+      if (!state.isGenerating) generateResponse();
     }
   });
 
@@ -1493,6 +1287,9 @@ CORE RULES:
     updateSendBtn();
   });
 
+  /* Boot */
+  buildModelDropdown();
+  syncModelButton();
   setMode('coding');
   chatInput.focus();
   updateSendBtn();
