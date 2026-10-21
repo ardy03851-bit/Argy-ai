@@ -813,7 +813,7 @@
     display: flex;
     flex-direction: column;
     isolation: isolate;
-    max-height: 70vh;
+    max-height: 75vh;
     overflow-y: auto;
   }
   .model-dropdown.active {
@@ -872,6 +872,7 @@
   .model-option[data-model="deepseek"]{ --glow-gradient: linear-gradient(45deg, #4D6BFE, #8C52FF, #4D6BFE); }
   .model-option[data-model="argy"]    { --glow-gradient: linear-gradient(45deg, #7a7a7a, #d8d8d8, #9a9a9a, #f0f0f0, #7a7a7a); }
   .model-option[data-model="argy2"]   { --glow-gradient: linear-gradient(45deg, #c9a94a, #f3dd8c, #e6c66a, #fff2c2, #c9a94a); }
+  .model-option[data-model="argy3"]   { --glow-gradient: linear-gradient(45deg, #2d7d8a, #5fc4d1, #9fe3ea, #5fc4d1, #2d7d8a); }
 
   .model-option-left {
     display: flex;
@@ -1308,6 +1309,16 @@
                 </div>
                 <div class="model-status-icon"></div>
               </div>
+              <div class="model-option" data-model="argy3" data-id="gpt-6-astra" data-name="Argy 2 inline">
+                <div class="model-option-left">
+                  <img src="Argy/argy3.png" class="model-brand-icon" alt="Argy" data-fallback="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg">
+                  <div class="model-option-info">
+                    <span class="model-option-name">Argy 2 inline</span>
+                    <span class="model-option-meta">GPT Astra · Responses API</span>
+                  </div>
+                </div>
+                <div class="model-status-icon"></div>
+              </div>
               <div class="model-option" data-model="claude" data-id="claude-opus-5-5" data-name="Claude Opus 5.5">
                 <div class="model-option-left">
                   <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/claude-color.svg" class="model-brand-icon" alt="Claude">
@@ -1405,6 +1416,17 @@
       reasoningOptions: ['low', 'medium', 'high'],
       defaultReasoning: 'medium',
       icon: 'Argy/argy2.png',
+      iconFallback: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg'
+    },
+    argy3: {
+      name: 'Argy 2 inline',
+      id: 'gpt-6-astra',
+      endpoint: 'https://api.kie.ai/codex/v1/responses',
+      apiType: 'responses',
+      reasoningType: 'pills',
+      reasoningOptions: ['low', 'medium', 'high'],
+      defaultReasoning: 'medium',
+      icon: 'Argy/argy3.png',
       iconFallback: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg'
     },
     claude: {
@@ -2245,7 +2267,7 @@ CORE RULES:
     modelBtn.classList.remove('active');
   });
 
-  // Fallback for the toolbar model icon so Argy/Argy2 don't break the button.
+  // Fallback for the toolbar model icon so Argy/Argy2/Argy3 don't break the button.
   currentModelIcon.addEventListener('error', function handleToolbarIconError() {
     const cfg = MODEL_CONFIG[state.model];
     if (cfg && cfg.iconFallback && this.src.indexOf(cfg.iconFallback) === -1) {
@@ -2413,7 +2435,7 @@ CORE RULES:
       return;
     }
 
-    // ── OpenAI Chat Completions (Gemini 4 Argon, GPT-5-2 / Argy 1.5 minutes, etc.) ──
+    // ── OpenAI Chat Completions (Gemini 4 Argon, GPT-5-2 / Argy 1.5 minutes) ──
     if (Array.isArray(json.choices) && json.choices.length) {
       const choice = json.choices[0];
       const delta = choice.delta || choice.message || {};
@@ -2464,7 +2486,7 @@ CORE RULES:
       return;
     }
 
-    // ── OpenAI Responses API ──
+    // ── OpenAI Responses API (gpt-6-astra / Argy 2 inline, GPT-6 Luna, DeepSeek) ──
     // IMPORTANT: only *delta* events carry incremental text. Every other
     // response.* event (e.g. output_text.done, content_part.done, output_item.done)
     // carries the FULL text again and must be ignored to avoid duplication.
@@ -2792,6 +2814,30 @@ CORE RULES:
         messages: gMessages,
         stream,
         reasoning_effort: reasoning
+      };
+    } else if (config.id === 'gpt-6-astra') {
+      // ── GPT-6 Astra (OpenAI Responses API) — Argy 2 inline ──
+      const input = augmentedMessages.map(m => {
+        const parts = [{
+          type: m.role === 'user' ? 'input_text' : 'output_text',
+          text: m.content
+        }];
+        return { type: 'message', role: m.role, content: parts };
+      });
+
+      if (imageAttachments.length > 0) {
+        const lastMsg = input[input.length - 1];
+        imageAttachments.forEach(img => {
+          lastMsg.content.push({ type: 'input_image', image_url: img });
+        });
+      }
+
+      body = {
+        model: config.id,
+        stream,
+        input: input,
+        tools: [{ type: 'web_search' }],
+        reasoning: { effort: reasoning }
       };
     } else if (config.id === 'gpt-6-luna') {
       const input = augmentedMessages.map(m => {
