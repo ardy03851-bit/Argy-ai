@@ -868,6 +868,7 @@
   .model-option[data-model="claude"] { --glow-gradient: linear-gradient(45deg, #D97757, #E88A6C, #D97757); }
   .model-option[data-model="luna"] { --glow-gradient: linear-gradient(45deg, #10A37F, #0A7A5E, #10A37F); }
   .model-option[data-model="deepseek"] { --glow-gradient: linear-gradient(45deg, #4D6BFE, #8C52FF, #4D6BFE); }
+  .model-option[data-model="argy"] { --glow-gradient: linear-gradient(45deg, #7a7a7a, #d8d8d8, #9a9a9a, #f0f0f0, #7a7a7a); }
 
   .model-option-left {
     display: flex;
@@ -1284,6 +1285,16 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
                 </div>
               </div>
+              <div class="model-option" data-model="argy" data-id="gemini-3-7-flash" data-name="Argy 1.4 seconds">
+                <div class="model-option-left">
+                  <img src="Argy/argy1.png" class="model-brand-icon" alt="Argy" onerror="this.src='https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg'">
+                  <div class="model-option-info">
+                    <span class="model-option-name">Argy 1.4 seconds</span>
+                    <span class="model-option-meta">Fast · Gemini-powered</span>
+                  </div>
+                </div>
+                <div class="model-status-icon"></div>
+              </div>
               <div class="model-option" data-model="claude" data-id="claude-opus-5-5" data-name="Claude Opus 5.5">
                 <div class="model-option-left">
                   <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/claude-color.svg" class="model-brand-icon" alt="Claude">
@@ -1361,6 +1372,16 @@
       reasoningOptions: ['low', 'medium', 'high'],
       defaultReasoning: 'medium',
       icon: 'https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg'
+    },
+    argy: {
+      name: 'Argy 1.4 seconds',
+      id: 'gemini-3-7-flash',
+      endpoint: 'https://api.kie.ai/gemini/v1/models/gemini-3-7-flash:streamGenerateContent',
+      apiType: 'gemini-native',
+      reasoningType: 'pills',
+      reasoningOptions: ['low', 'medium', 'high'],
+      defaultReasoning: 'medium',
+      icon: 'Argy/argy1.png'
     },
     claude: {
       name: 'Claude Opus 5.5',
@@ -2079,7 +2100,7 @@ CORE RULES:
     row.className = 'message-row assistant';
     const avatarSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg>`;
     const avatarContent = state.currentModelAvatar
-      ? `<img src="${state.currentModelAvatar}" alt="Model">`
+      ? `<img src="${state.currentModelAvatar}" alt="Model" onerror="this.outerHTML='${avatarSvg.replace(/'/g, "\\'")}'">`
       : avatarSvg;
 
     const modelName = MODEL_CONFIG[state.model].name;
@@ -2313,6 +2334,23 @@ CORE RULES:
   function handleStreamEvent(json, meta, onContent, onThinking) {
     if (!json || typeof json !== 'object') return;
 
+    // ── Gemini native (candidates array) ──
+    if (Array.isArray(json.candidates) && json.candidates.length) {
+      const cand = json.candidates[0];
+      if (cand.content && Array.isArray(cand.content.parts)) {
+        cand.content.parts.forEach(part => {
+          if (!part) return;
+          if (part.thought === true) {
+            if (typeof part.text === 'string') onThinking(part.text);
+          } else if (typeof part.text === 'string') {
+            onContent(part.text);
+          }
+        });
+      }
+      if (cand.finishReason === 'MAX_TOKENS' || cand.finishReason === 'LENGTH') meta.truncated = true;
+      return;
+    }
+
     // ── OpenAI Chat Completions ──
     if (Array.isArray(json.choices) && json.choices.length) {
       const choice = json.choices[0];
@@ -2487,6 +2525,46 @@ CORE RULES:
     let thinking = '';
     let truncated = false;
 
+    // ── Gemini native array (non-SSE streamGenerateContent) ──
+    if (Array.isArray(json)) {
+      json.forEach(chunk => {
+        if (!chunk) return;
+        if (chunk.error) throw new Error(chunk.error.message || JSON.stringify(chunk.error));
+        if (Array.isArray(chunk.candidates) && chunk.candidates.length) {
+          const cand = chunk.candidates[0];
+          if (cand.content && Array.isArray(cand.content.parts)) {
+            cand.content.parts.forEach(part => {
+              if (!part) return;
+              if (part.thought === true) {
+                if (typeof part.text === 'string') thinking += part.text;
+              } else if (typeof part.text === 'string') {
+                text += part.text;
+              }
+            });
+          }
+          if (cand.finishReason === 'MAX_TOKENS' || cand.finishReason === 'LENGTH') truncated = true;
+        }
+      });
+      return { text, thinking, truncated };
+    }
+
+    // ── Gemini native single object ──
+    if (Array.isArray(json.candidates) && json.candidates.length) {
+      const cand = json.candidates[0];
+      if (cand.content && Array.isArray(cand.content.parts)) {
+        cand.content.parts.forEach(part => {
+          if (!part) return;
+          if (part.thought === true) {
+            if (typeof part.text === 'string') thinking += part.text;
+          } else if (typeof part.text === 'string') {
+            text += part.text;
+          }
+        });
+      }
+      if (cand.finishReason === 'MAX_TOKENS' || cand.finishReason === 'LENGTH') truncated = true;
+      return { text, thinking, truncated };
+    }
+
     const consumeChatMessage = (msg) => {
       if (!msg) return;
       if (typeof msg.content === 'string') {
@@ -2646,6 +2724,44 @@ CORE RULES:
         reasoning: { effort: reasoning },
         max_output_tokens: 32000
       };
+    } else if (config.apiType === 'gemini-native') {
+      // ── Gemini native generateContent / streamGenerateContent ──
+      const gContents = [];
+      augmentedMessages.forEach(m => {
+        gContents.push({
+          role: m.role === 'user' ? 'user' : 'model',
+          parts: [{ text: m.content }]
+        });
+      });
+
+      if (imageAttachments.length > 0) {
+        const lastContent = gContents[gContents.length - 1];
+        imageAttachments.forEach(img => {
+          const match = img.match(/^data:([^;]+);base64,(.+)$/);
+          if (match) {
+            lastContent.parts.push({
+              inlineData: { mimeType: match[1], data: match[2] }
+            });
+          }
+        });
+      }
+
+      body = {
+        stream: true,
+        contents: gContents,
+        generationConfig: {
+          thinkingConfig: {
+            includeThoughts: true,
+            thinkingLevel: reasoning
+          }
+        }
+      };
+
+      if (SYSTEM_PROMPTS[state.mode]) {
+        body.systemInstruction = {
+          parts: [{ text: SYSTEM_PROMPTS[state.mode] }]
+        };
+      }
     } else {
       // Claude
       const claudeMaxTokens = {
