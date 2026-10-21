@@ -1,5 +1,6 @@
 {
   "settings": {
+    "apiKey": "74448d346da387f028dc55cf96e194d3",
     "defaultModel": "gemini",
     "accentColor": "#d97757",
     "accentHoverColor": "#e88a6c",
@@ -7,7 +8,20 @@
     "backgroundGradient": "radial-gradient(circle at 50% 0%, rgba(217, 119, 87, 0.03) 0%, transparent 50%), radial-gradient(circle at 50% 100%, rgba(180, 140, 100, 0.02) 0%, transparent 50%)",
     "codingBackgroundGradient": "radial-gradient(circle at 50% 0%, rgba(66, 133, 244, 0.04) 0%, transparent 60%)",
     "backgroundImageOpacity": 0.06,
-    "codingBackgroundImageOpacity": 0.05
+    "codingBackgroundImageOpacity": 0.05,
+    "welcome": {
+      "codingTitle": "Agent Workspace",
+      "codingSubtitle": "System ready. Awaiting prompt.",
+      "codingPlaceholder": "Describe what to build…",
+      "simpleTitle": "LocalMind",
+      "simpleSubtitle": "Chat with advanced models.",
+      "simplePlaceholder": "Message LocalMind…",
+      "icon": "icon.png"
+    },
+    "systemPrompts": {
+      "coding": "You are an expert full-stack coding assistant working inside a chat workspace.\n\nCORE RULES:\n- When the user asks for a program, game, website, or any code, you MUST output the complete, working code. Never reply with only a plan, preamble, or \"I'll do X\". Output the actual files immediately.\n- If the request needs multiple files, output EACH file in its own fenced code block. On the first line inside each code block, put the filename as a comment, e.g.:\n```html\n<!-- index.html -->\n...\n```\n```css\n/* style.css */\n...\n```\n```js\n// game.js\n...\n```\n- Write production-quality, self-contained code. Avoid placeholders like \"// TODO\" unless truly necessary.\n- Think through complex problems step-by-step, but keep the final answer focused on working code.\n- You can handle attached files (text, code, zip contents) and reference them.\n- Prefer clarity, correctness, and completeness over brevity.\n- If the user asks for a game or interactive app, make it fully playable, with controls, scoring, and polish.",
+      "simple": "You are a concise assistant. Answer directly and briefly. Skip unnecessary explanation and filler. Use short sentences. No verbose intros or outros."
+    }
   },
   "models": [
     {
@@ -16,9 +30,17 @@
       "id": "gemini-4-argon",
       "endpoint": "https://api.kie.ai/gemini-4-argon-openai/v1/chat/completions",
       "apiType": "openai-chat",
-      "reasoningType": "pills",
-      "reasoningOptions": ["low", "medium", "high"],
-      "defaultReasoning": "medium",
+      "reasoning": {
+        "type": "pills",
+        "options": [
+          { "value": "low", "label": "Low" },
+          { "value": "medium", "label": "Medium" },
+          { "value": "high", "label": "High" }
+        ],
+        "default": "medium",
+        "codingDefault": "high",
+        "simpleDefault": "low"
+      },
       "icon": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg",
       "iconFallback": "",
       "meta": "Fast · multimodal",
@@ -26,7 +48,7 @@
       "sendModelInBody": false,
       "supportsReasoningEffort": true,
       "includeThoughts": true,
-      "includeInstructions": false,
+      "includeInstructions": true,
       "tools": [{ "type": "function", "function": { "name": "googleSearch" } }],
       "maxOutputTokens": null
     },
@@ -36,13 +58,22 @@
       "id": "gemini-3-7-flash",
       "endpoint": "https://api.kie.ai/gemini/v1/models/gemini-3-7-flash:streamGenerateContent",
       "apiType": "gemini-native",
-      "reasoningType": "pills",
-      "reasoningOptions": ["low", "medium", "high"],
-      "defaultReasoning": "medium",
+      "reasoning": {
+        "type": "pills",
+        "options": [
+          { "value": "low", "label": "Low" },
+          { "value": "medium", "label": "Medium" },
+          { "value": "high", "label": "High" }
+        ],
+        "default": "medium",
+        "codingDefault": "high",
+        "simpleDefault": "low"
+      },
       "icon": "Argy/argy1.png",
       "iconFallback": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg",
       "meta": "Fast · Gemini-powered",
-      "glowGradient": "linear-gradient(45deg, #7a7a7a, #d8d8d8, #9a9a9a, #f0f0f0, #7a7a7a)"
+      "glowGradient": "linear-gradient(45deg, #7a7a7a, #d8d8d8, #9a9a9a, #f0f0f0, #7a7a7a)",
+      "includeInstructions": true
     },
     {
       "key": "argy2",
@@ -50,9 +81,17 @@
       "id": "gpt-5-2",
       "endpoint": "https://api.kie.ai/gpt-5-2/v1/chat/completions",
       "apiType": "openai-chat",
-      "reasoningType": "pills",
-      "reasoningOptions": ["low", "medium", "high"],
-      "defaultReasoning": "medium",
+      "reasoning": {
+        "type": "pills",
+        "options": [
+          { "value": "low", "label": "Low" },
+          { "value": "medium", "label": "Medium" },
+          { "value": "high", "label": "High" }
+        ],
+        "default": "medium",
+        "codingDefault": "high",
+        "simpleDefault": "low"
+      },
       "icon": "Argy/argy2.png",
       "iconFallback": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg",
       "meta": "GPT-powered · reasoning",
@@ -60,7 +99,7 @@
       "sendModelInBody": true,
       "supportsReasoningEffort": true,
       "includeThoughts": false,
-      "includeInstructions": false,
+      "includeInstructions": true,
       "tools": null,
       "maxOutputTokens": null
     },
@@ -70,9 +109,17 @@
       "id": "gpt-6-astra",
       "endpoint": "https://api.kie.ai/codex/v1/responses",
       "apiType": "openai-responses",
-      "reasoningType": "pills",
-      "reasoningOptions": ["low", "medium", "high"],
-      "defaultReasoning": "medium",
+      "reasoning": {
+        "type": "pills",
+        "options": [
+          { "value": "low", "label": "Low" },
+          { "value": "medium", "label": "Medium" },
+          { "value": "high", "label": "High" }
+        ],
+        "default": "medium",
+        "codingDefault": "high",
+        "simpleDefault": "low"
+      },
       "icon": "Argy/argy3.png",
       "iconFallback": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg",
       "meta": "GPT Astra · Responses API",
@@ -89,14 +136,32 @@
       "id": "claude-opus-5-5",
       "endpoint": "https://api.kie.ai/claude/v1/messages",
       "apiType": "anthropic",
-      "reasoningType": "slider",
-      "reasoningOptions": ["minimal", "low", "medium", "high", "max"],
-      "defaultReasoning": "medium",
+      "reasoning": {
+        "type": "slider",
+        "options": [
+          { "value": "minimal", "label": "Minimal" },
+          { "value": "low", "label": "Low" },
+          { "value": "medium", "label": "Medium" },
+          { "value": "high", "label": "High" },
+          { "value": "max", "label": "Max" }
+        ],
+        "default": "medium",
+        "codingDefault": "max",
+        "simpleDefault": "low"
+      },
       "icon": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/claude-color.svg",
       "iconFallback": "",
       "meta": "Top-tier reasoning",
       "glowGradient": "linear-gradient(45deg, #D97757, #E88A6C, #D97757)",
-      "sendModelInBody": true
+      "sendModelInBody": true,
+      "includeInstructions": true,
+      "maxTokens": {
+        "minimal": 8192,
+        "low": 12288,
+        "medium": 16384,
+        "high": 24576,
+        "max": 32000
+      }
     },
     {
       "key": "luna",
@@ -104,9 +169,17 @@
       "id": "gpt-6-luna",
       "endpoint": "https://api.kie.ai/codex/v1/responses",
       "apiType": "openai-responses",
-      "reasoningType": "pills",
-      "reasoningOptions": ["low", "medium", "high"],
-      "defaultReasoning": "medium",
+      "reasoning": {
+        "type": "pills",
+        "options": [
+          { "value": "low", "label": "Low" },
+          { "value": "medium", "label": "Medium" },
+          { "value": "high", "label": "High" }
+        ],
+        "default": "medium",
+        "codingDefault": "high",
+        "simpleDefault": "low"
+      },
       "icon": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg",
       "iconFallback": "",
       "meta": "Advanced reasoning",
@@ -123,9 +196,17 @@
       "id": "deepseek-v4-1-flash",
       "endpoint": "https://api.kie.ai/openai/v1/responses",
       "apiType": "openai-responses",
-      "reasoningType": "pills",
-      "reasoningOptions": ["low", "medium", "high"],
-      "defaultReasoning": "medium",
+      "reasoning": {
+        "type": "pills",
+        "options": [
+          { "value": "low", "label": "Low" },
+          { "value": "medium", "label": "Medium" },
+          { "value": "high", "label": "High" }
+        ],
+        "default": "medium",
+        "codingDefault": "high",
+        "simpleDefault": "low"
+      },
       "icon": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/deepseek-color.svg",
       "iconFallback": "",
       "meta": "Fast · efficient coding",
