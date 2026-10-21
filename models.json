@@ -103,7 +103,7 @@
     },
     {
       "key": "argy3",
-      "name": "Argy 2 inline",
+      "name": "Argy 2 inline (beta use only)",
       "id": "gpt-6-astra",
       "endpoint": "https://api.kie.ai/codex/v1/responses",
       "apiType": "openai-responses",
@@ -120,7 +120,7 @@
       },
       "icon": "Argy/argy3.png",
       "iconFallback": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg",
-      "meta": "GPT Astra · Responses API · tools",
+      "meta": "GPT Astra · **SHOULD NOT BE USED MORE THAN ONCE** · tools",
       "glowGradient": "linear-gradient(45deg, #2d7d8a, #5fc4d1, #9fe3ea, #5fc4d1, #2d7d8a)",
       "sendModelInBody": true,
       "supportsReasoningEffort": true,
