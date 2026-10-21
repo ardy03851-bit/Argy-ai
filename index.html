@@ -10,8 +10,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   :root {
     --bg-base: #0e0d0c;
@@ -3643,13 +3643,7 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (!data || !Array.isArray(data.models) || data.models.length === 0) throw new Error('models.json missing models array');
-      // Ignore malformed entries instead of allowing one bad model to break startup.
-      data.models = data.models.filter(m => m && typeof m.key === 'string' && m.key.trim() &&
-        typeof m.name === 'string' && m.name.trim() && typeof m.endpoint === 'string' &&
-        /^https?:\/\//i.test(m.endpoint) && typeof m.apiType === 'string');
-      if (!data.models.length) throw new Error('models.json has no valid model entries');
-      if (!data.settings || typeof data.settings !== 'object' || Array.isArray(data.settings)) data.settings = {};
-      console.log('[LocalMind] Loaded models.json —', data.models.length, 'valid model(s)');
+      console.log('[LocalMind] Loaded models.json —', data.models.length, 'model(s)');
       return data;
     } catch (err) {
       console.warn('[LocalMind] models.json load failed — using built-in fallback:', err.message);
@@ -3676,12 +3670,6 @@
 
   init().catch(err => {
     console.error('[LocalMind] Init failed:', err);
-    // Fail visibly and recoverably rather than leaving a blank, dead workspace.
-    const notice = document.createElement('div');
-    notice.setAttribute('role', 'alert');
-    notice.style.cssText = 'position:fixed;z-index:9999;left:16px;right:16px;top:16px;padding:14px 16px;border:1px solid #ef4444;border-radius:12px;background:#211717;color:#ffe4e6;font:14px/1.5 Inter,system-ui,sans-serif;box-shadow:0 12px 36px #0008';
-    notice.textContent = 'The workspace could not finish starting: ' + (err && err.message ? err.message : 'Unknown initialization error') + '. Try reloading the page and make sure index.html and models.json are in the same folder.';
-    document.body.appendChild(notice);
   });
 </script>
 </body>
