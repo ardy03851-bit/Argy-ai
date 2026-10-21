@@ -118,7 +118,7 @@
     justify-content: center;
     gap: 4px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.2s, border-color 0.2s;
   }
   .hamburger:hover { background: #1e2024; border-color: var(--border-focus); }
   .hamburger span {
@@ -127,7 +127,6 @@
     height: 2px;
     background: var(--text-main);
     border-radius: 2px;
-    transition: 0.2s;
   }
 
   .sidebar-overlay {
@@ -202,7 +201,7 @@
     font-family: var(--font-ui);
     font-size: 14px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.2s, border-color 0.2s;
     text-align: left;
     width: 100%;
   }
@@ -228,7 +227,7 @@
     flex: 1;
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: calc(40px + var(--safe-top)) 24px calc(160px + var(--safe-bottom)) 24px;
+    padding: calc(40px + var(--safe-top)) 24px calc(180px + var(--safe-bottom)) 24px;
     display: flex;
     flex-direction: column;
     gap: 32px;
@@ -236,7 +235,16 @@
     position: relative;
     z-index: 2;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.1) transparent;
   }
+  .chat-scroll-area::-webkit-scrollbar { width: 6px; }
+  .chat-scroll-area::-webkit-scrollbar-track { background: transparent; }
+  .chat-scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+  }
+  .chat-scroll-area::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
 
   .welcome-container {
     display: flex;
@@ -342,6 +350,7 @@
     border-bottom-right-radius: 4px;
     border: 1px solid var(--border);
     font-size: 15px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
   }
   .message-row.assistant .bubble {
     background: transparent;
@@ -578,7 +587,7 @@
     padding: 3px 8px;
     border-radius: 6px;
     font-family: var(--font-ui);
-    transition: all 0.15s;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
     white-space: nowrap;
   }
   .code-action-btn:hover {
@@ -616,7 +625,7 @@
     font-size: 12px;
     font-family: var(--font-ui);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
   }
   .msg-action-btn:hover {
     background: rgba(255,255,255,0.06);
@@ -629,17 +638,32 @@
   }
   .msg-action-btn svg { width: 14px; height: 14px; }
 
-  /* ── Bottom Bar ── */
+  /* ── Bottom Bar (fixed, full-viewport-width) ── */
   .bottom-bar {
-    position: absolute;
-    bottom: 0;
+    position: fixed;
     left: 0;
     right: 0;
+    bottom: 0;
     padding: 20px 24px calc(24px + var(--safe-bottom)) 24px;
-    background: linear-gradient(0deg, var(--bg-base) 70%, transparent 100%);
+    background: linear-gradient(to top,
+      var(--bg-base) 0%,
+      var(--bg-base) 55%,
+      transparent 100%);
     display: flex;
     justify-content: center;
-    z-index: 3;
+    z-index: 4;
+  }
+  /* Extra fade above the bar so scrolled content fully dissolves into bg */
+  .bottom-bar::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 72px;
+    background: linear-gradient(to top, var(--bg-base) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: -1;
   }
   .input-wrapper {
     position: relative;
@@ -722,7 +746,7 @@
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    transition: background 0.2s;
+    transition: background 0.2s, color 0.2s;
   }
   .attachment-chip .remove-btn:hover {
     background: rgba(255,255,255,0.1);
@@ -742,6 +766,7 @@
     max-height: 200px;
     outline: none;
     padding: 10px 16px;
+    scrollbar-width: thin;
   }
   .chat-input::placeholder { color: #6b5e55; }
 
@@ -775,7 +800,7 @@
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.2s, color 0.2s;
     max-width: 220px;
   }
   .model-btn:hover:not(.loading) { background: rgba(255,255,255,0.04); color: var(--text-main); }
@@ -786,9 +811,7 @@
     flex-shrink: 0;
     transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
-  .model-btn.active .chevron-icon {
-    transform: rotate(180deg);
-  }
+  .model-btn.active .chevron-icon { transform: rotate(180deg); }
   .model-icon {
     width: 18px; height: 18px;
     opacity: 0.9;
@@ -810,7 +833,7 @@
     opacity: 0;
     pointer-events: none;
     transform: translateY(10px);
-    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: opacity 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
     z-index: 100;
     display: flex;
     flex-direction: column;
@@ -859,9 +882,7 @@
     background-size: 200% 200%;
   }
   .model-option:hover::before,
-  .model-option.active::before {
-    opacity: 0.8;
-  }
+  .model-option.active::before { opacity: 0.8; }
 
   @keyframes gradientShift {
     0% { background-position: 0% 50%; }
@@ -911,7 +932,7 @@
     font-weight: 500;
     cursor: pointer;
     color: var(--text-muted);
-    transition: all 0.2s;
+    transition: background 0.2s, color 0.2s;
     user-select: none;
     -webkit-user-select: none;
     white-space: nowrap;
@@ -1078,7 +1099,7 @@
     height: 32px;
     border-radius: 50%;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.2s, color 0.2s;
     flex-shrink: 0;
   }
   .icon-btn:hover { background: rgba(255,255,255,0.04); color: var(--text-main); }
@@ -1094,7 +1115,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
     box-shadow: 0 2px 8px var(--accent-glow);
     flex-shrink: 0;
   }
@@ -1108,7 +1129,7 @@
   .scroll-bottom-btn {
     position: absolute;
     right: 24px;
-    bottom: calc(110px + var(--safe-bottom));
+    bottom: 150px;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -1119,11 +1140,11 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 20;
+    z-index: 5;
     opacity: 0;
     transform: translateY(10px);
     pointer-events: none;
-    transition: all 0.25s ease;
+    transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s;
     box-shadow: 0 4px 16px rgba(0,0,0,0.4);
   }
   .scroll-bottom-btn.visible {
@@ -1192,10 +1213,19 @@
 
   .hidden { display: none !important; }
 
+  /* Focus-visible ring for keyboard users */
+  button:focus-visible,
+  .reasoning-option:focus-visible,
+  .sidebar-option:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
   /* ── Tablet / iPad improvements ── */
   @media (min-width: 768px) {
-    .chat-scroll-area { padding: calc(48px + var(--safe-top)) 32px calc(180px + var(--safe-bottom)) 32px; gap: 36px; }
+    .chat-scroll-area { padding: calc(48px + var(--safe-top)) 32px calc(200px + var(--safe-bottom)) 32px; gap: 36px; }
     .bottom-bar { padding: 24px 32px calc(28px + var(--safe-bottom)) 32px; }
+    .bottom-bar::before { height: 90px; }
     .welcome-icon { width: 80px; height: 80px; margin-bottom: 26px; }
     .welcome-title { font-size: 48px; }
     .welcome-subtitle { font-size: 16px; }
@@ -1212,12 +1242,12 @@
     .model-btn { font-size: 13.5px; padding: 10px 14px; max-width: 260px; }
     .chat-input { font-size: 16.5px; padding: 12px 18px; }
     .reasoning-option { padding: 6px 14px; font-size: 12px; }
-    .scroll-bottom-btn { right: 32px; bottom: calc(120px + var(--safe-bottom)); }
+    .scroll-bottom-btn { right: 32px; bottom: 170px; }
     .thinking-panel.expanded .thinking-body-wrapper { max-height: min(480px, 55vh); }
   }
 
   @media (min-width: 1024px) and (orientation: landscape) {
-    .chat-scroll-area { padding: calc(56px + var(--safe-top)) 48px calc(200px + var(--safe-bottom)) 48px; }
+    .chat-scroll-area { padding: calc(56px + var(--safe-top)) 48px calc(220px + var(--safe-bottom)) 48px; }
     .bottom-bar { padding: 28px 48px calc(32px + var(--safe-bottom)) 48px; }
     .welcome-title { font-size: 52px; }
     .welcome-icon { width: 88px; height: 88px; }
@@ -1242,8 +1272,9 @@
   @media (max-width: 600px) {
     .welcome-title { font-size: 32px; }
     .welcome-icon { width: 56px; height: 56px; margin-bottom: 16px; }
-    .chat-scroll-area { padding: calc(20px + var(--safe-top)) 16px calc(140px + var(--safe-bottom)) 16px; gap: 24px; }
+    .chat-scroll-area { padding: calc(20px + var(--safe-top)) 16px calc(160px + var(--safe-bottom)) 16px; gap: 24px; }
     .bottom-bar { padding: 16px 16px calc(16px + var(--safe-bottom)) 16px; }
+    .bottom-bar::before { height: 56px; }
     .model-dropdown {
       position: fixed;
       left: 50%;
@@ -1259,7 +1290,7 @@
     .msg-avatar { width: 30px; height: 30px; }
     .msg-avatar > svg { width: 20px; height: 20px; }
     .md-text, .bubble { font-size: 15.5px; }
-    .scroll-bottom-btn { right: 16px; bottom: calc(96px + var(--safe-bottom)); width: 36px; height: 36px; }
+    .scroll-bottom-btn { right: 16px; bottom: 120px; width: 36px; height: 36px; }
     .preview-modal-content { width: 96vw; height: 90vh; }
     .claude-slider-wrapper { width: 132px; }
     .reasoning-option { padding: 3px 9px; font-size: 10.5px; }
@@ -1270,11 +1301,21 @@
     .reasoning-option { padding: 3px 7px; font-size: 10px; }
     .left-actions { gap: 4px; }
   }
+
+  /* Respect reduced-motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 </style>
 </head>
 <body class="mode-coding">
 
-<div class="hamburger" id="hamburger">
+<div class="hamburger" id="hamburger" role="button" aria-label="Menu" tabindex="0">
   <span></span><span></span><span></span>
 </div>
 
@@ -1290,7 +1331,7 @@
     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
     <div>
       <div>Agent Workspace</div>
-      <div class="desc">Advanced coding & reasoning</div>
+      <div class="desc">Advanced coding &amp; reasoning</div>
     </div>
   </button>
   <button class="sidebar-option" data-mode="simple" id="modeSimple">
@@ -1312,43 +1353,44 @@
     <div id="messagesContainer" style="display: flex; flex-direction: column; gap: 32px;"></div>
   </div>
 
-  <button class="scroll-bottom-btn" id="scrollBottomBtn" title="Scroll to bottom">
+  <button class="scroll-bottom-btn" id="scrollBottomBtn" title="Scroll to bottom" aria-label="Scroll to bottom">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
   </button>
+</div>
 
-  <div class="bottom-bar" id="chatBottomBar">
-    <div class="input-wrapper" id="inputWrapper">
-      <div class="attachments-container" id="attachmentsContainer"></div>
-      <textarea class="chat-input" id="chatInput" rows="1" placeholder="Message your AI..."></textarea>
+<!-- Bottom bar moved OUT of .app so its full-width gradient spans the viewport -->
+<div class="bottom-bar" id="chatBottomBar">
+  <div class="input-wrapper" id="inputWrapper">
+    <div class="attachments-container" id="attachmentsContainer"></div>
+    <textarea class="chat-input" id="chatInput" rows="1" placeholder="Message your AI..."></textarea>
 
-      <div class="input-actions">
-        <div class="left-actions">
-          <button class="icon-btn" id="attachBtn" title="Attach files (txt, html, zip, image)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+    <div class="input-actions">
+      <div class="left-actions">
+        <button class="icon-btn" id="attachBtn" title="Attach files (txt, html, zip, image)" aria-label="Attach files">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+        </button>
+        <input type="file" id="fileInput" multiple accept=".txt,.html,.zip,image/*" style="display: none;">
+
+        <div class="model-selector-wrapper">
+          <button class="model-btn" id="modelBtn">
+            <img src="" class="model-icon" id="currentModelIcon" alt="">
+            <span id="currentModelName">Loading…</span>
+            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
           </button>
-          <input type="file" id="fileInput" multiple accept=".txt,.html,.zip,image/*" style="display: none;">
-
-          <div class="model-selector-wrapper">
-            <button class="model-btn" id="modelBtn">
-              <img src="" class="model-icon" id="currentModelIcon" alt="">
-              <span id="currentModelName">Loading…</span>
-              <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <div class="model-dropdown" id="modelDropdown"></div>
-          </div>
-
-          <div id="reasoningContainer"></div>
-
-          <button class="icon-btn" id="clearChatBtn" title="Clear Chat">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
-          </button>
+          <div class="model-dropdown" id="modelDropdown"></div>
         </div>
 
-        <button class="send-btn" id="sendBtn" disabled>
-          <svg id="sendIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          <svg id="stopIcon" style="display:none" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+        <div id="reasoningContainer"></div>
+
+        <button class="icon-btn" id="clearChatBtn" title="Clear Chat" aria-label="Clear chat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
         </button>
       </div>
+
+      <button class="send-btn" id="sendBtn" disabled aria-label="Send message">
+        <svg id="sendIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        <svg id="stopIcon" style="display:none" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+      </button>
     </div>
   </div>
 </div>
@@ -1358,7 +1400,7 @@
   <div class="preview-modal-content">
     <div class="preview-modal-header">
       <span>Preview</span>
-      <button class="preview-close-btn" id="previewCloseBtn">×</button>
+      <button class="preview-close-btn" id="previewCloseBtn" aria-label="Close preview">×</button>
     </div>
     <iframe id="previewIframe" sandbox="allow-scripts allow-modals allow-forms allow-popups allow-pointer-lock"></iframe>
   </div>
@@ -1421,7 +1463,7 @@
   };
 
   /* ============================================================
-     DOM
+     DOM CACHE
      ============================================================ */
   const chatScrollArea = document.getElementById('chatScrollArea');
   const inputWrapper = document.getElementById('inputWrapper');
@@ -1438,6 +1480,7 @@
   const fileInput = document.getElementById('fileInput');
   const attachmentsContainer = document.getElementById('attachmentsContainer');
   const scrollBottomBtn = document.getElementById('scrollBottomBtn');
+  const chatBottomBar = document.getElementById('chatBottomBar');
 
   const modelBtn = document.getElementById('modelBtn');
   const modelDropdown = document.getElementById('modelDropdown');
@@ -1492,9 +1535,10 @@
     const isAtBottom = chatScrollArea.scrollHeight - chatScrollArea.scrollTop - chatScrollArea.clientHeight < 50;
     state.userHasScrolled = !isAtBottom;
     updateScrollBtn();
-  });
+  }, { passive: true });
 
   scrollBottomBtn.addEventListener('click', () => {
+    state.userHasScrolled = false;
     chatScrollArea.scrollTo({ top: chatScrollArea.scrollHeight, behavior: 'smooth' });
   });
 
@@ -1505,6 +1549,19 @@
   function updateSendBtn() {
     if (state.isGenerating) { sendBtn.disabled = false; return; }
     sendBtn.disabled = !chatInput.value.trim() && state.attachments.length === 0;
+  }
+
+  /* ============================================================
+     DYNAMIC BOTTOM PADDING (so growing input never covers content)
+     ============================================================ */
+  function updateBottomSpacing() {
+    const barH = chatBottomBar.offsetHeight;
+    chatScrollArea.style.paddingBottom = `calc(${barH + 20}px + var(--safe-bottom))`;
+    scrollBottomBtn.style.bottom = `calc(${barH + 16}px)`;
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(updateBottomSpacing).observe(chatBottomBar);
+    window.addEventListener('resize', updateBottomSpacing);
   }
 
   /* ============================================================
@@ -1529,7 +1586,6 @@
     if (SETTINGS.codingBackgroundImageOpacity != null) css += `body.mode-coding::after { opacity: ${SETTINGS.codingBackgroundImageOpacity}; }\n`;
     styleTag.textContent = css;
 
-    // Welcome icon override
     const welcomeIconEl = document.querySelector('.welcome-icon');
     if (welcomeIconEl && SETTINGS.welcome && SETTINGS.welcome.icon) {
       welcomeIconEl.src = SETTINGS.welcome.icon;
@@ -1611,7 +1667,7 @@
      MODEL DROPDOWN / SELECTION
      ============================================================ */
   function populateModelDropdown() {
-    modelDropdown.innerHTML = '';
+    const frag = document.createDocumentFragment();
     MODELS_LIST.forEach(model => {
       const option = document.createElement('div');
       option.className = 'model-option';
@@ -1646,8 +1702,10 @@
         modelBtn.classList.remove('active');
       });
 
-      modelDropdown.appendChild(option);
+      frag.appendChild(option);
     });
+    modelDropdown.innerHTML = '';
+    modelDropdown.appendChild(frag);
   }
 
   function selectModel(key) {
@@ -2247,7 +2305,7 @@
           ${att.type === 'image' ? '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>' : '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/>'}
         </svg>
         <span>${escapeHtml(att.name)}</span>
-        <button class="remove-btn" data-index="${index}">×</button>
+        <button class="remove-btn" data-index="${index}" aria-label="Remove attachment">×</button>
       `;
       chip.querySelector('.remove-btn').addEventListener('click', () => {
         state.attachments.splice(index, 1);
@@ -2350,6 +2408,9 @@
   hamburger.addEventListener('click', () => {
     sidebar.classList.add('active');
     sidebarOverlay.classList.add('active');
+  });
+  hamburger.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hamburger.click(); }
   });
   sidebarOverlay.addEventListener('click', () => {
     sidebar.classList.remove('active');
@@ -2675,7 +2736,6 @@
       if (lastMsg && lastMsg.role === 'user') lastMsg.content += textContext;
     }
 
-    // System-prompt inclusion flag (default depends on apiType to preserve past behaviour)
     const defaultInclude = apiType === 'openai-responses' ? false : true;
     const includeInstructions = config.includeInstructions !== undefined
       ? config.includeInstructions === true
@@ -3030,12 +3090,13 @@
       ? SETTINGS.defaultModel
       : MODELS_LIST[0].key;
 
-    // setMode must run BEFORE selectModel so state.mode is correct
-    // when renderReasoningUI picks the mode-specific default.
-    setMode('coding');
+    // selectModel first so state.model is populated before reasoning UI uses it
     selectModel(defaultKey);
+    setMode('coding');
+
     chatInput.focus();
     updateSendBtn();
+    updateBottomSpacing();
   }
 
   init().catch(err => {
