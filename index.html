@@ -424,6 +424,50 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* Calm, deliberate model-loading indicator */
+  .waiting-indicator {
+    position: relative;
+    height: auto;
+    min-height: 34px;
+    gap: 12px;
+    padding: 5px 0;
+    animation: loadingReveal .32s cubic-bezier(.2,.75,.25,1) both;
+  }
+  .waiting-indicator .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid color-mix(in srgb, var(--accent) 18%, transparent);
+    border-top-color: var(--accent);
+    border-right-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 6%, transparent);
+    animation: loadingOrbit .9s cubic-bezier(.55,.1,.35,.9) infinite;
+  }
+  .waiting-indicator span {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--text-muted);
+    letter-spacing: .01em;
+  }
+  .waiting-indicator span::after {
+    content: '';
+    width: 1.15em;
+    height: 1em;
+    flex: 0 0 1.15em;
+    background: radial-gradient(circle, var(--text-muted) 1px, transparent 1.5px) 0 50% / .38em .38em repeat-x;
+    animation: loadingDots 1.25s steps(4, end) infinite;
+    opacity: .8;
+  }
+  @keyframes loadingOrbit { to { transform: rotate(360deg); } }
+  @keyframes loadingDots { from { background-position-x: 0; } to { background-position-x: 1.52em; } }
+  @keyframes loadingReveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  .message-row .bubble { transform-origin: top left; }
+  .message-row.user .bubble { transform-origin: top right; }
+  .message-row.assistant .msg-avatar img { animation: avatarArrive .42s cubic-bezier(.2,.75,.25,1) both; }
+  @keyframes avatarArrive { from { opacity: 0; transform: scale(.88); } to { opacity: 1; transform: scale(1); } }
+  .message-row.assistant .content-arriving { animation: contentArrive .24s ease-out both; }
+  @keyframes contentArrive { from { opacity: .72; } to { opacity: 1; } }
+
   /* ── Thinking Panel ── */
   .thinking-panel {
     margin: 2px 0 14px 0;
@@ -1230,8 +1274,13 @@
   .thinking-panel, .preview-modal-content { box-shadow: 0 16px 48px rgba(0,0,0,.18); }
   .preview-modal.open .preview-modal-content { animation: modalEnter .22s var(--ease-ui) both; }
   @keyframes modalEnter { from { opacity: 0; transform: translateY(8px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  /* Respect reduced-motion preferences without disabling essential UI feedback. */
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    .welcome-icon, .avatar-glow, .input-wrapper::after, .progress-fill::after,
+    .slider-fill::after { animation-duration: 4s !important; }
+    .message-row { animation-duration: .18s !important; }
+    .thinking-panel, .preview-modal.open .preview-modal-content { animation-duration: .16s !important; }
+    html { scroll-behavior: auto !important; }
   }
 
   /* ── Tablet / iPad improvements ── */
@@ -2349,7 +2398,7 @@
     bubbleEl.innerHTML = `
       <div class="waiting-indicator">
         <div class="spinner"></div>
-        <span>${escapeHtml(modelName)} is thinking…</span>
+        <span>${escapeHtml(modelName)} is thinking</span>
       </div>
     `;
 
@@ -2904,6 +2953,9 @@
       renderTimer = setTimeout(() => {
         renderTimer = null;
         updateStreamingContent(contentDiv, rawText, streamState);
+        contentDiv.classList.remove('content-arriving');
+        void contentDiv.offsetWidth;
+        contentDiv.classList.add('content-arriving');
         ensureCursor(contentDiv);
         scrollToBottom();
       }, 30);
