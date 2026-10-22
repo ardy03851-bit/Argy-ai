@@ -4,7 +4,7 @@
 
 <img src="bg.png" alt="Banner" width="820">
 
-<img src="shine.svg" alt="Project Name" width="820">
+<img src="shine.svg" alt="Local Mind" width="820">
 
 </div>
 
