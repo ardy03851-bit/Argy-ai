@@ -1,5 +1,6 @@
-**this was coded by Ardy/Oleksandr Lahoza - full app and every feature…** 
-**deepseek ai - fixed bugs and made notes, thank you deepseek**
+# Local Mind
 
+> **Built end‑to‑end by Ardy (Oleksandr Lahoza)** — the full app and every feature.
+> *Bugs fixed and notes added by DeepSeek AI.*
 
-**<3**
+<3
