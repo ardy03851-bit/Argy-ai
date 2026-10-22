@@ -1737,6 +1737,172 @@
   }
   
 
+
+  /* Focus treatment: keep the prompt's accent inside its rounded silhouette. */
+  .chat-input:focus,
+  .chat-input:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  .input-wrapper {
+    border-radius: 24px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .input-wrapper:focus-within:not(.disabled) {
+    border-color: rgba(217,119,87,.62);
+    box-shadow: 0 10px 28px rgba(0,0,0,.38), 0 0 0 2px rgba(217,119,87,.12) !important;
+  }
+  .input-wrapper.generating::before {
+    border-radius: inherit;
+    left: 14%;
+    right: 14%;
+    height: 1px;
+    top: 0;
+  }
+
+  /* Keep every layer of the Argy Ion Drift slider clipped to the same rounded track. */
+  .pixel-fire-slider-wrapper { border-radius: 16px; }
+  .pixel-fire-stage {
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    clip-path: inset(0 round 14px);
+    -webkit-clip-path: inset(0 round 14px);
+  }
+  .pixel-fire-fill,
+  .pixel-fire-wave,
+  .pixel-fire-glass,
+  .pixel-fire-blur { border-radius: inherit; }
+  .pixel-fire-range { border-radius: 14px; }
+  .pixel-fire-slider-wrapper.dragging .pixel-fire-stage { border-radius: 14px !important; }
+
+  /* A quieter, more mature free-model browser: neutral surfaces and restrained selection. */
+  .free-model-dropdown {
+    border-radius: 15px;
+    padding: 9px;
+    background: #141619;
+    border-color: rgba(220,226,235,.12);
+    box-shadow: 0 24px 60px rgba(0,0,0,.52), 0 2px 8px rgba(0,0,0,.22);
+    gap: 3px;
+  }
+  #freeModelsPane {
+    border-radius: 12px;
+    background: #141619;
+  }
+  #freeModelsPane .free-model-toolbar {
+    background: #141619;
+    padding: 5px 0 10px;
+  }
+  #freeModelSearch {
+    min-height: 37px;
+    border-radius: 9px;
+    background: #0f1114;
+    border-color: rgba(220,226,235,.12);
+    color: #e7e9ed;
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+  #freeModelSearch:focus {
+    border-color: rgba(170,181,198,.42);
+    box-shadow: 0 0 0 2px rgba(170,181,198,.07);
+  }
+  .free-tool-btn {
+    width: 37px;
+    min-width: 37px;
+    border-radius: 9px;
+    background: #1a1d22;
+    border-color: rgba(220,226,235,.12);
+    color: #b9c0ca;
+  }
+  .free-tool-btn:hover {
+    background: #22262c;
+    border-color: rgba(220,226,235,.2);
+  }
+  .free-model-status {
+    padding: 4px 6px 9px;
+    color: #9299a4;
+    font-size: 10.5px;
+    line-height: 1.55;
+  }
+  .free-model-section-title {
+    padding: 11px 9px 6px;
+    color: #858d99;
+    font-size: 9px;
+    letter-spacing: .095em;
+    font-weight: 600;
+  }
+  .free-model-option {
+    min-height: 48px;
+    padding: 8px 10px;
+    gap: 10px;
+    border-radius: 9px;
+    border-color: transparent;
+    background: transparent;
+    transition: background-color .16s ease, border-color .16s ease;
+  }
+  .free-model-option:hover {
+    background: rgba(220,226,235,.045);
+    border-color: rgba(220,226,235,.07);
+  }
+  .free-model-option.active {
+    background: rgba(151,166,185,.09);
+    border-color: rgba(151,166,185,.22);
+  }
+  .free-model-option .free-model-mark {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+    border-radius: 7px;
+    background: #20242a;
+    color: #c5ccd6;
+    border-color: rgba(220,226,235,.12);
+    font-size: 9px;
+    font-weight: 600;
+  }
+  .free-model-option .model-option-name {
+    color: #e0e4e9;
+    font-size: 12px;
+    font-weight: 550;
+    letter-spacing: -.01em;
+  }
+  .free-model-option .model-option-meta {
+    color: #858d98;
+    font-size: 10px;
+    line-height: 1.45;
+  }
+  .free-model-footer {
+    border-top-color: rgba(220,226,235,.09);
+    color: #858d98;
+    font-size: 10px;
+    padding-top: 11px;
+  }
+  .free-model-dot,
+  .free-model-btn.has-selection .free-model-dot {
+    box-shadow: none;
+  }
+  .free-model-btn {
+    border-radius: 999px;
+  }
+
+</style>
+
+<style id="model-dropdown-layer-fix">
+/* The picker is portalled to body by JS, so no rounded/overflow-clipped composer can cut it off. */
+#modelDropdown.model-dropdown {
+  position: fixed !important;
+  inset: auto !important;
+  left: var(--model-picker-left, 12px) !important;
+  top: var(--model-picker-top, 12px) !important;
+  right: auto !important; bottom: auto !important;
+  width: min(320px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  max-height: min(70vh, calc(100dvh - 24px)) !important;
+  z-index: 2147483000 !important;
+  box-sizing: border-box;
+  transform: translateY(10px) !important;
+}
+#modelDropdown.model-dropdown.active { transform: translateY(0) !important; visibility: visible; }
+#modelDropdown.model-dropdown:not(.active) { visibility: hidden; }
 </style>
 </head>
 <body class="mode-coding">
@@ -1932,6 +2098,8 @@
 
   const modelBtn = document.getElementById('modelBtn');
   const modelDropdown = document.getElementById('modelDropdown');
+  // Move the menu out of the composer subtree so overflow, rounded corners, and stacking contexts cannot clip it.
+  document.body.appendChild(modelDropdown);
   const mainModelOptions = document.getElementById('mainModelOptions');
   const mainModelsPane = document.getElementById('mainModelsPane');
   const freeModelsPane = document.getElementById('freeModelsPane');
@@ -2668,7 +2836,36 @@
 
     if (css) {
       if (/<\/head>/i.test(base)) base = base.replace(/<\/head>/i, `<style>\n${css}\n</style>\n</head>`);
-      else base = `<style>\n${css}\n</style>\n` + base;
+      else base = `<style>\n${css}\n
+
+  /* Keep the model picker above the composer and every surrounding UI layer. */
+  .bottom-bar {
+    z-index: 1000 !important;
+    overflow: visible !important;
+  }
+  .bottom-bar .input-wrapper {
+    overflow: visible !important;
+    isolation: auto !important;
+    z-index: 1001;
+  }
+  .model-selector-wrapper {
+    position: relative;
+    z-index: 1002;
+  }
+  .model-dropdown,
+  .model-dropdown.active {
+    z-index: 10000 !important;
+  }
+  .model-dropdown {
+    max-height: min(70vh, 680px);
+  }
+  @media (max-width: 600px) {
+    .model-dropdown {
+      max-height: min(68vh, 620px);
+    }
+  }
+
+</style>\n` + base;
     }
     if (js) {
       if (/<\/body>/i.test(base)) base = base.replace(/<\/body>/i, `<script>\n${js}\n<\/script>\n</body>`);
@@ -3492,18 +3689,40 @@
   }
   mainModelsTab.addEventListener('click', () => switchModelPickerTab('main'));
   freeModelsTab.addEventListener('click', () => switchModelPickerTab('free'));
+  // Place the portalled picker relative to the model button in viewport coordinates.
+  function positionModelDropdownInViewport() {
+    if (!modelDropdown.classList.contains('active')) return;
+    const anchor = modelBtn.getBoundingClientRect();
+    const margin = 12;
+    const width = Math.min(340, window.innerWidth - margin * 2);
+    const left = Math.max(margin, Math.min(anchor.left, window.innerWidth - width - margin));
+    modelDropdown.style.setProperty('--model-picker-left', left + 'px');
+    modelDropdown.style.width = width + 'px';
+    modelDropdown.style.maxHeight = Math.max(160, window.innerHeight - margin * 2) + 'px';
+    const menuHeight = modelDropdown.getBoundingClientRect().height;
+    let top = anchor.top - menuHeight - margin;
+    if (top < margin) top = anchor.bottom + margin;
+    top = Math.max(margin, Math.min(top, window.innerHeight - Math.min(menuHeight, window.innerHeight - margin) - margin));
+    modelDropdown.style.setProperty('--model-picker-top', top + 'px');
+  }
   modelBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     const isActive = modelDropdown.classList.toggle('active');
     modelBtn.classList.toggle('active', isActive);
     modelBtn.setAttribute('aria-expanded', String(isActive));
-    if (isActive) switchModelPickerTab(state.freeModel && state.mode === 'simple' ? 'free' : 'main');
+    if (isActive) {
+      switchModelPickerTab(state.freeModel && state.mode === 'simple' ? 'free' : 'main');
+      requestAnimationFrame(positionModelDropdownInViewport);
+    }
   });
+  window.addEventListener('resize', positionModelDropdownInViewport, { passive: true });
+  window.addEventListener('scroll', positionModelDropdownInViewport, true);
   // Compatibility for legacy internal calls; the visible picker is now the single main dropdown.
   freeModelBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     modelDropdown.classList.add('active'); modelBtn.classList.add('active'); modelBtn.setAttribute('aria-expanded', 'true');
     switchModelPickerTab('free');
+    requestAnimationFrame(positionModelDropdownInViewport);
   });
   freeModelDropdown.addEventListener('click', e => e.stopPropagation());
   freeModelSearch.addEventListener('input', renderFreeModelOptions);
