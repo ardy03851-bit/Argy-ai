@@ -1,107 +1,126 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="180" viewBox="0 0 800 180" role="img" aria-label="Agent Workspace Prompt UI">
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="160" viewBox="0 0 800 160" role="img" aria-label="Agent Workspace Prompt UI">
   <title>Agent Workspace Prompt</title>
 
   <defs>
-    <!-- Smooth typing clip path -->
-    <clipPath id="typeClip">
-      <rect x="30" y="30" width="0" height="40">
+    <!-- Smooth typing mask -->
+    <mask id="typeMask">
+      <rect x="0" y="0" width="0" height="160" fill="white">
         <animate 
           attributeName="width" 
-          values="0; 0; 0; 20; 40; 60; 80; 90; 110; 110; 110; 0" 
-          keyTimes="0; 0.1; 0.15; 0.2; 0.25; 0.3; 0.35; 0.4; 0.45; 0.7; 0.8; 0.85" 
-          dur="9s" repeatCount="indefinite" />
+          values="0; 0; 0; 115; 115; 115; 115; 0" 
+          keyTimes="0; 0.1; 0.15; 0.45; 0.55; 0.7; 0.8; 0.85" 
+          dur="10s" repeatCount="indefinite" calcMode="linear" />
       </rect>
-    </clipPath>
+    </mask>
+
+    <!-- Drop shadow for the cursor to make it pop -->
+    <filter id="cursorShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
   </defs>
 
-  <!-- Main Background Box -->
-  <rect x="10" y="10" width="780" height="130" rx="12" fill="#1e1e1e" stroke="#d96b4a" stroke-width="1.5" />
+  <!-- Outer Main Box -->
+  <rect x="20" y="15" width="760" height="130" rx="16" fill="#1c1c1e" stroke="#d96b4a" stroke-width="1.5" stroke-opacity="0.8" />
   
+  <!-- Inner Prompt Bar Background -->
+  <rect x="25" y="20" width="750" height="120" rx="12" fill="#2c2c2e" />
+
   <!-- Placeholder Text -->
-  <text x="30" y="55" fill="#777777" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="300">
+  <text x="45" y="60" fill="#8e8e93" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="400">
     Describe what to build...
-    <animate attributeName="opacity" values="1; 1; 0; 0; 1" keyTimes="0; 0.1; 0.15; 0.85; 1" dur="9s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="1; 1; 0; 0; 1" keyTimes="0; 0.1; 0.15; 0.8; 0.85" dur="10s" repeatCount="indefinite" />
   </text>
 
-  <!-- Typing Text "hello chat" -->
-  <g clip-path="url(#typeClip)">
-    <text x="30" y="55" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="400">hello chat</text>
-    <!-- Blinking Terracotta Caret -->
-    <rect x="108" y="35" width="2" height="22" fill="#d96b4a">
-      <animate attributeName="opacity" values="1; 1; 0; 0; 1; 1; 0; 0; 0" keyTimes="0; 0.15; 0.18; 0.2; 0.23; 0.25; 0.28; 0.45; 1" dur="9s" repeatCount="indefinite" />
+  <!-- Typed Text & Caret -->
+  <g mask="url(#typeMask)">
+    <text x="45" y="60" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="500">hello chat</text>
+    <!-- Blinking Caret -->
+    <rect x="125" y="40" width="2" height="24" fill="#d96b4a">
+      <animate attributeName="opacity" values="1; 1; 0; 0; 1; 1; 0; 0; 0" keyTimes="0; 0.15; 0.18; 0.2; 0.23; 0.25; 0.28; 0.45; 1" dur="10s" repeatCount="indefinite" />
     </rect>
   </g>
 
   <!-- Bottom Toolbar -->
-  <g opacity="0.8">
-    <!-- Divider -->
-    <line x1="25" y1="95" x2="775" y2="95" stroke="#333333" stroke-width="1" />
+  <g>
+    <!-- Divider Line -->
+    <line x1="40" y1="95" x2="760" y2="95" stroke="#3a3a3c" stroke-width="1" />
 
     <!-- Paperclip Icon -->
-    <g stroke="#999999" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(30, 105)">
+    <g stroke="#8e8e93" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(45, 105)">
       <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
     </g>
 
-    <!-- Mistral Selector -->
-    <g transform="translate(70, 105)">
-      <!-- Mistral Icon (simplified) -->
-      <path d="M0,5 L5,0 L10,5 L10,10 L5,15 L0,10 Z" fill="#ff6b00" />
-      <text x="15" y="12" fill="#cccccc" font-family="system-ui, sans-serif" font-size="14">Mistral-Small-3.2-24B</text>
-      <!-- Chevron -->
-      <path d="M150,5 L155,10 L160,5" fill="none" stroke="#999999" stroke-width="2" stroke-linecap="round" />
+    <!-- Mistral Logo & Dropdown -->
+    <g transform="translate(80, 108)">
+      <!-- Simplified Mistral Logo -->
+      <g fill="#ff6b00">
+        <rect x="0" y="0" width="4" height="4" />
+        <rect x="4" y="4" width="4" height="4" />
+        <rect x="8" y="0" width="4" height="4" />
+        <rect x="12" y="4" width="4" height="4" />
+      </g>
+      <text x="20" y="5" fill="#8e8e93" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="500">Mistral-Small-3.2-24B-Ins...</text>
+      <!-- Chevron Down -->
+      <path d="M130,0 L134,4 L138,0" fill="none" stroke="#8e8e93" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
     </g>
 
     <!-- Low/Med/High Toggle -->
-    <g transform="translate(260, 102)">
-      <rect x="0" y="0" width="160" height="28" rx="14" fill="none" stroke="#444444" stroke-width="1" />
-      <text x="25" y="18" fill="#999999" font-family="system-ui, sans-serif" font-size="12" text-anchor="middle">Low</text>
-      <text x="80" y="18" fill="#999999" font-family="system-ui, sans-serif" font-size="12" text-anchor="middle">Medium</text>
+    <g transform="translate(240, 102)">
+      <rect x="0" y="0" width="160" height="28" rx="14" fill="#3a3a3c" stroke="#444" stroke-width="1" />
+      <text x="30" y="18" fill="#8e8e93" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="500" text-anchor="middle">Low</text>
+      <text x="80" y="18" fill="#8e8e93" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="500" text-anchor="middle">Medium</text>
       <!-- Active "High" Pill -->
       <rect x="110" y="2" width="46" height="24" rx="12" fill="#ffffff" />
-      <text x="133" y="18" fill="#000000" font-family="system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">High</text>
+      <text x="133" y="18" fill="#000000" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" text-anchor="middle">High</text>
     </g>
 
-    <!-- Download & Trash Icons -->
-    <g stroke="#999999" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(460, 105)">
+    <!-- Download Icon -->
+    <g stroke="#8e8e93" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(440, 108)">
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
       <polyline points="7 10 12 15 17 10" />
       <line x1="12" y1="15" x2="12" y2="3" />
     </g>
-    <g stroke="#999999" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(500, 105)">
+
+    <!-- Trash Icon -->
+    <g stroke="#8e8e93" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(480, 108)">
       <polyline points="3 6 5 6 21 6" />
       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
     </g>
 
     <!-- Submit Button -->
-    <g transform="translate(720, 100)">
-      <circle cx="15" cy="15" r="16" fill="#333333">
-        <animate attributeName="fill" values="#333333; #333333; #d96b4a; #d96b4a; #333333" keyTimes="0; 0.4; 0.42; 0.55; 0.6" dur="9s" repeatCount="indefinite" />
+    <g transform="translate(730, 104)">
+      <circle cx="12" cy="12" r="16" fill="#3a3a3c">
+        <!-- Button pulses orange when clicked -->
+        <animate attributeName="fill" values="#3a3a3c; #3a3a3c; #d96b4a; #d96b4a; #3a3a3c" keyTimes="0; 0.55; 0.58; 0.65; 0.75" dur="10s" repeatCount="indefinite" />
       </circle>
-      <path d="M10,15 L20,15 M15,10 L20,15 L15,20" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M8,12 L16,12 M13,9 L16,12 L13,15" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
     </g>
   </g>
 
-  <!-- Mouse Cursor & Animation -->
+  <!-- Smooth Moving Cursor -->
   <g>
-    <!-- Position: (800, 200) -> Text Area (250, 60) -> Wait -> Submit Button (735, 115) -> Offscreen -->
     <animateTransform 
       attributeName="transform" 
       type="translate" 
-      values="800,200; 250,60; 250,60; 250,60; 735,115; 735,115; 800,200" 
-      keyTimes="0; 0.08; 0.15; 0.42; 0.48; 0.55; 0.6" 
-      dur="9s" repeatCount="indefinite" />
-
-    <!-- Clicking Animation (Scale) -->
-    <g>
+      values="800,200; 220,60; 220,60; 220,60; 742,112; 742,112; 800,200" 
+      keyTimes="0; 0.08; 0.15; 0.45; 0.55; 0.65; 0.75" 
+      dur="10s" repeatCount="indefinite" 
+      calcMode="spline" 
+      keySplines="0.25 0.1 0.25 1; 0 0 1 1; 0 0 1 1; 0 0 1 1; 0.25 0.1 0.25 1; 0 0 1 1" />
+    
+    <!-- Click Scale Effect -->
+    <g transform-origin="0 0">
       <animateTransform 
         attributeName="transform" 
         type="scale" 
-        values="1; 1; 0.8; 1; 1; 0.8; 1; 1; 0.8; 1; 1" 
-        keyTimes="0; 0.08; 0.1; 0.12; 0.45; 0.46; 0.48; 0.5; 0.51; 0.53; 1" 
-        dur="9s" repeatCount="indefinite" />
+        values="1; 1; 0.85; 1; 1; 0.85; 1; 1" 
+        keyTimes="0; 0.1; 0.12; 0.14; 0.55; 0.57; 0.59; 1" 
+        dur="10s" repeatCount="indefinite" />
       
-      <!-- SVG Mouse Pointer Shape -->
-      <path d="M0,0 L0,22 L6,16 L12,28 L17,25 L11,13 L22,13 Z" fill="#ffffff" stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+      <!-- Modern macOS/iOS style cursor with shadow -->
+      <g filter="url(#cursorShadow)">
+        <path d="M0,0 L0,22 L5.5,16.5 L11,27 L15.5,24.5 L10,14 L18,14 Z" fill="#ffffff" stroke="#000000" stroke-width="1.2" stroke-linejoin="round" />
+      </g>
     </g>
   </g>
 </svg>
