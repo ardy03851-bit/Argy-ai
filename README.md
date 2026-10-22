@@ -10,6 +10,8 @@
 > *Bugs fixed and notes added by DeepSeek AI.*
 > Thankies!! <3
 
+**The models named Argy are custom models, they are using free servers but are retrained existing models such as Gemini or gpt**
+
 <br>
 
 <img src="divider.svg?v=2" width="300" alt="divider">
