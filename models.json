@@ -81,7 +81,7 @@
       "endpoint": "https://api.kie.ai/gpt-5-2/v1/chat/completions",
       "apiType": "openai-chat",
       "reasoning": {
-        "type": "pills",
+        "type": "pixel-fire",
         "options": [
           { "value": "low", "label": "Low" },
           { "value": "medium", "label": "Medium" },
@@ -108,7 +108,7 @@
       "endpoint": "https://api.kie.ai/codex/v1/responses",
       "apiType": "openai-responses",
       "reasoning": {
-        "type": "pills",
+        "type": "pixel-fire",
         "options": [
           { "value": "low", "label": "Low" },
           { "value": "medium", "label": "Medium" },
