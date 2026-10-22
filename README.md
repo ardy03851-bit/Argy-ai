@@ -8,11 +8,15 @@
 
 > **Built end‑to‑end by Ardy (Oleksandr Lahoza)** — the full app and every feature.
 > *Bugs fixed and notes added by DeepSeek AI.*
-> thankies! <3
+> Thankies!! <3
 
 <br>
 
 <img src="divider.svg?v=2" width="300" alt="divider">
+
+<br><br>
+
+<img src="typing.svg?v=4" width="800" alt="Prompt Bar Animation">
 
 <br><br><br>
 
