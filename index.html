@@ -1367,28 +1367,31 @@
   .free-model-selector-wrapper { display: none; }
   body.mode-simple .free-model-selector-wrapper { display: block; }
   .free-model-btn { border: 1px solid rgba(126, 211, 165, .20); background: rgba(80, 160, 115, .055); }
-  .free-model-btn:hover, .free-model-btn.active { border-color: rgba(126, 211, 165, .42); background: rgba(80, 160, 115, .10); }
-  .free-model-dot { width: 7px; height: 7px; border-radius: 50%; background: #76d6a2; box-shadow: 0 0 0 3px rgba(118, 214, 162, .10); flex: 0 0 auto; }
-  .free-model-btn.has-selection .free-model-dot { box-shadow: 0 0 0 3px rgba(118, 214, 162, .15), 0 0 12px rgba(118,214,162,.35); }
+  .free-model-btn:hover, .free-model-btn.active { border-color: rgba(170,180,195,.30); background: rgba(255,255,255,.045); }
+  .free-model-dot { width: 6px; height: 6px; border-radius: 50%; background: #8fbea6; box-shadow: 0 0 0 3px rgba(143,190,166,.08); flex: 0 0 auto; }
+  .free-model-btn.has-selection .free-model-dot { box-shadow: 0 0 0 3px rgba(143,190,166,.12); }
   .free-model-dropdown { width: min(390px, calc(100vw - 24px)); padding: 8px; gap: 5px; }
-  .free-model-toolbar { display: flex; gap: 6px; position: sticky; top: -8px; z-index: 5; padding: 4px 0 8px; background: #121316; }
-  #freeModelSearch { min-width: 0; flex: 1; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,.035); color: var(--text-main); font: inherit; font-size: 12px; padding: 10px 11px; outline: none; }
-  #freeModelSearch:focus { border-color: rgba(118,214,162,.6); box-shadow: 0 0 0 3px rgba(118,214,162,.09); }
+  .free-model-toolbar { display: flex; gap: 7px; position: sticky; top: -8px; z-index: 5; padding: 4px 0 8px; background: #121316; }
+  #freeModelSearch { min-width: 0; flex: 1; border-radius: 7px; border: 1px solid var(--border); background: rgba(255,255,255,.025); color: var(--text-main); font: inherit; font-size: 12px; padding: 9px 10px; outline: none; }
+  #freeModelSearch:focus { border-color: rgba(160,175,195,.48); box-shadow: 0 0 0 2px rgba(160,175,195,.08); }
   #freeModelSearch::placeholder { color: #888a91; }
-  .free-tool-btn { width: 37px; min-width: 37px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,.035); color: var(--text-main); cursor: pointer; font-size: 20px; line-height: 1; transition: transform .18s ease, background .18s ease, border-color .18s ease; }
+  .free-tool-btn { width: 36px; min-width: 36px; border-radius: 7px; border: 1px solid var(--border); background: rgba(255,255,255,.025); color: var(--text-main); cursor: pointer; font-size: 18px; line-height: 1; transition: transform .18s ease, background .18s ease, border-color .18s ease; }
   .free-tool-btn:hover { background: rgba(255,255,255,.08); border-color: var(--border-focus); }
   .free-tool-btn:active { transform: rotate(35deg) scale(.96); }
   .free-model-status { color: var(--text-muted); font-size: 11px; line-height: 1.45; padding: 2px 5px 6px; }
   .free-model-options { display: flex; flex-direction: column; gap: 2px; min-height: 8px; }
-  .free-model-section-title { padding: 10px 8px 5px; color: #a8acae; font-size: 10px; letter-spacing: .09em; font-weight: 650; text-transform: uppercase; }
+  .free-model-section-title { padding: 9px 8px 5px; color: #9297a0; font-size: 10px; letter-spacing: .065em; font-weight: 600; text-transform: uppercase; }
   .free-model-option { background: transparent; border: 1px solid transparent; }
-  .free-model-option::before { background: linear-gradient(120deg, rgba(118,214,162,.7), rgba(95,170,231,.6), rgba(118,214,162,.7)); }
-  .free-model-option:hover { background: rgba(255,255,255,.035); }
-  .free-model-option .free-model-mark { display: flex; justify-content: center; align-items: center; width: 27px; height: 27px; border-radius: 8px; flex: 0 0 27px; background: linear-gradient(145deg, rgba(118,214,162,.20), rgba(95,170,231,.16)); color: #a9e9c3; border: 1px solid rgba(118,214,162,.18); font-size: 10px; font-weight: 700; letter-spacing: -.04em; }
-  .free-model-option .free-model-image { object-fit: contain; padding: 5px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); }
-  .free-model-option .model-option-name { max-width: 265px; }
+  .free-model-option::before { background: linear-gradient(120deg, rgba(150,160,180,.3), rgba(190,195,205,.2)); }
+  .free-model-option:hover { background: rgba(255,255,255,.04); }
+  .free-model-option .free-model-mark { display: flex; justify-content: center; align-items: center; width: 28px; height: 28px; border-radius: 6px; flex: 0 0 28px; background: #22252b; color: #c4cad3; border: 1px solid rgba(255,255,255,.10); font-size: 10px; font-weight: 650; letter-spacing: -.025em; }
+  .free-model-icon-wrap { position: relative; display: block; width: 28px; height: 28px; flex: 0 0 28px; }
+  .free-model-option .free-model-icon-wrap .free-model-mark { position: absolute; inset: 0; }
+  .free-model-option .free-model-image { object-fit: contain; padding: 5px; background: #202228; border: 1px solid rgba(255,255,255,.12); }
+  .free-model-option .model-option-name { max-width: 265px; font-size: 12px; font-weight: 550; }
+  .free-model-option .model-option-meta { font-size: 10px; color: #8d929b; }
   .free-model-option .model-option-meta { white-space: normal; line-height: 1.35; }
-  .free-model-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid rgba(255,255,255,.08); margin-top: 7px; padding: 10px 4px 3px; color: var(--text-muted); font-size: 10px; line-height: 1.35; }
+  .free-model-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid rgba(255,255,255,.07); margin-top: 7px; padding: 9px 4px 3px; color: #858a94; font-size: 10px; line-height: 1.35; }
   .free-model-footer span { min-width: 0; }
   .free-key-btn { flex: 0 0 auto; border-radius: 9px; padding: 7px 9px; border: 1px solid rgba(118,214,162,.28); background: rgba(118,214,162,.07); color: #a9e9c3; font: inherit; font-weight: 600; cursor: pointer; transition: background .18s ease, border-color .18s ease, transform .18s ease; }
   .free-key-btn:hover { background: rgba(118,214,162,.13); border-color: rgba(118,214,162,.48); }
@@ -1399,6 +1402,9 @@
   #currentFreeModelName { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .free-model-btn { min-width: 0; }
   .free-model-btn .chevron-icon { width: 12px; height: 12px; }
+  .msg-avatar-monogram { width:100%; height:100%; display:flex; align-items:center; justify-content:center; border-radius:inherit; background:#262a31; color:#d5d9e0; border:1px solid rgba(255,255,255,.12); font-size:10px; font-weight:650; letter-spacing:-.02em; }
+  .free-model-selected-icon { position:relative; width:22px; height:22px; flex:0 0 22px; display:flex; align-items:center; justify-content:center; border-radius:5px; overflow:hidden; background:#24272d; border:1px solid rgba(255,255,255,.10); color:#cbd0d8; font-size:8px; font-weight:650; }
+  .free-model-selected-icon img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; padding:3px; background:#24272d; }
 
 
   /* ── Argy Pixel Fire reasoning control (reasoning.type: "pixel-fire") ── */
@@ -1514,6 +1520,7 @@
           <div class="model-selector-wrapper free-model-selector-wrapper" id="freeModelSelectorWrapper">
             <button class="model-btn free-model-btn" id="freeModelBtn" aria-haspopup="true" aria-expanded="false" title="Optional free open-weight model providers">
               <span class="free-model-dot" aria-hidden="true"></span>
+              <span class="free-model-selected-icon" id="currentFreeModelIcon" aria-hidden="true">AI</span>
               <span id="currentFreeModelName">Free models</span>
               <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </button>
@@ -1525,7 +1532,7 @@
               <div id="freeModelStatus" class="free-model-status" role="status" aria-live="polite">Loading free model catalog…</div>
               <div id="freeModelOptions" class="free-model-options"></div>
               <div class="free-model-footer">
-                <span id="openRouterKeyStatus">No API key or sign-in for supported free routes</span>
+                <span id="openRouterKeyStatus">No API key or sign-in required for these routes</span>
               </div>
             </div>
           </div>
@@ -1646,6 +1653,7 @@
   const freeModelBtn = document.getElementById('freeModelBtn');
   const freeModelDropdown = document.getElementById('freeModelDropdown');
   const currentFreeModelName = document.getElementById('currentFreeModelName');
+  const currentFreeModelIcon = document.getElementById('currentFreeModelIcon');
   const freeModelSearch = document.getElementById('freeModelSearch');
   const freeModelStatus = document.getElementById('freeModelStatus');
   const freeModelOptions = document.getElementById('freeModelOptions');
@@ -1947,7 +1955,7 @@
           '<input type="range" class="claude-slider" min="0" max="' + maxIdx + '" step="1" value="' + initialIdx + '" aria-label="Reasoning effort">';
       }
 
-      const slider = wrapper.querySelector('.claude-slider');
+      const slider = wrapper.querySelector(isPixelFire ? '.pixel-fire-range' : '.claude-slider');
       const bubble = wrapper.querySelector(isPixelFire ? '.pixel-fire-bubble' : '.claude-level-bubble');
       const tickEls = Array.from(wrapper.querySelectorAll('.claude-slider-ticks span'));
       const fill = wrapper.querySelector(isPixelFire ? '.pixel-fire-fill' : '.claude-slider-fill');
@@ -2527,6 +2535,14 @@
       if (!swapped && !activeFree && config && config.iconFallback) {
         swapped = true;
         imgEl.src = config.iconFallback;
+      } else if (activeFree) {
+        const initials = String(activeFree.mark || activeFree.name || 'AI').split(/[\s:/-]+/).filter(Boolean).slice(0, 2).map(x => x[0]).join('').toUpperCase() || 'AI';
+        avatarEl.innerHTML = '';
+        const monogram = document.createElement('span');
+        monogram.className = 'msg-avatar-monogram';
+        monogram.textContent = initials;
+        monogram.setAttribute('aria-label', modelName + ' icon');
+        avatarEl.appendChild(monogram);
       } else {
         avatarEl.innerHTML = fallbackSvg;
       }
@@ -2767,7 +2783,7 @@
       const stillCached = readCachedMurakumoCatalog();
       if (!MURAKUMO_CATALOG.length && stillCached && Array.isArray(stillCached.models)) MURAKUMO_CATALOG = stillCached.models;
       renderFreeModelOptions();
-      if (!MURAKUMO_CATALOG.length) setFreeStatus(`Murakumo live catalog is unavailable right now. ${FREE_CATALOG.length ? `${FREE_CATALOG.length} OpenRouter free models are available with a key` : 'The documented no-key default is still listed'}; refresh or try again later.`);
+      if (!MURAKUMO_CATALOG.length) setFreeStatus('Murakumo catalog is temporarily unavailable; Pollinations models may still be available. Refresh to retry.');
     } finally {
       clearTimeout(timeout);
       MURAKUMO_CATALOG_LOADING = false;
@@ -2785,15 +2801,22 @@
     if (!model) return '';
     if (model.icon) return model.icon;
     const identity = `${model.id || ''} ${model.name || ''}`.toLowerCase();
-    // Provider/family marks from Simple Icons CDN; if no official mark exists, use the UI's fallback star.
+    // Use recognizable provider/family logos when a matching official mark is available.
+    // The UI always retains an initials fallback if a remote logo is blocked or missing.
     const brandMap = [
-      [/\bllama\b|meta-llama|\bmeta\b/, 'meta'], [/\bqwen\b|alibaba/, 'alibabadotcom'],
-      [/\bgemma\b|\bgemini\b|google/, 'google'], [/\bmistral\b|mixtral/, 'mistralai'],
-      [/deepseek/, 'deepseek'], [/\bphi\b|microsoft/, 'microsoft'], [/\bgranite\b|ibm/, 'ibm'],
-      [/\bcommand-r\b|cohere/, 'cohere'], [/\bopenai\b|gpt-oss/, 'openai'],
-      [/\bclaude\b|anthropic/, 'anthropic'], [/\bglm\b|zhipu/, 'zhipu'],
-      [/\bmoonshot\b|\bkimi\b/, 'moonshot'], [/\bminimax\b/, 'minimax'],
-      [/pollinations/, 'pollinations'], [/murakumo/, '']
+      [/\bllama\b|meta-llama|\bmeta\b/, 'meta'],
+      [/\bqwen\b|alibaba/, 'alibabadotcom'],
+      [/\bgemma\b|\bgemini\b|google/, 'google'],
+      [/\bmistral\b|mixtral/, 'mistralai'],
+      [/deepseek/, 'deepseek'],
+      [/\bphi\b|microsoft/, 'microsoft'],
+      [/\bgranite\b|ibm/, 'ibm'],
+      [/\bcommand-r\b|cohere/, 'cohere'],
+      [/\bgpt-oss\b|openai/, 'openai'],
+      [/\bclaude\b|anthropic/, 'anthropic'],
+      [/\bglm\b|zhipu/, 'zhipu'],
+      [/\bmoonshot\b|\bkimi\b/, 'moonshot'],
+      [/\bminimax\b/, 'minimax']
     ];
     const match = brandMap.find(([re]) => re.test(identity));
     return match && match[1] ? `https://cdn.simpleicons.org/${match[1]}` : '';
@@ -2860,15 +2883,15 @@
     const quick = FREE_ROUTE_OPTIONS.filter(item => !term || `${item.name} ${item.meta} ${item.search}`.toLowerCase().includes(term));
     const murakumoModels = MURAKUMO_CATALOG.filter(item => item.id !== 'murakumo/free' && (!term || item.search.includes(term) || item.name.toLowerCase().includes(term)));
     const pollinationsModels = POLLINATIONS_CATALOG.filter(item => !term || item.search.includes(term) || item.name.toLowerCase().includes(term));
-    const openModels = FREE_CATALOG.filter(item => !term || item.search.includes(term) || item.name.toLowerCase().includes(term));
     let html = '';
     const row = item => {
       const active = selectedKey === item.key;
-      const mark = escapeHtml(item.mark || 'AI');
+      const mark = escapeHtml(item.mark || String(item.name || 'AI').split(/[\s:/-]+/).filter(Boolean).slice(0,2).map(x => x[0]).join('').toUpperCase() || 'AI');
       const iconUrl = getFreeModelIcon(item);
-      return `<div class="model-option free-model-option${active ? ' active' : ''}" role="option" tabindex="0" aria-selected="${active}" data-free-key="${escapeHtml(item.key)}" style="--glow-gradient:linear-gradient(120deg,rgba(118,214,162,.7),rgba(95,170,231,.6),rgba(118,214,162,.7))">
-        <div class="model-option-left">${iconUrl ? `<img class="free-model-mark free-model-image" src="${escapeHtml(iconUrl)}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<div class="free-model-mark" aria-hidden="true">${mark}</div>`}<div class="model-option-info"><span class="model-option-name">${escapeHtml(item.name)}</span><span class="model-option-meta">${escapeHtml(item.meta)}</span></div></div>
-        <div class="model-status-icon">${active ? '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 4 4L19 6"/></svg>' : ''}</div>
+      const iconHtml = `<span class="free-model-icon-wrap"><span class="free-model-mark free-model-initials" aria-hidden="true">${mark}</span>${iconUrl ? `<img class="free-model-mark free-model-image" src="${escapeHtml(iconUrl)}" alt="" loading="lazy" onerror="this.remove()">` : ''}</span>`;
+      return `<div class="model-option free-model-option${active ? ' active' : ''}" role="option" tabindex="0" aria-selected="${active}" data-free-key="${escapeHtml(item.key)}">
+        <div class="model-option-left">${iconHtml}<div class="model-option-info"><span class="model-option-name">${escapeHtml(item.name)}</span><span class="model-option-meta">${escapeHtml(item.meta)}</span></div></div>
+        <div class="model-status-icon">${active ? '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>' : ''}</div>
       </div>`;
     };
     if (!term || 'use kie current model default provider kie'.includes(term)) {
@@ -2882,7 +2905,7 @@
       html += murakumoModels.slice(0, 80).map(row).join('');
       html += pollinationsModels.slice(0, 120).map(row).join('');
     }
-    if (!quick.length && !pollinationsModels.length && !murakumoModels.length && !openModels.length && !html) html = '<div class="free-empty-state">No matching models. Try a different search.</div>';
+    if (!quick.length && !pollinationsModels.length && !murakumoModels.length && !html) html = '<div class="free-empty-state">No matching models. Try a different search.</div>';
     freeModelOptions.innerHTML = html;
     freeModelOptions.querySelectorAll('[data-free-key]').forEach(el => {
       const choose = () => {
@@ -2916,6 +2939,18 @@
   function updateFreeModelButton() {
     const selected = state.freeModel;
     currentFreeModelName.textContent = selected ? selected.name : 'Free models';
+    if (currentFreeModelIcon) {
+      currentFreeModelIcon.innerHTML = '';
+      if (selected) {
+        const logo = getFreeModelIcon(selected);
+        const initials = String(selected.mark || selected.name || 'AI').split(/[\s:/-]+/).filter(Boolean).slice(0,2).map(x => x[0]).join('').toUpperCase() || 'AI';
+        currentFreeModelIcon.textContent = initials;
+        if (logo) {
+          const img = document.createElement('img'); img.src = logo; img.alt = ''; img.onerror = () => img.remove();
+          currentFreeModelIcon.appendChild(img);
+        }
+      } else currentFreeModelIcon.textContent = 'AI';
+    }
     freeModelBtn.classList.toggle('has-selection', Boolean(selected));
     freeModelBtn.title = selected ? `Active in Simple Chat: ${selected.name}` : 'Optional free open-weight models; choose one to override Kie.ai in Simple Chat';
     renderFreeModelOptions();
@@ -2935,7 +2970,7 @@
   }
   function updateOpenRouterKeyStatus() {
     const hasKey = Boolean(getOpenRouterKey());
-    if (openRouterKeyStatus) openRouterKeyStatus.textContent = 'No API key or sign-in for supported free routes';
+    if (openRouterKeyStatus) openRouterKeyStatus.textContent = 'No API key or sign-in required for these routes';
     if (configureOpenRouterKeyBtn) configureOpenRouterKeyBtn.textContent = hasKey ? 'Manage key' : 'Add OpenRouter key';
   }
   function configureOpenRouterKey() {
@@ -3061,7 +3096,7 @@
   });
   freeModelDropdown.addEventListener('click', e => e.stopPropagation());
   freeModelSearch.addEventListener('input', renderFreeModelOptions);
-  refreshFreeModelsBtn.addEventListener('click', e => { e.stopPropagation(); loadFreeModelCatalog(true); loadMurakumoCatalog(true); });
+  refreshFreeModelsBtn.addEventListener('click', e => { e.stopPropagation(); loadMurakumoCatalog(true); loadPollinationsCatalog(true); });
   if (configureOpenRouterKeyBtn) configureOpenRouterKeyBtn.addEventListener('click', e => { e.stopPropagation(); configureOpenRouterKey(); });
   document.addEventListener('click', (e) => {
     if (!modelDropdown.contains(e.target) && !modelBtn.contains(e.target)) {
@@ -3825,7 +3860,7 @@
     restoreFreeModelChoice();
     // External catalog loading is non-blocking and must never prevent the Kie.ai chat from booting.
     loadMurakumoCatalog(true).catch(err => console.warn('[LocalMind] No-key catalog startup failed:', err));
-    loadPollinationsCatalog(true).catch(err => console.warn('[LocalMind] Pollinations catalog startup failed:', err));
+    loadPollinationsCatalog().catch(err => console.warn('[LocalMind] Pollinations catalog startup failed:', err));
     chatInput.focus();
     updateSendBtn();
   }
