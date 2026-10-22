@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="120" viewBox="0 0 800 120" role="img" aria-label="Prompt Bar Animation">
+  <title>Agent Workspace Prompt</title>
+
+  <defs>
+    <!-- Clip path to reveal the typed text smoothly -->
+    <clipPath id="typeClip">
+      <rect x="30" y="35" width="0" height="50">
+        <animate 
+          attributeName="width" 
+          values="0; 0; 0; 130; 130; 130; 130; 0" 
+          keyTimes="0; 0.15; 0.25; 0.55; 0.65; 0.75; 0.85; 1" 
+          dur="8s" repeatCount="indefinite" />
+      </rect>
+    </clipPath>
+  </defs>
+
+  <!-- Prompt Bar Background -->
+  <rect x="10" y="10" width="780" height="100" rx="16" fill="#222222" stroke="#d96b4a" stroke-width="1.5" opacity="0.9" />
+
+  <!-- Placeholder Text -->
+  <text x="30" y="68" fill="#777777" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="300">
+    Describe what to build...
+    <animate attributeName="opacity" values="1; 1; 0; 0" keyTimes="0; 0.2; 0.25; 1" dur="8s" repeatCount="indefinite" />
+  </text>
+
+  <!-- Animated Typed Text -->
+  <g clip-path="url(#typeClip)">
+    <text x="30" y="68" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="400">hello chat</text>
+    <!-- Blinking terracotta caret -->
+    <rect x="128" y="45" width="2" height="24" fill="#d96b4a">
+      <animate attributeName="opacity" values="1; 1; 0; 0; 1; 1" keyTimes="0; 0.25; 0.3; 0.55; 0.6; 1" dur="8s" repeatCount="indefinite" />
+    </rect>
+  </g>
+
+  <!-- Mouse Cursor -->
+  <g>
+    <!-- Move to the box, wait, then move away -->
+    <animateTransform 
+      attributeName="transform" 
+      type="translate" 
+      values="800,60; 300,60; 300,60; 300,60; 800,60" 
+      keyTimes="0; 0.15; 0.8; 0.9; 1" 
+      dur="8s" repeatCount="indefinite" />
+    
+    <!-- Clicking effect (scaling down and up) -->
+    <g>
+      <animateTransform 
+        attributeName="transform" 
+        type="scale" 
+        values="1; 1; 0.8; 1; 1" 
+        keyTimes="0; 0.18; 0.2; 0.22; 1" 
+        dur="8s" repeatCount="indefinite" />
+      
+      <!-- SVG Mouse Pointer -->
+      <path d="M0,0 L0,22 L6,16 L12,28 L17,25 L11,13 L22,13 Z" fill="#ffffff" stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+    </g>
+  </g>
+</svg>
