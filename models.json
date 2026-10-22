@@ -58,7 +58,7 @@
       "endpoint": "https://api.kie.ai/gemini/v1/models/gemini-3-7-flash:streamGenerateContent",
       "apiType": "gemini-native",
       "reasoning": {
-        "type": "pills",
+        "type": "pixel-fire",
         "options": [
           { "value": "low", "label": "Low" },
           { "value": "medium", "label": "Medium" },
