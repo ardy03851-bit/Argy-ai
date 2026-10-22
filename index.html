@@ -1385,6 +1385,7 @@
   .free-model-option::before { background: linear-gradient(120deg, rgba(118,214,162,.7), rgba(95,170,231,.6), rgba(118,214,162,.7)); }
   .free-model-option:hover { background: rgba(255,255,255,.035); }
   .free-model-option .free-model-mark { display: flex; justify-content: center; align-items: center; width: 27px; height: 27px; border-radius: 8px; flex: 0 0 27px; background: linear-gradient(145deg, rgba(118,214,162,.20), rgba(95,170,231,.16)); color: #a9e9c3; border: 1px solid rgba(118,214,162,.18); font-size: 10px; font-weight: 700; letter-spacing: -.04em; }
+  .free-model-option .free-model-image { object-fit: contain; padding: 5px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); }
   .free-model-option .model-option-name { max-width: 265px; }
   .free-model-option .model-option-meta { white-space: normal; line-height: 1.35; }
   .free-model-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid rgba(255,255,255,.08); margin-top: 7px; padding: 10px 4px 3px; color: var(--text-muted); font-size: 10px; line-height: 1.35; }
@@ -1398,6 +1399,26 @@
   #currentFreeModelName { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .free-model-btn { min-width: 0; }
   .free-model-btn .chevron-icon { width: 12px; height: 12px; }
+
+
+  /* ── Argy Pixel Fire reasoning control (reasoning.type: "pixel-fire") ── */
+  .pixel-fire-slider-wrapper{position:relative;isolation:isolate;display:flex;align-items:center;width:clamp(190px,25vw,252px);height:48px;padding:0 8px;user-select:none;-webkit-user-select:none;overflow:visible}
+  .pixel-fire-stage{position:absolute;inset:4px 0;border-radius:12px;overflow:hidden;isolation:isolate;background:linear-gradient(180deg,#0b1117,#12191d);border:1px solid rgba(180,210,220,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 5px 18px rgba(0,0,0,.24)}
+  .pixel-fire-grid{position:absolute;inset:-8px;display:grid;grid-template-columns:repeat(32,minmax(0,1fr));grid-template-rows:repeat(7,minmax(0,1fr));gap:2px;clip-path:inset(0 round 10px);filter:blur(.25px);opacity:.86}
+  .pixel-fire-cell{background:rgba(95,125,137,.045);border-radius:1px;animation:pixelEmber var(--dur,2.4s) ease-in-out var(--delay,0s) infinite alternate;opacity:var(--peak,.5);transform:translateY(0) scale(.94)}
+  .pixel-fire-cell.hot{background:linear-gradient(180deg,rgba(255,223,165,.8),rgba(245,125,72,.55));box-shadow:0 0 7px rgba(245,125,72,.26)}
+  .pixel-fire-blur{position:absolute;inset:-8px;pointer-events:none;background:linear-gradient(90deg,rgba(240,113,65,.30),rgba(241,154,96,.11) 35%,rgba(87,174,190,.07) 70%,rgba(12,18,23,.18));filter:blur(11px);transform:scale(1.08);opacity:.92}
+  .pixel-fire-glass{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.055),transparent 40%,rgba(0,0,0,.18));backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+  .pixel-fire-fill{position:absolute;left:0;top:0;bottom:0;width:calc(16px + (100% - 32px)*var(--pct,.5));background:linear-gradient(90deg,rgba(180,76,48,.1),rgba(235,115,66,.12),rgba(255,208,145,.15));border-right:1px solid rgba(255,210,165,.38);transition:width .16s ease;pointer-events:none}
+  .pixel-fire-bubble{position:absolute;z-index:4;left:50%;top:-7px;transform:translate(-50%,-100%);font-size:10px;line-height:1;padding:5px 8px;border-radius:7px;background:rgba(17,21,25,.92);border:1px solid rgba(255,208,165,.23);color:#f0d5bd;white-space:nowrap;box-shadow:0 5px 16px rgba(0,0,0,.25);pointer-events:none}
+  .pixel-fire-range{position:relative;z-index:3;width:100%;height:40px;margin:0;background:transparent;appearance:none;-webkit-appearance:none;outline:none;cursor:ew-resize}
+  .pixel-fire-range::-webkit-slider-runnable-track{height:28px;background:transparent}
+  .pixel-fire-range::-moz-range-track{height:28px;background:transparent}
+  .pixel-fire-range::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:15px;height:25px;margin-top:1px;border-radius:4px;border:1px solid rgba(255,237,215,.82);background:linear-gradient(180deg,#fff0d6,#d5a98b 55%,#7f6254);box-shadow:0 0 0 3px rgba(255,176,117,.10),0 2px 9px rgba(0,0,0,.65),0 0 13px rgba(239,130,77,.3)}
+  .pixel-fire-range::-moz-range-thumb{width:13px;height:23px;border-radius:4px;border:1px solid rgba(255,237,215,.82);background:linear-gradient(180deg,#fff0d6,#d5a98b 55%,#7f6254);box-shadow:0 0 0 3px rgba(255,176,117,.10),0 2px 9px rgba(0,0,0,.65),0 0 13px rgba(239,130,77,.3)}
+  .pixel-fire-slider-wrapper.dragging .pixel-fire-stage{border-color:rgba(255,190,142,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 18px rgba(227,111,67,.10)}
+  @keyframes pixelEmber{0%{opacity:.08;transform:translateY(2px) scale(.82);filter:brightness(.55)}35%{opacity:var(--peak,.5)}65%{opacity:.16;transform:translateY(-1px) scale(1.02);filter:brightness(1.15)}100%{opacity:var(--peak,.5);transform:translateY(0) scale(.9)}}
+  @media(prefers-reduced-motion:reduce){.pixel-fire-cell{animation:none!important;opacity:.22}.pixel-fire-fill{transition:none}}
 
   /* Make interactions feel grounded and consistent without removing existing motion. */
   button, .model-option { -webkit-tap-highlight-color: transparent; }
@@ -1504,8 +1525,7 @@
               <div id="freeModelStatus" class="free-model-status" role="status" aria-live="polite">Loading free model catalog…</div>
               <div id="freeModelOptions" class="free-model-options"></div>
               <div class="free-model-footer">
-                <span id="openRouterKeyStatus">No key needed for Murakumo models</span>
-                <button id="configureOpenRouterKeyBtn" type="button" class="free-key-btn">Add OpenRouter key</button>
+                <span id="openRouterKeyStatus">No API key or sign-in for supported free routes</span>
               </div>
             </div>
           </div>
@@ -1757,6 +1777,8 @@
     if (hasNewFormat) {
       type = r.type || 'pills';
       if (type === 'none') return null;
+      // Argy family gets its own pixel-fire slider; Claude keeps its original metallic slider.
+      if (['argy', 'argy2', 'argy3'].includes(config.key)) type = 'pixel-fire';
       options = r.options.map(opt => {
         if (typeof opt === 'string') {
           return { value: opt, label: opt.charAt(0).toUpperCase() + opt.slice(1) };
@@ -1896,33 +1918,48 @@
     }
     state.reasoning = defaultReasoning;
 
-    if (r.type === 'slider') {
+    if (r.type === 'slider' || r.type === 'pixel-fire') {
+      const isPixelFire = r.type === 'pixel-fire';
       const values = r.options.map(o => o.value);
       const labels = r.options.map(o => o.label);
       const maxIdx = values.length - 1;
       const initialIdx = Math.max(0, values.indexOf(defaultReasoning));
 
       const wrapper = document.createElement('div');
-      wrapper.className = 'claude-slider-wrapper';
+      wrapper.className = isPixelFire ? 'pixel-fire-slider-wrapper' : 'claude-slider-wrapper';
       const ticksHtml = values.map(() => '<span></span>').join('');
-      wrapper.innerHTML =
-        '<div class="claude-level-bubble">' + escapeHtml(labels[initialIdx]) + '</div>' +
-        '<div class="claude-slider-track">' +
-          '<div class="claude-slider-fill"></div>' +
-          '<div class="claude-slider-ticks">' + ticksHtml + '</div>' +
-        '</div>' +
-        '<input type="range" class="claude-slider" min="0" max="' + maxIdx + '" step="1" value="' + initialIdx + '" aria-label="Reasoning effort">';
+      if (isPixelFire) {
+        let cells = '';
+        for (let i = 0; i < 224; i++) {
+          const edge = i % 32;
+          const peak = Math.max(.08, .64 - edge / 58 + Math.random() * .2);
+          const delay = (Math.random() * -3.5).toFixed(2) + 's';
+          const dur = (1.2 + Math.random() * 2.2).toFixed(2) + 's';
+          const hot = Math.random() > .76 && edge < 18 ? ' hot' : '';
+          cells += '<i class="pixel-fire-cell' + hot + '" style="--peak:' + peak.toFixed(2) + ';--delay:' + delay + ';--dur:' + dur + '"></i>';
+        }
+        wrapper.innerHTML = '<div class="pixel-fire-bubble">' + escapeHtml(labels[initialIdx]) + '</div>' +
+          '<div class="pixel-fire-stage" aria-hidden="true"><div class="pixel-fire-grid">' + cells + '</div><div class="pixel-fire-blur"></div><div class="pixel-fire-fill"></div><div class="pixel-fire-glass"></div></div>' +
+          '<input type="range" class="pixel-fire-range" min="0" max="' + maxIdx + '" step="1" value="' + initialIdx + '" aria-label="Argy thinking effort">';
+      } else {
+        wrapper.innerHTML = '<div class="claude-level-bubble">' + escapeHtml(labels[initialIdx]) + '</div>' +
+          '<div class="claude-slider-track"><div class="claude-slider-fill"></div><div class="claude-slider-ticks">' + ticksHtml + '</div></div>' +
+          '<input type="range" class="claude-slider" min="0" max="' + maxIdx + '" step="1" value="' + initialIdx + '" aria-label="Reasoning effort">';
+      }
 
       const slider = wrapper.querySelector('.claude-slider');
-      const bubble = wrapper.querySelector('.claude-level-bubble');
+      const bubble = wrapper.querySelector(isPixelFire ? '.pixel-fire-bubble' : '.claude-level-bubble');
       const tickEls = Array.from(wrapper.querySelectorAll('.claude-slider-ticks span'));
+      const fill = wrapper.querySelector(isPixelFire ? '.pixel-fire-fill' : '.claude-slider-fill');
 
       const applySlider = (idx, pop) => {
         const pct = maxIdx > 0 ? idx / maxIdx : 0;
         wrapper.style.setProperty('--pct', pct);
-        bubble.style.left = 'calc(10px + (100% - 20px) * ' + pct + ')';
+        if (!isPixelFire) bubble.style.left = 'calc(10px + (100% - 20px) * ' + pct + ')';
+        else bubble.style.left = 'calc(8px + (100% - 16px) * ' + pct + ')';
         bubble.textContent = labels[idx];
         tickEls.forEach((t, i) => t.classList.toggle('active', i <= idx));
+        if (isPixelFire && fill) fill.style.width = 'calc(16px + (100% - 32px) * ' + pct + ')';
         state.reasoning = values[idx];
         if (pop) {
           try {
@@ -2478,13 +2515,16 @@
     avatarEl.className = 'msg-avatar';
     const fallbackSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg>';
     const config = MODEL_CONFIG[state.model];
+    const activeFree = state.mode === 'simple' ? state.freeModel : null;
+    const modelName = activeFree ? activeFree.name : (config ? config.name : 'Model');
+    const modelIcon = activeFree ? (getFreeModelIcon(activeFree) || '') : ((config && config.icon) || state.currentModelAvatar || '');
 
     const imgEl = document.createElement('img');
-    imgEl.alt = 'Model';
-    imgEl.src = state.currentModelAvatar || (config && config.icon) || '';
+    imgEl.alt = modelName + ' icon';
+    imgEl.src = modelIcon || '';
     let swapped = false;
     imgEl.addEventListener('error', function () {
-      if (!swapped && config && config.iconFallback) {
+      if (!swapped && !activeFree && config && config.iconFallback) {
         swapped = true;
         imgEl.src = config.iconFallback;
       } else {
@@ -2495,7 +2535,6 @@
 
     const bubbleEl = document.createElement('div');
     bubbleEl.className = 'bubble';
-    const modelName = config ? config.name : 'Model';
     bubbleEl.innerHTML = `
       <div class="waiting-indicator">
         <div class="spinner"></div>
@@ -2742,19 +2781,93 @@
       return record;
     } catch (err) { return null; }
   }
+  function getFreeModelIcon(model) {
+    if (!model) return '';
+    if (model.icon) return model.icon;
+    const identity = `${model.id || ''} ${model.name || ''}`.toLowerCase();
+    // Provider/family marks from Simple Icons CDN; if no official mark exists, use the UI's fallback star.
+    const brandMap = [
+      [/\bllama\b|meta-llama|\bmeta\b/, 'meta'], [/\bqwen\b|alibaba/, 'alibabadotcom'],
+      [/\bgemma\b|\bgemini\b|google/, 'google'], [/\bmistral\b|mixtral/, 'mistralai'],
+      [/deepseek/, 'deepseek'], [/\bphi\b|microsoft/, 'microsoft'], [/\bgranite\b|ibm/, 'ibm'],
+      [/\bcommand-r\b|cohere/, 'cohere'], [/\bopenai\b|gpt-oss/, 'openai'],
+      [/\bclaude\b|anthropic/, 'anthropic'], [/\bglm\b|zhipu/, 'zhipu'],
+      [/\bmoonshot\b|\bkimi\b/, 'moonshot'], [/\bminimax\b/, 'minimax'],
+      [/pollinations/, 'pollinations'], [/murakumo/, '']
+    ];
+    const match = brandMap.find(([re]) => re.test(identity));
+    return match && match[1] ? `https://cdn.simpleicons.org/${match[1]}` : '';
+  }
+  function normalizePollinationsModels(payload) {
+    const rows = Array.isArray(payload) ? payload : (payload && Array.isArray(payload.data) ? payload.data : []);
+    const seen = new Set(); const out = [];
+    for (const m of rows) {
+      const id = typeof m === 'string' ? m : m && (m.id || m.name);
+      if (typeof id !== 'string' || !id.trim() || seen.has(id)) continue;
+      const row = typeof m === 'string' ? { id } : m;
+      const price = row.pricing || row.prices || {};
+      const cost = Number(price.prompt ?? row.input_price ?? row.prompt_price ?? 0) + Number(price.completion ?? row.output_price ?? row.completion_price ?? 0);
+      const hasPricing = row.pricing || row.prices || row.input_price !== undefined || row.prompt_price !== undefined;
+      // This is the legacy no-account endpoint. Only show entries whose catalog metadata indicates free/zero-priced,
+      // or when the legacy catalog doesn't expose pricing at all.
+      if (hasPricing && cost > 0) continue;
+      if (row.type && !/text|chat|language/i.test(String(row.type))) continue;
+      const name = String(row.name || row.description || id);
+      out.push({ key: `pollinations:${id}`, provider: 'pollinations', id, name,
+        meta: 'Pollinations · no sign-in · shared free service', mark: 'P',
+        icon: getFreeModelIcon({ id, name }), search: `${id} ${name} ${row.description || ''} pollinations no key free`.toLowerCase(),
+        contextLength: row.context_length || null });
+      seen.add(id);
+    }
+    return out.sort((a,b)=>a.name.localeCompare(b.name));
+  }
+  let POLLINATIONS_CATALOG = [];
+  let POLLINATIONS_LOADING = false;
+  const POLLINATIONS_CACHE_KEY = 'localmind.pollinationsNoKeyCatalog.v1';
+  async function loadPollinationsCatalog(force = false) {
+    if (POLLINATIONS_LOADING) return;
+    POLLINATIONS_LOADING = true;
+    try {
+      const cached = JSON.parse(safeStorageGet(POLLINATIONS_CACHE_KEY) || 'null');
+      if (!force && cached && Array.isArray(cached.models) && Date.now() - Number(cached.savedAt || 0) < 5 * 60 * 1000) {
+        POLLINATIONS_CATALOG = cached.models; renderFreeModelOptions();
+      }
+      const controller = new AbortController(); const timeout = setTimeout(()=>controller.abort(), 9000);
+      try {
+        const res = await fetch('https://text.pollinations.ai/models', { cache: 'no-store', signal: controller.signal, headers: { Accept: 'application/json' } });
+        if (!res.ok) throw new Error(`Pollinations catalog HTTP ${res.status}`);
+        const models = normalizePollinationsModels(await res.json());
+        if (!models.length) throw new Error('No compatible no-key text models returned');
+        POLLINATIONS_CATALOG = models;
+        safeStorageSet(POLLINATIONS_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), models }));
+        renderFreeModelOptions();
+        setFreeStatus(`Live catalogs: ${POLLINATIONS_CATALOG.length} Pollinations no-key models and ${MURAKUMO_CATALOG.length} Murakumo models. Shared services can be busy or change availability.`);
+        if (!state.freeModel) restoreFreeModelChoice();
+      } finally { clearTimeout(timeout); }
+    } catch (err) {
+      console.warn('[LocalMind] Pollinations no-key catalog unavailable:', err);
+      if (!POLLINATIONS_CATALOG.length) {
+        try { const c = JSON.parse(safeStorageGet(POLLINATIONS_CACHE_KEY) || 'null'); if (c && Array.isArray(c.models)) POLLINATIONS_CATALOG = c.models; } catch (_) {}
+      }
+      renderFreeModelOptions();
+    } finally { POLLINATIONS_LOADING = false; }
+  }
+
   function renderFreeModelOptions() {
     if (!freeModelOptions) return;
     const term = (freeModelSearch && freeModelSearch.value || '').trim().toLowerCase();
     const selectedKey = state.freeModel && state.freeModel.key;
     const quick = FREE_ROUTE_OPTIONS.filter(item => !term || `${item.name} ${item.meta} ${item.search}`.toLowerCase().includes(term));
     const murakumoModels = MURAKUMO_CATALOG.filter(item => item.id !== 'murakumo/free' && (!term || item.search.includes(term) || item.name.toLowerCase().includes(term)));
+    const pollinationsModels = POLLINATIONS_CATALOG.filter(item => !term || item.search.includes(term) || item.name.toLowerCase().includes(term));
     const openModels = FREE_CATALOG.filter(item => !term || item.search.includes(term) || item.name.toLowerCase().includes(term));
     let html = '';
     const row = item => {
       const active = selectedKey === item.key;
       const mark = escapeHtml(item.mark || 'AI');
+      const iconUrl = getFreeModelIcon(item);
       return `<div class="model-option free-model-option${active ? ' active' : ''}" role="option" tabindex="0" aria-selected="${active}" data-free-key="${escapeHtml(item.key)}" style="--glow-gradient:linear-gradient(120deg,rgba(118,214,162,.7),rgba(95,170,231,.6),rgba(118,214,162,.7))">
-        <div class="model-option-left"><div class="free-model-mark" aria-hidden="true">${mark}</div><div class="model-option-info"><span class="model-option-name">${escapeHtml(item.name)}</span><span class="model-option-meta">${escapeHtml(item.meta)}</span></div></div>
+        <div class="model-option-left">${iconUrl ? `<img class="free-model-mark free-model-image" src="${escapeHtml(iconUrl)}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<div class="free-model-mark" aria-hidden="true">${mark}</div>`}<div class="model-option-info"><span class="model-option-name">${escapeHtml(item.name)}</span><span class="model-option-meta">${escapeHtml(item.meta)}</span></div></div>
         <div class="model-status-icon">${active ? '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 4 4L19 6"/></svg>' : ''}</div>
       </div>`;
     };
@@ -2763,16 +2876,13 @@
       const keep = { key: 'use-kie-model', provider: 'kie', id: '', name: 'Use current model selection', meta: 'Keep using your existing Kie.ai model', mark: '↩', search: 'kie current existing default' };
       html += row(keep);
     }
-    if (quick.length || murakumoModels.length) {
-      html += `<div class="free-model-section-title">Free models · no key (${quick.length + murakumoModels.length})</div>`;
+    if (quick.length || murakumoModels.length || pollinationsModels.length) {
+      html += `<div class="free-model-section-title">Free models · no key (${quick.length + murakumoModels.length + pollinationsModels.length})</div>`;
       html += quick.map(row).join('');
       html += murakumoModels.slice(0, 80).map(row).join('');
+      html += pollinationsModels.slice(0, 120).map(row).join('');
     }
-    if (openModels.length) {
-      html += `<div class="free-model-section-title">Live OpenRouter free open-weight models (${openModels.length})</div>`;
-      html += openModels.slice(0, 100).map(row).join('');
-    }
-    if (!quick.length && !openModels.length && !html) html = '<div class="free-empty-state">No matching models. Try a different search.</div>';
+    if (!quick.length && !pollinationsModels.length && !murakumoModels.length && !openModels.length && !html) html = '<div class="free-empty-state">No matching models. Try a different search.</div>';
     freeModelOptions.innerHTML = html;
     freeModelOptions.querySelectorAll('[data-free-key]').forEach(el => {
       const choose = () => {
@@ -2781,7 +2891,7 @@
           setFreeModelChoice(null);
           return;
         }
-        const item = FREE_ROUTE_OPTIONS.find(x => x.key === key) || MURAKUMO_CATALOG.find(x => x.key === key) || FREE_CATALOG.find(x => x.key === key);
+        const item = FREE_ROUTE_OPTIONS.find(x => x.key === key) || MURAKUMO_CATALOG.find(x => x.key === key) || POLLINATIONS_CATALOG.find(x => x.key === key) || FREE_CATALOG.find(x => x.key === key);
         if (!item) return;
         if (item.provider === 'openrouter' && !getOpenRouterKey()) {
           const saved = prompt('OpenRouter free models require a free OpenRouter API key. Create one at openrouter.ai/settings/keys, then paste it here. The key is stored only in this browser on this device.\n\nPaste your OpenRouter API key:');
@@ -2819,12 +2929,13 @@
     freeModelBtn.setAttribute('aria-expanded', 'false');
     if (!model) setFreeStatus('Using the model selected in the Kie.ai menu.');
     else if (model.provider === 'murakumo') setFreeStatus('Ready. This no-key open-model service has limited shared capacity; model availability can change.');
+    else if (model.provider === 'pollinations') setFreeStatus('Ready. Pollinations legacy free endpoint; shared capacity, model availability and rate limits can change.');
     else setFreeStatus('Ready. This free model uses OpenRouter; availability and free-tier limits vary by provider.');
     updateOpenRouterKeyStatus();
   }
   function updateOpenRouterKeyStatus() {
     const hasKey = Boolean(getOpenRouterKey());
-    if (openRouterKeyStatus) openRouterKeyStatus.textContent = hasKey ? 'OpenRouter key saved in this browser' : 'No key needed for Murakumo models';
+    if (openRouterKeyStatus) openRouterKeyStatus.textContent = 'No API key or sign-in for supported free routes';
     if (configureOpenRouterKeyBtn) configureOpenRouterKeyBtn.textContent = hasKey ? 'Manage key' : 'Add OpenRouter key';
   }
   function configureOpenRouterKey() {
@@ -2899,6 +3010,10 @@
       provider: 'murakumo', id: model.id, name: model.name,
       endpoint: 'https://api.murakumo.cloud/v1/chat/completions', apiType: 'openai-chat', includeInstructions: true
     };
+    if (model.provider === 'pollinations') return {
+      provider: 'pollinations', id: model.id, name: model.name,
+      endpoint: 'https://text.pollinations.ai/openai', apiType: 'openai-chat', includeInstructions: true
+    };
     if (model.provider === 'openrouter') return {
       provider: 'openrouter', id: model.id, name: model.name,
       endpoint: 'https://openrouter.ai/api/v1/chat/completions', apiType: 'openai-chat', includeInstructions: true
@@ -2911,11 +3026,9 @@
       if (!saved) return;
       const quick = FREE_ROUTE_OPTIONS.find(x => x.key === saved.key || (x.provider === saved.provider && x.id === saved.id));
       const murakumo = MURAKUMO_CATALOG.find(x => x.key === saved.key || (x.provider === saved.provider && x.id === saved.id));
-      if (quick || murakumo) setFreeModelChoice(quick || murakumo);
-      else if (saved.provider === 'openrouter') {
-        const item = FREE_CATALOG.find(x => x.id === saved.id);
-        if (item) setFreeModelChoice(item);
-      }
+      const pollinations = POLLINATIONS_CATALOG.find(x => x.key === saved.key || (x.provider === saved.provider && x.id === saved.id));
+      if (quick || murakumo || pollinations) setFreeModelChoice(quick || murakumo || pollinations);
+      else if (saved.provider === 'openrouter') safeStorageSet(FREE_MODEL_SELECTION_KEY, null);
     } catch (err) {}
   }
 
@@ -2941,15 +3054,15 @@
     freeModelBtn.setAttribute('aria-expanded', String(isActive));
     if (isActive) {
       renderFreeModelOptions();
-      if (!FREE_CATALOG.length) loadFreeModelCatalog();
       if (!MURAKUMO_CATALOG.length) loadMurakumoCatalog();
+      if (!POLLINATIONS_CATALOG.length) loadPollinationsCatalog(true);
       freeModelSearch.focus({ preventScroll: true });
     }
   });
   freeModelDropdown.addEventListener('click', e => e.stopPropagation());
   freeModelSearch.addEventListener('input', renderFreeModelOptions);
   refreshFreeModelsBtn.addEventListener('click', e => { e.stopPropagation(); loadFreeModelCatalog(true); loadMurakumoCatalog(true); });
-  configureOpenRouterKeyBtn.addEventListener('click', e => { e.stopPropagation(); configureOpenRouterKey(); });
+  if (configureOpenRouterKeyBtn) configureOpenRouterKeyBtn.addEventListener('click', e => { e.stopPropagation(); configureOpenRouterKey(); });
   document.addEventListener('click', (e) => {
     if (!modelDropdown.contains(e.target) && !modelBtn.contains(e.target)) {
       modelDropdown.classList.remove('active');
@@ -3257,7 +3370,7 @@
     const systemPrompt = getSystemPrompt(config);
 
     // The free-model routes use a separate provider and must never inherit Kie.ai credentials.
-    if (config.provider === 'murakumo' || config.provider === 'openrouter') {
+    if (config.provider === 'murakumo' || config.provider === 'openrouter' || config.provider === 'pollinations') {
       const remoteMessages = [];
       if (systemPrompt) remoteMessages.push({ role: 'system', content: systemPrompt });
       const sourceMessages = JSON.parse(JSON.stringify(messages));
@@ -3288,6 +3401,7 @@
         headers['X-Title'] = 'LocalMind';
       }
       const body = { model: config.id, messages: remoteMessages, stream, temperature: 0.7, max_tokens: config.provider === 'murakumo' ? 2048 : 4096 };
+      if (config.provider === 'pollinations') { body.private = true; body.stream = stream; }
       const res = await fetch(endpoint, {
         method: 'POST', headers, body: JSON.stringify(body),
         signal: state.abortController ? state.abortController.signal : undefined
@@ -3299,7 +3413,7 @@
         if (stream && res.status >= 400 && res.status < 500 && /stream/i.test(details)) {
           return fetchModelResponse(config, messages, reasoning, attachments, { stream: false });
         }
-        if (res.status === 401 || res.status === 403) throw new Error(config.provider === 'openrouter' ? `OpenRouter rejected the request (HTTP ${res.status}). Check the saved key, or choose a no-key Murakumo model. ${details}` : `The no-key open-model provider rejected the request (HTTP ${res.status}). Try another model or refresh its catalog. ${details}`);
+        if (res.status === 401 || res.status === 403) throw new Error(config.provider === 'openrouter' ? `OpenRouter rejected the request (HTTP ${res.status}). Check the saved key, or choose a no-key model. ${details}` : `The no-key open-model provider rejected the request (HTTP ${res.status}). Try another model or refresh its catalog. ${details}`);
         if (res.status === 429) throw new Error(`The free provider is rate-limited right now. Wait a little or choose another free route. ${details}`);
         throw new Error(`Free provider HTTP ${res.status}: ${details}`);
       }
@@ -3710,8 +3824,8 @@
     updateOpenRouterKeyStatus();
     restoreFreeModelChoice();
     // External catalog loading is non-blocking and must never prevent the Kie.ai chat from booting.
-    loadFreeModelCatalog().catch(err => console.warn('[LocalMind] Free catalog startup failed:', err));
-    loadMurakumoCatalog().catch(err => console.warn('[LocalMind] No-key catalog startup failed:', err));
+    loadMurakumoCatalog(true).catch(err => console.warn('[LocalMind] No-key catalog startup failed:', err));
+    loadPollinationsCatalog(true).catch(err => console.warn('[LocalMind] Pollinations catalog startup failed:', err));
     chatInput.focus();
     updateSendBtn();
   }
