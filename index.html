@@ -399,68 +399,49 @@
   }
   @keyframes blink { 50% { opacity: 0; } }
 
-  /* ── Waiting Indicator ── */
-  .waiting-indicator {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--text-muted);
-    font-size: 14px;
-    height: 24px;
-    min-width: 0;
-  }
-  .waiting-indicator span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .waiting-indicator .spinner {
-    width: 14px; height: 14px;
-    border: 2px solid rgba(255,255,255,0.1);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    flex-shrink: 0;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Calm, deliberate model-loading indicator */
+  /* ── AI Waiting Indicator: compact, visible text shimmer ── */
   .waiting-indicator {
     position: relative;
-    height: auto;
-    min-height: 34px;
-    gap: 12px;
-    padding: 5px 0;
+    display: flex;
+    align-items: center;
+    min-height: 30px;
+    min-width: 0;
+    padding: 4px 0;
     animation: loadingReveal .32s cubic-bezier(.2,.75,.25,1) both;
   }
-  .waiting-indicator .spinner {
-    width: 18px;
-    height: 18px;
-    border: 2px solid color-mix(in srgb, var(--accent) 18%, transparent);
-    border-top-color: var(--accent);
-    border-right-color: color-mix(in srgb, var(--accent) 55%, transparent);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 6%, transparent);
-    animation: loadingOrbit .9s cubic-bezier(.55,.1,.35,.9) infinite;
-  }
-  .waiting-indicator span {
+  .waiting-indicator .scanner {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
-    color: var(--text-muted);
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .waiting-indicator .scanner-text {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    line-height: 1.5;
     letter-spacing: .01em;
+    color: #777777 !important;
+    background-image: linear-gradient(105deg, #777777 0%, #777777 38%, #b8b8b8 46%, #f7f7f7 50%, #b8b8b8 54%, #777777 62%, #777777 100%) !important;
+    background-size: 250% 100% !important;
+    background-position: 150% 0;
+    background-repeat: no-repeat;
+    background-clip: text !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    animation: aiTextShimmer 1.9s linear infinite !important;
+    will-change: background-position;
   }
-  .waiting-indicator span::after {
-    content: '';
-    width: 1.15em;
-    height: 1em;
-    flex: 0 0 1.15em;
-    background: radial-gradient(circle, var(--text-muted) 1px, transparent 1.5px) 0 50% / .38em .38em repeat-x;
-    animation: loadingDots 1.25s steps(4, end) infinite;
-    opacity: .8;
+  @keyframes aiTextShimmer {
+    0% { background-position: 150% 0; }
+    100% { background-position: -150% 0; }
   }
-  @keyframes loadingOrbit { to { transform: rotate(360deg); } }
-  @keyframes loadingDots { from { background-position-x: 0; } to { background-position-x: 1.52em; } }
-  @keyframes loadingReveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes loadingReveal { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+  
   .message-row .bubble { transform-origin: top left; }
   .message-row.user .bubble { transform-origin: top right; }
   .message-row.assistant .msg-avatar img { animation: avatarArrive .42s cubic-bezier(.2,.75,.25,1) both; }
@@ -1274,14 +1255,7 @@
   .thinking-panel, .preview-modal-content { box-shadow: 0 16px 48px rgba(0,0,0,.18); }
   .preview-modal.open .preview-modal-content { animation: modalEnter .22s var(--ease-ui) both; }
   @keyframes modalEnter { from { opacity: 0; transform: translateY(8px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
-  /* Respect reduced-motion preferences without disabling essential UI feedback. */
-  @media (prefers-reduced-motion: reduce) {
-    .welcome-icon, .avatar-glow, .input-wrapper::after, .progress-fill::after,
-    .slider-fill::after { animation-duration: 4s !important; }
-    .message-row { animation-duration: .18s !important; }
-    .thinking-panel, .preview-modal.open .preview-modal-content { animation-duration: .16s !important; }
-    html { scroll-behavior: auto !important; }
-  }
+  
 
   /* ── Tablet / iPad improvements ── */
   @media (min-width: 768px) {
@@ -1379,7 +1353,7 @@
   #mainModelOptions .model-option { background:transparent; }
   #mainModelOptions .model-option:hover { background:rgba(255,255,255,.035); }
   #mainModelOptions .model-option.active { background:rgba(217,119,87,.07); }
-  @media (prefers-reduced-motion: reduce) { .model-picker-pane { animation:none; } .model-picker-tab { transition:none; } }
+  
 
   /* ── Free model picker: restrained, studio-style surface ── */
   .free-model-selector-wrapper { display: none; }
@@ -1740,15 +1714,7 @@
     .pixel-fire-slider-wrapper { width: 176px; }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .pixel-fire-blur,
-    .pixel-fire-wave,
-    .pixel-fire-fill::after { animation: none !important; }
-    .pixel-fire-blur { opacity: .55 !important; }
-    .pixel-fire-fill,
-    .pixel-fire-bubble,
-    .pixel-fire-stop { transition: none !important; }
-  }
+  
 
   /* Make interactions feel grounded and consistent without removing existing motion. */
   button, .model-option { -webkit-tap-highlight-color: transparent; }
@@ -1769,10 +1735,7 @@
     .free-model-selector-wrapper .model-btn { max-width: 138px; }
     .free-model-footer { flex-wrap: wrap; }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .free-tool-btn, .free-key-btn, .free-model-btn, .model-dropdown, .free-model-option { transition-duration: .01ms !important; }
-    .free-model-option::before { animation: none !important; }
-  }
+  
 
 </style>
 </head>
@@ -2892,8 +2855,7 @@
     bubbleEl.className = 'bubble';
     bubbleEl.innerHTML = `
       <div class="waiting-indicator">
-        <div class="spinner"></div>
-        <span>${escapeHtml(modelName)} is thinking</span>
+        <div class="scanner"><span class="scanner-text">${escapeHtml(modelName)} is thinking</span></div>
       </div>
     `;
 
@@ -3006,6 +2968,7 @@
   let AIHORDE_CATALOG_LOADING = false;
   let KILO_CATALOG_LOADING = false;
   const FREE_PROVIDER_ERRORS = {};
+  const FREE_PROVIDER_WARNED = {}; // Keep repeated startup/refresh failures from flooding the console.
 
   function safeStorageGet(key) {
     try { return localStorage.getItem(key); } catch (err) { return null; }
@@ -3288,8 +3251,10 @@
     LLM7_CATALOG_LOADING = true; FREE_PROVIDER_ERRORS.llm7 = false;
     const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 10000);
     try {
-      // LLM7 documents the shared anonymous tier using the literal bearer value "unused".
-      const response = await fetch('https://api.llm7.io/v1/models', { cache: 'no-store', signal: controller.signal, headers: { Accept: 'application/json', Authorization: 'Bearer unused' } });
+      // The public model catalogue is readable without credentials. Avoid an Authorization
+      // header on this GET: it triggers a CORS preflight in browsers and can fail as
+      // the opaque TypeError "Load failed" before the catalogue request is sent.
+      const response = await fetch('https://api.llm7.io/v1/models', { cache: 'no-store', mode: 'cors', credentials: 'omit', signal: controller.signal, headers: { Accept: 'application/json' } });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const models = normalizeLLM7Models(await response.json());
       if (!models.length) throw new Error('No free open-weight chat models in current catalog');
@@ -3297,7 +3262,8 @@
       renderFreeModelOptions(); updateFreeCatalogStatus();
       if (!state.freeModel) restoreFreeModelChoice();
     } catch (err) {
-      console.warn('[LocalMind] LLM7 anonymous catalog unavailable:', err);
+      if (!FREE_PROVIDER_WARNED.llm7) console.warn('[LocalMind] LLM7 anonymous catalog unavailable (the provider may be offline or blocking browser CORS):', err);
+      FREE_PROVIDER_WARNED.llm7 = true;
       FREE_PROVIDER_ERRORS.llm7 = true;
       if (!LLM7_CATALOG.length && cached) LLM7_CATALOG = cached.models;
       renderFreeModelOptions(); updateFreeCatalogStatus();
@@ -3341,16 +3307,31 @@
     KILO_CATALOG_LOADING = true; FREE_PROVIDER_ERRORS.kilo = false;
     const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 10000);
     try {
-      // Kilo's official docs allow unauthenticated model listing. Only zero-price / :free open models are shown.
-      const response = await fetch('https://ai-gateway.kilo.ai/api/v1/models', { cache: 'no-store', signal: controller.signal, headers: { Accept: 'application/json' } });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const models = normalizeKiloModels(await response.json());
+      // Kilo's current docs list api.kilo.ai/api/gateway/models. Keep the former
+      // ai-gateway hostname as a fallback for deployments still serving the legacy route.
+      // Only zero-price / :free open models are shown.
+      let payload = null;
+      let lastError = null;
+      for (const url of ['https://api.kilo.ai/api/gateway/models', 'https://ai-gateway.kilo.ai/api/v1/models']) {
+        try {
+          const response = await fetch(url, { cache: 'no-store', mode: 'cors', credentials: 'omit', signal: controller.signal, headers: { Accept: 'application/json' } });
+          if (!response.ok) throw new Error(`HTTP ${response.status} from ${new URL(url).host}`);
+          payload = await response.json();
+          break;
+        } catch (err) {
+          lastError = err;
+          if (controller.signal.aborted) throw err;
+        }
+      }
+      if (!payload) throw lastError || new Error('No Kilo catalogue endpoint responded');
+      const models = normalizeKiloModels(payload);
       if (!models.length) throw new Error('No anonymous free open-weight chat models in current catalog');
       KILO_CATALOG = models; writeModelCache(KILO_CACHE_KEY, models);
       renderFreeModelOptions(); updateFreeCatalogStatus();
       if (!state.freeModel) restoreFreeModelChoice();
     } catch (err) {
-      console.warn('[LocalMind] Kilo anonymous catalog unavailable:', err);
+      if (!FREE_PROVIDER_WARNED.kilo) console.warn('[LocalMind] Kilo anonymous catalog unavailable (both catalogue endpoints may be offline or blocked by browser CORS):', err);
+      FREE_PROVIDER_WARNED.kilo = true;
       FREE_PROVIDER_ERRORS.kilo = true;
       if (!KILO_CATALOG.length && cached) KILO_CATALOG = cached.models;
       renderFreeModelOptions(); updateFreeCatalogStatus();
@@ -3472,7 +3453,7 @@
     if (model.provider === 'ovh') return { provider: 'ovh', id: model.id, name: model.name, endpoint: 'https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions', apiType: 'openai-chat', includeInstructions: true };
     if (model.provider === 'llm7') return { provider: 'llm7', id: model.id, name: model.name, endpoint: 'https://api.llm7.io/v1/chat/completions', apiType: 'openai-chat', includeInstructions: true };
     if (model.provider === 'aihorde') return { provider: 'aihorde', id: model.id, name: model.name, endpoint: 'https://oai.aihorde.net/v1/chat/completions', apiType: 'openai-chat', includeInstructions: true };
-    if (model.provider === 'kilo') return { provider: 'kilo', id: model.id, name: model.name, endpoint: 'https://ai-gateway.kilo.ai/api/v1/chat/completions', apiType: 'openai-chat', includeInstructions: true };
+    if (model.provider === 'kilo') return { provider: 'kilo', id: model.id, name: model.name, endpoint: 'https://api.kilo.ai/api/gateway/chat/completions', apiType: 'openai-chat', includeInstructions: true };
     if (model.provider === 'pollinations') return { provider: 'pollinations', id: 'classic-default', name: model.name, endpoint: 'https://text.pollinations.ai/', apiType: 'openai-chat', includeInstructions: true };
     return null;
   }
@@ -3881,7 +3862,36 @@
       if (!res.ok) {
         const errText = await res.text().catch(() => '');
         let details = errText.slice(0, 300);
-        try { const parsed = JSON.parse(errText); details = parsed.error && (parsed.error.message || parsed.error.code) || parsed.message || details; } catch (e) {}
+        let parsedError = null;
+        try { parsedError = JSON.parse(errText); details = parsedError.error && (parsedError.error.message || parsedError.error.code) || parsedError.message || details; } catch (e) {}
+        // Murakumo can reject a valid model when the combined history + requested output
+        // exceeds that model's context window. Retry once with a compact recent-history
+        // request and a smaller output budget before surfacing the provider error.
+        const mismatch = /model_or_context_mismatch/i.test(errText) || /model.{0,20}context.{0,20}mismatch/i.test(String(details));
+        if (config.provider === 'murakumo' && res.status === 422 && mismatch && !opts.contextMismatchRetry) {
+          const system = remoteMessages.find(m => m.role === 'system');
+          const conversation = remoteMessages.filter(m => m.role !== 'system');
+          const recent = conversation.slice(-4).map((m, i, arr) => {
+            let content = typeof m.content === 'string' ? m.content : String(m.content || '');
+            const isLatest = i === arr.length - 1;
+            const limit = isLatest ? 5000 : 1800;
+            if (content.length > limit) content = content.slice(0, limit) + '\n[Earlier content shortened to fit model context]';
+            return { role: m.role, content };
+          });
+          const compactMessages = [];
+          if (system) compactMessages.push({ role: 'system', content: String(system.content || '').slice(0, 3500) });
+          compactMessages.push(...recent);
+          const retry = await fetch(endpoint, {
+            method: 'POST', headers,
+            body: JSON.stringify({ model: config.id, messages: compactMessages, stream: false, temperature: 0.7, max_tokens: 512 }),
+            signal: state.abortController ? state.abortController.signal : undefined
+          });
+          if (retry.ok) return retry;
+          const retryText = await retry.text().catch(() => '');
+          let retryDetails = retryText.slice(0, 240);
+          try { const parsed = JSON.parse(retryText); retryDetails = parsed.error && (parsed.error.message || parsed.error.code) || parsed.message || retryDetails; } catch (e) {}
+          throw new Error(`Murakumo could not run “${config.name || config.id}” even with a shorter context (HTTP ${retry.status}). The model may be unavailable on the anonymous router or its advertised context may not match the router. Try refreshing the free-model catalog or choosing another Murakumo model. ${retryDetails}`);
+        }
         if (stream && res.status >= 400 && res.status < 500 && /stream/i.test(details)) {
           return fetchModelResponse(config, messages, reasoning, attachments, { stream: false });
         }
