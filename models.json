@@ -44,7 +44,7 @@
       "icon": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/gemini-color.svg",
       "iconFallback": "",
       "meta": "Fast · multimodal · tools",
-      "glowGradient": "linear-gradient(120deg, #4285F4 0%, #8B5CF6 50%, #22D3EE 100%)",
+      "glowGradient": "linear-gradient(45deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4)",
       "sendModelInBody": false,
       "supportsReasoningEffort": true,
       "includeThoughts": true,
