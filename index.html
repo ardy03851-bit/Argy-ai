@@ -1363,9 +1363,27 @@
   }
 
 
+
+  /* Unified model picker with smooth, accessible source tabs */
+  .model-dropdown { gap: 6px; }
+  .model-picker-tabs { display:flex; gap:4px; padding:4px; margin:0 0 5px; position:sticky; top:-6px; z-index:10; border:1px solid rgba(255,255,255,.075); border-radius:12px; background:rgba(20,21,25,.97); backdrop-filter:blur(14px); }
+  .model-picker-tab { flex:1; min-width:0; display:flex; align-items:center; justify-content:center; gap:7px; padding:10px 8px; border:1px solid transparent; border-radius:9px; background:transparent; color:var(--text-muted); font:500 12px var(--font-ui); cursor:pointer; transition:color .2s,background .2s,border-color .2s,transform .2s; }
+  .model-picker-tab:hover { color:var(--text-main); background:rgba(255,255,255,.04); }
+  .model-picker-tab.active { color:var(--text-main); background:linear-gradient(135deg,rgba(217,119,87,.16),rgba(255,255,255,.035)); border-color:rgba(217,119,87,.25); box-shadow:inset 0 1px 0 rgba(255,255,255,.035); }
+  .model-picker-tab:active { transform:scale(.985); }
+  .model-picker-pane { display:none; min-height:0; animation:modelPaneIn .2s cubic-bezier(.2,.75,.25,1) both; }
+  .model-picker-pane.active { display:block; }
+  @keyframes modelPaneIn { from {opacity:.65;transform:translateY(3px)} to {opacity:1;transform:translateY(0)} }
+  #freeModelsPane { background:#15171b; border-radius:11px; }
+  #freeModelsPane .free-model-toolbar { position:sticky;top:0;padding:4px 0 9px;background:#15171b; }
+  #mainModelOptions .model-option { background:transparent; }
+  #mainModelOptions .model-option:hover { background:rgba(255,255,255,.035); }
+  #mainModelOptions .model-option.active { background:rgba(217,119,87,.07); }
+  @media (prefers-reduced-motion: reduce) { .model-picker-pane { animation:none; } .model-picker-tab { transition:none; } }
+
   /* ── Free model picker: restrained, studio-style surface ── */
   .free-model-selector-wrapper { display: none; }
-  body.mode-simple .free-model-selector-wrapper { display: block; }
+  body.mode-simple .free-model-selector-wrapper { display: none !important; }
   .free-model-btn { border: 1px solid rgba(160,170,185,.20); background: rgba(148,163,184,.045); }
   .free-model-btn:hover, .free-model-btn.active { border-color: rgba(170,185,205,.36); background: rgba(148,163,184,.085); }
   .free-model-dot { width: 5px; height: 5px; border-radius: 50%; background: #91a7b7; box-shadow: 0 0 0 3px rgba(145,167,183,.09); flex: 0 0 auto; }
@@ -1413,10 +1431,10 @@
     -webkit-user-select: none;
     overflow: visible;
     --pct: .5;
-    --pf-ice: 168, 240, 255;
-    --pf-teal: 92, 236, 214;
-    --pf-indigo: 124, 152, 255;
-    --pf-violet: 190, 132, 255;
+    --pf-ice: 188, 204, 219;
+    --pf-teal: 89, 151, 174;
+    --pf-indigo: 88, 119, 166;
+    --pf-violet: 126, 132, 158;
   }
 
   .pixel-fire-stage {
@@ -1426,8 +1444,8 @@
     isolation: isolate;
     border-radius: 10px;
     background:
-      radial-gradient(120% 160% at 0% 50%, rgba(var(--pf-teal), .055), transparent 55%),
-      linear-gradient(180deg, #070a13 0%, #05070e 55%, #04060b 100%);
+      radial-gradient(120% 160% at 0% 50%, rgba(var(--pf-teal), .075), transparent 55%),
+      linear-gradient(180deg, #0b0e13 0%, #070a10 55%, #06080c 100%);
     border: 1px solid rgba(var(--pf-ice), .16);
     box-shadow:
       inset 0 1px 0 rgba(226, 250, 255, .06),
@@ -1459,13 +1477,14 @@
     z-index: 0;
     pointer-events: none;
     background:
-      radial-gradient(ellipse 42% 58% at 10% 60%, rgba(var(--pf-teal), .52), transparent 62%),
-      radial-gradient(ellipse 38% 52% at 46% 38%, rgba(var(--pf-indigo), .40), transparent 64%),
-      radial-gradient(ellipse 40% 56% at 88% 58%, rgba(var(--pf-violet), .46), transparent 62%);
-    filter: blur(16px) saturate(1.18);
-    opacity: var(--blur-opacity, .55);
-    transform: translate3d(-6%, 0, 0) scale(1.05);
-    animation: argyAuroraDrift 9s ease-in-out infinite alternate;
+      radial-gradient(ellipse 44% 64% at 8% 58%, rgba(var(--pf-teal), .44), transparent 64%),
+      radial-gradient(ellipse 42% 56% at 48% 40%, rgba(var(--pf-indigo), .34), transparent 66%),
+      radial-gradient(ellipse 42% 60% at 92% 58%, rgba(var(--pf-violet), .28), transparent 64%);
+    filter: blur(13px) saturate(.9);
+    opacity: var(--blur-opacity, .58);
+    transform: translate3d(-9%, 0, 0) scale(1.06);
+    background-size: 130% 150%, 145% 140%, 135% 150%;
+    animation: argyAuroraDrift 6.8s cubic-bezier(.45,0,.35,1) infinite alternate;
     transition: opacity .28s ease;
   }
 
@@ -1480,11 +1499,11 @@
       rgba(232, 252, 255, .22) 50%,
       rgba(var(--pf-violet), .10) 55%,
       transparent 66%);
-    background-size: 240% 100%;
+    background-size: 260% 100%;
     background-position: 135% 0;
     mix-blend-mode: screen;
-    opacity: .75;
-    animation: argySheen 5.8s cubic-bezier(.5, .06, .35, .95) infinite;
+    opacity: .62;
+    animation: argySheen 4.2s cubic-bezier(.5, .06, .35, .95) infinite;
   }
 
   .pixel-fire-fill {
@@ -1510,11 +1529,11 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, transparent 0%, rgba(220, 255, 255, .20) 45%, transparent 72%);
-    background-size: 220% 100%;
+    background: linear-gradient(90deg, transparent 0%, rgba(224, 238, 249, .24) 42%, rgba(130, 177, 205, .10) 55%, transparent 76%);
+    background-size: 240% 100%;
     mix-blend-mode: screen;
-    opacity: .65;
-    animation: argyFillFlow 7s linear infinite;
+    opacity: .72;
+    animation: argyFillFlow 3.8s linear infinite;
     pointer-events: none;
   }
 
@@ -1598,11 +1617,10 @@
     border-radius: 5px;
     border: 1px solid rgba(236, 252, 255, .85);
     background: linear-gradient(180deg,
-      #f6ffff 0%,
-      #cdeef7 18%,
-      #7dc9e8 48%,
-      #5484d6 74%,
-      #8a6be0 100%);
+      #e8eef4 0%,
+      #bdcedc 24%,
+      #7fa9c1 58%,
+      #577b9d 100%);
     box-shadow:
       0 0 0 3px rgba(var(--pf-teal), .10),
       0 3px 9px rgba(0, 0, 0, .72),
@@ -1620,11 +1638,10 @@
     border-radius: 5px;
     border: 1px solid rgba(236, 252, 255, .85);
     background: linear-gradient(180deg,
-      #f6ffff 0%,
-      #cdeef7 18%,
-      #7dc9e8 48%,
-      #5484d6 74%,
-      #8a6be0 100%);
+      #e8eef4 0%,
+      #bdcedc 24%,
+      #7fa9c1 58%,
+      #577b9d 100%);
     box-shadow:
       0 0 0 3px rgba(var(--pf-teal), .10),
       0 3px 9px rgba(0, 0, 0, .72),
@@ -1702,16 +1719,16 @@
   .pixel-fire-slider-wrapper.dragging .pixel-fire-blur { opacity: 1; }
 
   @keyframes argyAuroraDrift {
-    0%   { transform: translate3d(-7%, 1px, 0) scale(1.04); }
-    50%  { transform: translate3d(0, -1px, 0) scale(1.10); }
-    100% { transform: translate3d(8%, 0, 0) scale(1.06); }
+    0%   { transform: translate3d(-10%, 1px, 0) scale(1.02); background-position: 0% 50%, 10% 30%, 100% 50%; }
+    50%  { transform: translate3d(1%, -1px, 0) scale(1.12); background-position: 35% 60%, 65% 45%, 75% 40%; }
+    100% { transform: translate3d(10%, 0, 0) scale(1.05); background-position: 100% 50%, 0% 65%, 0% 50%; }
   }
 
   @keyframes argySheen {
     0%   { background-position: 135% 0; opacity: 0; }
-    12%  { opacity: .55; }
-    55%  { opacity: .30; }
-    100% { background-position: -70% 0; opacity: 0; }
+    14%  { opacity: .52; }
+    52%  { opacity: .28; }
+    100% { background-position: -85% 0; opacity: 0; }
   }
 
   @keyframes argyFillFlow {
@@ -1821,27 +1838,26 @@
               <span id="currentModelName">Loading…</span>
               <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </button>
-            <div class="model-dropdown" id="modelDropdown"></div>
-          </div>
-
-          <div class="model-selector-wrapper free-model-selector-wrapper" id="freeModelSelectorWrapper">
-            <button class="model-btn free-model-btn" id="freeModelBtn" aria-haspopup="true" aria-expanded="false" title="Choose a no-sign-in free model provider">
-              <span class="free-model-dot" aria-hidden="true"></span>
-              <span class="free-model-selected-icon" id="currentFreeModelIcon" aria-hidden="true">AI</span>
-              <span id="currentFreeModelName">Free models</span>
-              <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <div class="model-dropdown free-model-dropdown" id="freeModelDropdown" role="dialog" aria-label="Free no-sign-in models">
-              <div class="free-model-toolbar">
-                <input id="freeModelSearch" type="search" placeholder="Search free models…" autocomplete="off" aria-label="Search free models">
-                <button id="refreshFreeModelsBtn" type="button" class="free-tool-btn" title="Refresh model catalog" aria-label="Refresh model catalog">↻</button>
+            <div class="model-dropdown" id="modelDropdown" role="dialog" aria-label="Choose a model">
+              <div class="model-picker-tabs" role="tablist" aria-label="Model sources">
+                <button type="button" class="model-picker-tab active" id="mainModelsTab" role="tab" aria-selected="true" aria-controls="mainModelsPane">Main models</button>
+                <button type="button" class="model-picker-tab" id="freeModelsTab" role="tab" aria-selected="false" aria-controls="freeModelsPane">Free models</button>
               </div>
-              <div id="freeModelStatus" class="free-model-status" role="status" aria-live="polite">Discovering no-sign-in model providers…</div>
-              <div id="freeModelOptions" class="free-model-options"></div>
-              <div class="free-model-footer">
-                <span id="freeModelAccessStatus">No sign-in or personal API key · public shared limits apply</span>
+              <div class="model-picker-pane active" id="mainModelsPane" role="tabpanel" aria-labelledby="mainModelsTab"><div id="mainModelOptions"></div></div>
+              <div class="model-picker-pane" id="freeModelsPane" role="tabpanel" aria-labelledby="freeModelsTab">
+                <div class="free-model-toolbar">
+                  <input id="freeModelSearch" type="search" placeholder="Search free models…" autocomplete="off" aria-label="Search free models">
+                  <button id="refreshFreeModelsBtn" type="button" class="free-tool-btn" title="Refresh model catalog" aria-label="Refresh model catalog">↻</button>
+                </div>
+                <div id="freeModelStatus" class="free-model-status" role="status" aria-live="polite">Discovering no-sign-in model providers…</div>
+                <div id="freeModelOptions" class="free-model-options"></div>
+                <div class="free-model-footer"><span id="freeModelAccessStatus">No sign-in or personal API key · public shared limits apply</span></div>
               </div>
             </div>
+          </div>
+
+          <div class="free-model-selector-wrapper" id="freeModelSelectorWrapper" aria-hidden="true" style="display:none">
+            <button class="model-btn free-model-btn" id="freeModelBtn" type="button"><span id="currentFreeModelName">Free models</span></button>
           </div>
 
           <div id="reasoningContainer"></div>
@@ -1953,12 +1969,17 @@
 
   const modelBtn = document.getElementById('modelBtn');
   const modelDropdown = document.getElementById('modelDropdown');
+  const mainModelOptions = document.getElementById('mainModelOptions');
+  const mainModelsPane = document.getElementById('mainModelsPane');
+  const freeModelsPane = document.getElementById('freeModelsPane');
+  const mainModelsTab = document.getElementById('mainModelsTab');
+  const freeModelsTab = document.getElementById('freeModelsTab');
   const currentModelName = document.getElementById('currentModelName');
   const currentModelIcon = document.getElementById('currentModelIcon');
   const reasoningContainer = document.getElementById('reasoningContainer');
   const freeModelSelectorWrapper = document.getElementById('freeModelSelectorWrapper');
   const freeModelBtn = document.getElementById('freeModelBtn');
-  const freeModelDropdown = document.getElementById('freeModelDropdown');
+  const freeModelDropdown = document.getElementById('freeModelsPane');
   const currentFreeModelName = document.getElementById('currentFreeModelName');
   const currentFreeModelIcon = document.getElementById('currentFreeModelIcon');
   const freeModelSearch = document.getElementById('freeModelSearch');
@@ -2135,7 +2156,7 @@
      MODEL DROPDOWN / SELECTION
      ============================================================ */
   function populateModelDropdown() {
-    modelDropdown.innerHTML = '';
+    mainModelOptions.innerHTML = '';
     MODELS_LIST.forEach(model => {
       const option = document.createElement('div');
       option.className = 'model-option';
@@ -2171,7 +2192,7 @@
         modelBtn.setAttribute('aria-expanded', 'false');
       });
 
-      modelDropdown.appendChild(option);
+      mainModelOptions.appendChild(option);
     });
   }
 
@@ -2186,11 +2207,13 @@
     state.currentModelAvatar = config.icon;
 
     currentModelName.textContent = config.name;
+    currentModelName.title = config.name;
+    currentModelIcon.dataset.freeModel = '';
     currentModelIcon.dataset.swapped = '';
     currentModelIcon.style.visibility = 'visible';
     currentModelIcon.src = config.icon || '';
 
-    modelDropdown.querySelectorAll('.model-option').forEach(o => {
+    mainModelOptions.querySelectorAll('.model-option').forEach(o => {
       const isActive = o.dataset.model === key;
       o.classList.toggle('active', isActive);
       const s = o.querySelector('.model-status-icon');
@@ -2205,6 +2228,11 @@
   }
 
   currentModelIcon.addEventListener('error', function () {
+    // Never replace a failed free-provider logo with the unrelated main-model logo.
+    if (currentModelIcon.dataset.freeModel === '1') {
+      currentModelIcon.style.visibility = 'hidden';
+      return;
+    }
     const cfg = MODEL_CONFIG[state.model];
     if (cfg && cfg.iconFallback && currentModelIcon.dataset.swapped !== '1') {
       currentModelIcon.dataset.swapped = '1';
@@ -2842,7 +2870,7 @@
     avatarEl.className = 'msg-avatar';
     const fallbackSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.6-6.2 4.6 2.4-7.6L2 9.6h7.6z"/></svg>';
     const config = MODEL_CONFIG[state.model];
-    const activeFree = state.mode === 'simple' ? state.freeModel : null;
+    const activeFree = state.freeModel;
     const modelName = activeFree ? activeFree.name : (config ? config.name : 'Model');
     const modelIcon = activeFree ? (getFreeModelIcon(activeFree) || '') : ((config && config.icon) || state.currentModelAvatar || '');
 
@@ -3046,7 +3074,7 @@
     const provider = String(model.provider || '').toLowerCase();
     const domain = match ? match[1] : provider === 'ovh' ? 'ovhcloud.com' : provider === 'llm7' ? 'llm7.io' : provider === 'kilo' ? 'kilo.ai' : provider === 'pollinations' ? 'pollinations.ai' : 'huggingface.co';
     // DuckDuckGo's public favicon endpoint avoids guessing nonexistent model-logo slugs.
-    return `https://icons.duckduckgo.com/ip3/${domain}.ico`;
+    return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
   }
   function makeMark(name) {
     const s = String(name || 'AI').replace(/[_./:-]+/g, ' ').trim();
@@ -3407,10 +3435,29 @@
     document.body.classList.toggle('free-model-active', Boolean(model));
     saveFreeModelSelection(model);
     updateFreeModelButton();
-    freeModelDropdown.classList.remove('active');
-    freeModelBtn.classList.remove('active');
-    freeModelBtn.setAttribute('aria-expanded', 'false');
-    if (!model) setFreeStatus('Using the model selected in the Kie.ai selector.');
+
+    // The visible model button is the single source-of-truth preview for both tabs.
+    if (model) {
+      currentModelName.textContent = model.name;
+      currentModelName.title = model.name;
+      currentModelIcon.dataset.freeModel = '1';
+      currentModelIcon.dataset.swapped = '1';
+      const logo = getFreeModelIcon(model);
+      currentModelIcon.style.visibility = logo ? 'visible' : 'hidden';
+      currentModelIcon.src = logo || '';
+    } else {
+      const mainConfig = MODEL_CONFIG[state.model];
+      currentModelName.textContent = mainConfig ? mainConfig.name : 'Choose a model';
+      currentModelName.title = mainConfig ? mainConfig.name : '';
+      currentModelIcon.dataset.freeModel = '';
+      currentModelIcon.dataset.swapped = '';
+      currentModelIcon.style.visibility = 'visible';
+      currentModelIcon.src = (mainConfig && mainConfig.icon) || state.currentModelAvatar || '';
+    }
+    modelDropdown.classList.remove('active');
+    modelBtn.classList.remove('active');
+    modelBtn.setAttribute('aria-expanded', 'false');
+    if (!model) setFreeStatus('Using the model selected in the main models tab.');
     else if (model.provider === 'murakumo') setFreeStatus('Murakumo selected. No key or sign-in; shared capacity varies. Do not send confidential data to community-hosted nodes.');
     else if (model.provider === 'ovh') setFreeStatus('OVHcloud anonymous mode selected. Limit: 2 requests per minute per IP and model.');
     else if (model.provider === 'llm7') setFreeStatus('LLM7 anonymous mode selected. Uses the provider’s shared free quota and rate limits.');
@@ -3420,7 +3467,7 @@
   }
   function getActiveFreeConfig() {
     const model = state.freeModel;
-    if (!model || state.mode !== 'simple') return null;
+    if (!model) return null;
     if (model.provider === 'murakumo') return { provider: 'murakumo', id: model.id, name: model.name, endpoint: 'https://api.murakumo.cloud/v1/chat/completions', apiType: 'openai-chat', includeInstructions: true };
     if (model.provider === 'ovh') return { provider: 'ovh', id: model.id, name: model.name, endpoint: 'https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions', apiType: 'openai-chat', includeInstructions: true };
     if (model.provider === 'llm7') return { provider: 'llm7', id: model.id, name: model.name, endpoint: 'https://api.llm7.io/v1/chat/completions', apiType: 'openai-chat', includeInstructions: true };
@@ -3445,32 +3492,37 @@
   /* ============================================================
      MODEL BUTTON TOGGLE
      ============================================================ */
-  modelBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    freeModelDropdown.classList.remove('active');
-    freeModelBtn.classList.remove('active');
-    freeModelBtn.setAttribute('aria-expanded', 'false');
-    const isActive = modelDropdown.classList.toggle('active');
-    modelBtn.classList.toggle('active', isActive);
-    modelBtn.setAttribute('aria-expanded', String(isActive));
-  });
-  freeModelBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    modelDropdown.classList.remove('active');
-    modelBtn.classList.remove('active');
-    modelBtn.setAttribute('aria-expanded', 'false');
-    const isActive = freeModelDropdown.classList.toggle('active');
-    freeModelBtn.classList.toggle('active', isActive);
-    freeModelBtn.setAttribute('aria-expanded', String(isActive));
-    if (isActive) {
+  function switchModelPickerTab(tab) {
+    const showFree = tab === 'free';
+    mainModelsPane.classList.toggle('active', !showFree);
+    freeModelsPane.classList.toggle('active', showFree);
+    mainModelsTab.classList.toggle('active', !showFree);
+    freeModelsTab.classList.toggle('active', showFree);
+    mainModelsTab.setAttribute('aria-selected', String(!showFree));
+    freeModelsTab.setAttribute('aria-selected', String(showFree));
+    if (showFree) {
       renderFreeModelOptions();
       if (!MURAKUMO_CATALOG.length) loadMurakumoCatalog();
       if (!OVH_CATALOG.length) loadOVHCatalog();
       if (!LLM7_CATALOG.length) loadLLM7Catalog();
       if (!AIHORDE_CATALOG.length) loadAIHordeCatalog();
       if (!KILO_CATALOG.length) loadKiloCatalog();
-      freeModelSearch.focus({ preventScroll: true });
     }
+  }
+  mainModelsTab.addEventListener('click', () => switchModelPickerTab('main'));
+  freeModelsTab.addEventListener('click', () => switchModelPickerTab('free'));
+  modelBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isActive = modelDropdown.classList.toggle('active');
+    modelBtn.classList.toggle('active', isActive);
+    modelBtn.setAttribute('aria-expanded', String(isActive));
+    if (isActive) switchModelPickerTab(state.freeModel && state.mode === 'simple' ? 'free' : 'main');
+  });
+  // Compatibility for legacy internal calls; the visible picker is now the single main dropdown.
+  freeModelBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    modelDropdown.classList.add('active'); modelBtn.classList.add('active'); modelBtn.setAttribute('aria-expanded', 'true');
+    switchModelPickerTab('free');
   });
   freeModelDropdown.addEventListener('click', e => e.stopPropagation());
   freeModelSearch.addEventListener('input', renderFreeModelOptions);
@@ -3480,11 +3532,6 @@
       modelDropdown.classList.remove('active');
       modelBtn.classList.remove('active');
       modelBtn.setAttribute('aria-expanded', 'false');
-    }
-    if (!freeModelDropdown.contains(e.target) && !freeModelBtn.contains(e.target)) {
-      freeModelDropdown.classList.remove('active');
-      freeModelBtn.classList.remove('active');
-      freeModelBtn.setAttribute('aria-expanded', 'false');
     }
   });
 
@@ -3496,7 +3543,7 @@
       setFreeStatus('There is no conversation to export yet.');
       return;
     }
-    const lines = ['# LocalMind conversation', '', `Exported: ${new Date().toLocaleString()}`, `Mode: ${state.mode === 'simple' ? 'Simple Chat' : 'Agent Workspace'}`, `Model: ${(state.mode === 'simple' && state.freeModel ? state.freeModel.name : (MODEL_CONFIG[state.model] && MODEL_CONFIG[state.model].name)) || 'Unknown'}`, ''];
+    const lines = ['# LocalMind conversation', '', `Exported: ${new Date().toLocaleString()}`, `Mode: ${state.mode === 'simple' ? 'Simple Chat' : 'Agent Workspace'}`, `Model: ${(state.freeModel ? state.freeModel.name : (MODEL_CONFIG[state.model] && MODEL_CONFIG[state.model].name)) || 'Unknown'}`, ''];
     for (const msg of state.messages) {
       const role = msg.role === 'user' ? 'You' : 'Assistant';
       lines.push(`## ${role}`, '', String(msg.content || ''), '');
