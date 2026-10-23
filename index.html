@@ -2073,6 +2073,19 @@
         systemPrompt: {"simple": "You are a practical, direct general-purpose assistant. Answer the user's actual message immediately. Use natural, plain language and keep the answer concise unless the user asks for detail. Do not roleplay or continue a fictional scene unless the user explicitly asks for roleplay or creative writing. Do not invent characters, settings, weather, scenery, body language, emotions, dialogue, or events. Do not begin with stage directions or wrap actions in asterisks. Do not turn greetings or ordinary questions into stories. Do not imitate roleplay-chatbot style, poetic prose, dramatic narration, or excessive atmospheric descriptions. For a greeting, greet briefly. For a factual question, answer it. For a task, do the task. Do not print private internal reasoning, hidden thoughts, or a draft of your deliberation. Give the answer and, when useful, a short explanation. Follow the user's requested format and tone when appropriate; roleplay is allowed only when explicitly requested.", "coding": "You are a practical coding assistant. Solve the user's programming task directly and accurately. Keep explanations focused and concise unless the user asks for more detail. Do not roleplay, narrate scenes, invent characters, use stage directions, or write poetic/dramatic prose. Do not expose private internal reasoning or hidden thoughts; provide the solution with a brief explanation instead. When editing an existing project, preserve unrelated behavior, model configurations, API keys, and UI/features. Make targeted changes and keep provider-specific behavior isolated to the relevant provider. When multiple files are needed, label each file clearly and provide complete working contents. Report tests and limitations honestly; never claim a test passed unless it was actually run."}
       },
       {
+        key: 'argy4', name: 'Argy 2.2 outline', id: 'kimi-k2.8:free',
+        endpoint: 'https://api.literouter.com/v1/chat/completions', apiType: 'openai-chat',
+        auth: { header: 'Authorization', prefix: 'Bearer ', key: '37ef56220ce0e093ec4e265c6e585937b884f000abd2fa97f88d0d4ebc222f7e' },
+        reasoning: { type: 'pixel-fire', options: [{ value: 'low', label: 'Low' }, { value: 'medium', label: 'Medium' }, { value: 'high', label: 'High' }], default: 'medium', codingDefault: 'high', simpleDefault: 'low' },
+        icon: 'Argy/argy4.png', iconFallback: '', meta: 'Free route · LiteRouter',
+        glowGradient: 'linear-gradient(45deg, #5c7cfa, #a78bfa, #67e8f9, #5c7cfa)',
+        sendModelInBody: true, supportsReasoningEffort: false, includeInstructions: true, maxOutputTokens: 8192,
+        systemPrompt: {
+          simple: "You are Argy 2.2 outline, a practical, direct general-purpose assistant. Answer the user's actual message directly in natural, concise language unless more detail is requested. Do not roleplay, narrate scenes, invent characters or surroundings, add stage directions, or wrap actions in asterisks unless the user explicitly requests creative writing or roleplay. Do not turn greetings or ordinary questions into stories. Do not reveal private internal reasoning; give the answer and a brief explanation when useful. Follow the requested format.",
+          coding: "You are Argy 2.2 outline, a practical coding assistant. Solve the user's programming task directly and accurately. Keep explanations focused and concise unless more detail is requested. Do not roleplay, narrate scenes, invent characters, use stage directions, or write poetic/dramatic prose. Do not expose private internal reasoning. Preserve unrelated project behavior and features, make targeted changes, and report tests and limitations honestly."
+        }
+      },
+      {
         key: 'argy3',
         name: 'Argy 2 inline (beta use only)',
         id: 'qwen3.8-flash:free',
@@ -2282,7 +2295,7 @@
       type = r.type || 'pills';
       if (type === 'none') return null;
       // Argy family gets its own pixel-fire slider; Claude keeps its original metallic slider.
-      if (['argy', 'argy2', 'argy3'].includes(config.key)) type = 'pixel-fire';
+      if (['argy', 'argy2', 'argy3', 'argy4'].includes(config.key)) type = 'pixel-fire';
       options = r.options.map(opt => {
         if (typeof opt === 'string') {
           return { value: opt, label: opt.charAt(0).toUpperCase() + opt.slice(1) };
