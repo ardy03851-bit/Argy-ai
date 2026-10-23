@@ -7,7 +7,7 @@
     "accentGlow": "rgba(217, 119, 87, 0.15)",
     "backgroundGradient": "radial-gradient(circle at 50% 0%, rgba(217, 119, 87, 0.03) 0%, transparent 50%), radial-gradient(circle at 50% 100%, rgba(180, 140, 100, 0.02) 0%, transparent 50%)",
     "codingBackgroundGradient": "radial-gradient(circle at 50% 0%, rgba(66, 133, 244, 0.04) 0%, transparent 60%)",
-    "backgroundImageOpacity": 0.10,
+    "backgroundImageOpacity": 0.1,
     "codingBackgroundImageOpacity": 0.09,
     "welcome": {
       "codingTitle": "Agent Workspace",
@@ -19,8 +19,8 @@
       "icon": "icon.png"
     },
     "systemPrompts": {
-      "coding": "You are an expert full-stack coding agent working inside a chat workspace with a real file system.\n\nWORKSPACE & TOOLS:\n- You have a persistent virtual file system (VFS). The user's attached files, extracted zips, and any code blocks you produce with a filename comment are automatically saved there.\n- Always use the tools first: `list_files` to see what exists, `read_file` to inspect, `edit_file` for SURGICAL changes (replace an exact old_string with new_string — this is preferred over rewriting a whole file), `write_file` only to create new files or fully replace, `delete_file` to remove, `run_javascript` to test snippets in a sandbox, `open_zip` to re-extract an attached zip, `preview_html` to open an HTML file in the preview modal, `web_search` for current info, `fetch_url` to read a webpage.\n- Prefer tools over dumping entire files. When the user asks \"change X in file Y\", call `edit_file(path, old_string, new_string)`. Only write full files when creating something new.\n- When producing NEW files as part of a normal answer, still output them as fenced code blocks with a filename comment on the first line so the user can read them easily:\n```html\n<!-- index.html -->\n...\n```\n```css\n/* style.css */\n...\n```\n```js\n// game.js\n...\n```\nThese are auto-synced into the workspace too.\n- Write production-quality, self-contained code. No placeholders like \"// TODO\".\n- If the user asks for a game or interactive app, make it fully playable with controls, scoring, and polish.\n- Keep tool calls focused. Don't call tools redundantly. After tools finish, summarize what changed.",
-      "simple": "You are a concise, helpful assistant. Answer directly and briefly. You have `web_search` and `fetch_url` tools for current information — use them when the answer depends on real-time facts. Otherwise, answer from knowledge. Short sentences. No verbose intros or outros."
+      "coding": "You are an expert coding assistant. Focus on solving the user's programming task accurately and safely. Be concise in explanations and make targeted changes where possible. Do not roleplay, narrate scenes, use stage directions, or add poetic descriptions. When editing an existing project, preserve unrelated behavior and existing UI/features. When multiple files are needed, label each file clearly and provide complete, working contents. Mention important tests or limitations honestly; never claim a test passed unless it was actually run.",
+      "simple": "You are LocalMind, a practical, concise AI assistant. Answer the user's actual request directly, using clear, natural language. Keep replies as short as the task allows; use a few sentences or bullets when sufficient. Do not roleplay, narrate a scene, describe surroundings, add stage directions, use asterisks for actions, or write in a dramatic/poetic style unless the user explicitly asks for roleplay or creative writing. Do not invent a character, setting, dialogue, or emotional atmosphere. Do not repeat the question, add long introductions, or append unnecessary conclusions. For simple greetings, greet briefly. For technical questions, explain the answer plainly and focus on useful steps. Follow the user's requested format and level of detail. If the user asks for detail, provide it; otherwise be concise."
     }
   },
   "models": [
@@ -33,9 +33,18 @@
       "reasoning": {
         "type": "pills",
         "options": [
-          { "value": "low", "label": "Low" },
-          { "value": "medium", "label": "Medium" },
-          { "value": "high", "label": "High" }
+          {
+            "value": "low",
+            "label": "Low"
+          },
+          {
+            "value": "medium",
+            "label": "Medium"
+          },
+          {
+            "value": "high",
+            "label": "High"
+          }
         ],
         "default": "medium",
         "codingDefault": "high",
@@ -60,9 +69,18 @@
       "reasoning": {
         "type": "pixel-fire",
         "options": [
-          { "value": "low", "label": "Low" },
-          { "value": "medium", "label": "Medium" },
-          { "value": "high", "label": "High" }
+          {
+            "value": "low",
+            "label": "Low"
+          },
+          {
+            "value": "medium",
+            "label": "Medium"
+          },
+          {
+            "value": "high",
+            "label": "High"
+          }
         ],
         "default": "medium",
         "codingDefault": "high",
@@ -83,9 +101,18 @@
       "reasoning": {
         "type": "pixel-fire",
         "options": [
-          { "value": "low", "label": "Low" },
-          { "value": "medium", "label": "Medium" },
-          { "value": "high", "label": "High" }
+          {
+            "value": "low",
+            "label": "Low"
+          },
+          {
+            "value": "medium",
+            "label": "Medium"
+          },
+          {
+            "value": "high",
+            "label": "High"
+          }
         ],
         "default": "medium",
         "codingDefault": "high",
@@ -104,15 +131,24 @@
     {
       "key": "argy3",
       "name": "Argy 2 inline (beta use only)",
-      "id": "gpt-6-astra",
-      "endpoint": "https://api.kie.ai/codex/v1/responses",
-      "apiType": "openai-responses",
+      "id": "qwen3.8-flash:free",
+      "endpoint": "https://api.literouter.com/v1/chat/completions",
+      "apiType": "openai-chat",
       "reasoning": {
         "type": "pixel-fire",
         "options": [
-          { "value": "low", "label": "Low" },
-          { "value": "medium", "label": "Medium" },
-          { "value": "high", "label": "High" }
+          {
+            "value": "low",
+            "label": "Low"
+          },
+          {
+            "value": "medium",
+            "label": "Medium"
+          },
+          {
+            "value": "high",
+            "label": "High"
+          }
         ],
         "default": "medium",
         "codingDefault": "high",
@@ -120,12 +156,22 @@
       },
       "icon": "Argy/argy3.png",
       "iconFallback": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/chatgpt-color.svg",
-      "meta": "GPT Astra · Premium i guess · tools",
+      "meta": "Inline · fast responses",
       "glowGradient": "linear-gradient(45deg, #2d7d8a, #5fc4d1, #9fe3ea, #5fc4d1, #2d7d8a)",
       "sendModelInBody": true,
-      "supportsReasoningEffort": true,
-      "includeInstructions": false,
-      "maxOutputTokens": null
+      "supportsReasoningEffort": false,
+      "includeInstructions": true,
+      "maxOutputTokens": 8192,
+      "auth": {
+        "header": "Authorization",
+        "prefix": "Bearer ",
+        "key": "43e71a4651f7664b24931710e4c5de58e112c5fd623c86918622c51e27bf78e4"
+      },
+      "includeThoughts": false,
+      "systemPrompt": {
+        "simple": "You are a practical, direct assistant. Answer the user's actual request in natural, concise language. Do not roleplay, narrate scenes, invent characters or surroundings, add stage directions, or wrap actions in asterisks unless the user explicitly requests creative writing or roleplay. Do not turn greetings or ordinary questions into stories. Do not reveal private internal reasoning; give the answer and a brief explanation when useful. Follow the requested format.",
+        "coding": "You are a practical coding assistant. Solve the user's programming task directly and accurately. Keep explanations focused and concise unless more detail is requested. Do not roleplay, narrate scenes, invent characters, use stage directions, or write poetic/dramatic prose. Do not expose private internal reasoning. Preserve unrelated project behavior and features, make targeted changes, and isolate provider-specific configuration. Report tests and limitations honestly."
+      }
     },
     {
       "key": "claude",
@@ -136,11 +182,26 @@
       "reasoning": {
         "type": "slider",
         "options": [
-          { "value": "minimal", "label": "Minimal" },
-          { "value": "low", "label": "Low" },
-          { "value": "medium", "label": "Medium" },
-          { "value": "high", "label": "High" },
-          { "value": "max", "label": "Max" }
+          {
+            "value": "minimal",
+            "label": "Minimal"
+          },
+          {
+            "value": "low",
+            "label": "Low"
+          },
+          {
+            "value": "medium",
+            "label": "Medium"
+          },
+          {
+            "value": "high",
+            "label": "High"
+          },
+          {
+            "value": "max",
+            "label": "Max"
+          }
         ],
         "default": "medium",
         "codingDefault": "max",
@@ -169,9 +230,18 @@
       "reasoning": {
         "type": "pills",
         "options": [
-          { "value": "low", "label": "Low" },
-          { "value": "medium", "label": "Medium" },
-          { "value": "high", "label": "High" }
+          {
+            "value": "low",
+            "label": "Low"
+          },
+          {
+            "value": "medium",
+            "label": "Medium"
+          },
+          {
+            "value": "high",
+            "label": "High"
+          }
         ],
         "default": "medium",
         "codingDefault": "high",
@@ -195,9 +265,18 @@
       "reasoning": {
         "type": "pills",
         "options": [
-          { "value": "low", "label": "Low" },
-          { "value": "medium", "label": "Medium" },
-          { "value": "high", "label": "High" }
+          {
+            "value": "low",
+            "label": "Low"
+          },
+          {
+            "value": "medium",
+            "label": "Medium"
+          },
+          {
+            "value": "high",
+            "label": "High"
+          }
         ],
         "default": "medium",
         "codingDefault": "high",
@@ -211,6 +290,50 @@
       "supportsReasoningEffort": true,
       "includeInstructions": true,
       "maxOutputTokens": 32000
+    },
+    {
+      "key": "literouter-deepseek-v4-pro-cheap-free",
+      "name": "DeepSeek V4 Pro Cheap (Free · LiteRouter)",
+      "id": "deepseek-v4-pro-cheap:free",
+      "endpoint": "https://api.literouter.com/v1/chat/completions",
+      "apiType": "openai-chat",
+      "auth": {
+        "header": "Authorization",
+        "prefix": "Bearer ",
+        "key": "fa7234e0a600f78ceced68ce8dad0b1a75e9907c6a752c9275b7f380fa84e6d2"
+      },
+      "reasoning": {
+        "type": "pills",
+        "options": [
+          {
+            "value": "low",
+            "label": "Low"
+          },
+          {
+            "value": "medium",
+            "label": "Medium"
+          },
+          {
+            "value": "high",
+            "label": "High"
+          }
+        ],
+        "default": "medium",
+        "codingDefault": "high",
+        "simpleDefault": "low"
+      },
+      "icon": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@1.91.0/icons/deepseek-color.svg",
+      "iconFallback": "",
+      "meta": "Free route · OpenAI-compatible · LiteRouter",
+      "glowGradient": "linear-gradient(45deg, #4D6BFE, #8C52FF, #4D6BFE)",
+      "sendModelInBody": true,
+      "supportsReasoningEffort": false,
+      "includeInstructions": true,
+      "maxOutputTokens": 8192,
+      "systemPrompt": {
+        "simple": "You are a practical, direct general-purpose assistant. Answer the user's actual message immediately. Use natural, plain language and keep the answer concise unless the user asks for detail. Do not roleplay or continue a fictional scene unless the user explicitly asks for roleplay or creative writing. Do not invent characters, settings, weather, scenery, body language, emotions, dialogue, or events. Do not begin with stage directions or wrap actions in asterisks. Do not turn greetings or ordinary questions into stories. Do not imitate roleplay-chatbot style, poetic prose, dramatic narration, or excessive atmospheric descriptions. For a greeting, greet briefly. For a factual question, answer it. For a task, do the task. Do not print private internal reasoning, hidden thoughts, or a draft of your deliberation. Give the answer and, when useful, a short explanation. Follow the user's requested format and tone when appropriate; roleplay is allowed only when explicitly requested.",
+        "coding": "You are a practical coding assistant. Solve the user's programming task directly and accurately. Keep explanations focused and concise unless the user asks for more detail. Do not roleplay, narrate scenes, invent characters, use stage directions, or write poetic/dramatic prose. Do not expose private internal reasoning or hidden thoughts; provide the solution with a brief explanation instead. When editing an existing project, preserve unrelated behavior, model configurations, API keys, and UI/features. Make targeted changes and keep provider-specific behavior isolated to the relevant provider. When multiple files are needed, label each file clearly and provide complete working contents. Report tests and limitations honestly; never claim a test passed unless it was actually run."
+      }
     }
   ]
 }
